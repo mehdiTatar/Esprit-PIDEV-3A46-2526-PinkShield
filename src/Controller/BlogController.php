@@ -1,0 +1,150 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\BlogPost;
+use App\Entity\Comment;
+use App\Entity\Admin;
+use App\Entity\Doctor;
+use App\Entity\User;
+use App\Repository\BlogPostRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[Route('/blog')]
+class BlogController extends AbstractController
+{
+    #[Route('/', name: 'blog_index')]
+    public function index(BlogPostRepository $blogPostRepository): Response
+    {
+        return $this->render('blog/index.html.twig', [
+            'posts' => $blogPostRepository->findAllLatest(),
+        ]);
+    }
+
+    #[Route('/new', name: 'blog_new')]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $post = new BlogPost();
+        
+        // Form handling could be done via a FormType, but for simplicity we'll do it manually here
+        // or create a simple form type later. Let's do it manually for speed.
+        
+        if ($request->isMethod('POST')) {
+            $title = $request->request->get('title');
+            $content = $request->request->get('content');
+            
+            if ($title && $content) {
+                $user = $this->getUser();
+                $post->setTitle($title);
+                $post->setContent($content);
+                $post->setAuthorEmail($user->getUserIdentifier());
+                
+                // Get name based on user type
+                $name = 'Anonymous';
+                if ($user instanceof Admin) {
+                    $name = 'Admin';
+                } elseif ($user instanceof Doctor || $user instanceof User) {
+                    $name = $user->getFullName();
+                }
+                
+                $post->setAuthorName($name);
+                $post->setAuthorRole($user->getRoles()[0]);
+                
+                $entityManager->persist($post);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Post created successfully!');
+                return $this->redirectToRoute('blog_index');
+            }
+        }
+
+        return $this->render('blog/form.html.twig', [
+            'post' => $post,
+            'action' => 'Create',
+        ]);
+    }
+
+    #[Route('/{id}', name: 'blog_show', methods: ['GET', 'POST'])]
+    public function show(BlogPost $post, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        if ($request->isMethod('POST') && $this->getUser()) {
+            $commentContent = $request->request->get('comment');
+            if ($commentContent) {
+                $comment = new Comment();
+                $comment->setContent($commentContent);
+                $comment->setBlogPost($post);
+                
+                $user = $this->getUser();
+                $comment->setAuthorEmail($user->getUserIdentifier());
+                
+                $name = 'Anonymous';
+                if ($user instanceof Admin) {
+                    $name = 'Admin';
+                } elseif ($user instanceof Doctor || $user instanceof User) {
+                    $name = $user->getFullName();
+                }
+                $comment->setAuthorName($name);
+                
+                $entityManager->persist($comment);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Comment added!');
+                return $this->redirectToRoute('blog_show', ['id' => $post->getId()]);
+            }
+        }
+
+        return $this->render('blog/show.html.twig', [
+            'post' => $post,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'blog_edit')]
+    public function edit(BlogPost $post, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        // Check if user is author or admin
+        $user = $this->getUser();
+        if (!$user || ($user->getUserIdentifier() !== $post->getAuthorEmail() && !$this->isGranted('ROLE_ADMIN'))) {
+            throw $this->createAccessDeniedException('You cannot edit this post.');
+        }
+
+        if ($request->isMethod('POST')) {
+            $title = $request->request->get('title');
+            $content = $request->request->get('content');
+            
+            if ($title && $content) {
+                $post->setTitle($title);
+                $post->setContent($content);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Post updated successfully!');
+                return $this->redirectToRoute('blog_show', ['id' => $post->getId()]);
+            }
+        }
+
+        return $this->render('blog/form.html.twig', [
+            'post' => $post,
+            'action' => 'Edit',
+        ]);
+    }
+
+    #[Route('/{id}/delete', name: 'blog_delete')]
+    public function delete(BlogPost $post, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user || ($user->getUserIdentifier() !== $post->getAuthorEmail() && !$this->isGranted('ROLE_ADMIN'))) {
+            throw $this->createAccessDeniedException('You cannot delete this post.');
+        }
+
+        $entityManager->remove($post);
+        $entityManager->flush();
+        
+        $this->addFlash('success', 'Post deleted!');
+        return $this->redirectToRoute('blog_index');
+    }
+}

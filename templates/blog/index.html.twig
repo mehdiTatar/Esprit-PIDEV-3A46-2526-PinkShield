@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Medical Blog & Forum{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Medical Blog & Forum</h1>
+        {% if app.user %}
+            <a href="{{ path('blog_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Post
+            </a>
+        {% endif %}
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <div class="row">
+        {% for post in posts %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            By {{ post.authorName }} ({{ post.authorRole }}) 
+                            on {{ post.createdAt|date('M d, Y') }}
+                        </h6>
+                        <p class="card-text">{{ post.content|slice(0, 150) }}...</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ path('blog_show', {'id': post.id}) }}" class="btn btn-outline-primary btn-sm">Read More</a>
+                            <span class="badge bg-secondary">{{ post.comments|length }} Comments</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    No posts yet. Be the first to share something!
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

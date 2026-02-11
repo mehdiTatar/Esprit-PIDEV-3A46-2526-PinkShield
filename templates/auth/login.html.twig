@@ -1,0 +1,193 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Login - PinkShield{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .login-container {
+        margin-top: -80px;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #C41E3A 0%, #8B1428 100%);
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        background: white;
+    }
+
+    .login-header {
+        background: linear-gradient(135deg, #C41E3A 0%, #8B1428 100%);
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    .login-header .logo-large {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+
+    .login-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .login-header p {
+        margin: 10px 0 0 0;
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    .login-body {
+        padding: 40px 35px;
+    }
+
+    .form-control {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #C41E3A;
+        box-shadow: 0 0 0 0.2rem rgba(196, 30, 58, 0.15);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2C3E50;
+        margin-bottom: 8px;
+    }
+
+    .feature-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 20px 0;
+        padding: 15px 0;
+        border-top: 1px solid #f0f0f0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .feature-item i {
+        color: #C41E3A;
+        font-weight: bold;
+    }
+
+    .register-link {
+        background-color: #F5F5F5;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .register-link p {
+        margin: 0 0 10px 0;
+        color: #666;
+    }
+
+    .register-link a {
+        color: #C41E3A;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .register-link a:hover {
+        color: #8B1428;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="login-container">
+    <div class="col-md-5 col-lg-4">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="{{ asset('images/logo.png') }}" alt="PinkShield" style="height: 80px; width: auto; margin-bottom: 20px;">
+                <h1>PinkShield</h1>
+                <p>Medical Care Management</p>
+            </div>
+
+            <div class="login-body">
+                {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Login Error!</strong>
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+
+                <h5 style="color: #2C3E50; margin-bottom: 25px; font-weight: 700;">Welcome Back</h5>
+
+                <form method="post" novalidate>
+                    <div class="mb-3">
+                        <label for="inputUsername" class="form-label">
+                            <i class="fas fa-envelope" style="color: #C41E3A;"></i> Email Address
+                        </label>
+                        <input type="email" name="_username" id="inputUsername" class="form-control" value="{{ last_username }}" placeholder="your@email.com" required autofocus>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="inputPassword" class="form-label">
+                            <i class="fas fa-lock" style="color: #C41E3A;"></i> Password
+                        </label>
+                        <input type="password" name="_password" id="inputPassword" class="form-control" placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="_remember_me" id="remember" class="form-check-input">
+                        <label class="form-check-label" for="remember" style="color: #555; font-weight: 500;">
+                            Keep me logged in
+                        </label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" style="font-weight: 600;">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </button>
+                    </div>
+                </form>
+
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i> Secure
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-lock"></i> Encrypted
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-clock"></i> 24/7 Access
+                    </div>
+                </div>
+
+                <div class="register-link">
+                    <p>Don't have an account?</p>
+                    <a href="{{ path('register') }}" class="btn btn-outline-primary" style="border-color: #C41E3A; color: #C41E3A;">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

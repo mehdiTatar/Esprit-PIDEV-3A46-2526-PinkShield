@@ -1,0 +1,85 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Register as Patient - PinkShield{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <h2 class="text-center mb-4" style="color: #e91e63;">Register as Patient</h2>
+
+                {{ form_start(form) }}
+                    {% if form.vars.errors|length > 0 %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Please fix the following errors:</strong>
+                            <ul class="mb-0">
+                                {% for error in form.vars.errors %}
+                                    <li>{{ error.message }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        {{ form_label(form.email) }}
+                        {{ form_widget(form.email) }}
+                        {% if form.email.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.vars.errors %}
+                                    <small class="text-danger">{{ error.message }}</small><br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.fullName) }}
+                        {{ form_widget(form.fullName) }}
+                        {% if form.fullName.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.fullName.vars.errors %}
+                                    <small class="text-danger">{{ error.message }}</small><br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.phone) }}
+                        {{ form_widget(form.phone) }}
+                        {% if form.phone.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.phone.vars.errors %}
+                                    <small class="text-danger">{{ error.message }}</small><br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.password) }}
+                        {{ form_widget(form.password) }}
+                        {% if form.password.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.vars.errors %}
+                                    <small class="text-danger">{{ error.message }}</small><br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                        <a href="{{ path('register') }}" class="btn btn-secondary">Change Type</a>
+                    </div>
+                {{ form_end(form) }}
+
+                <hr class="my-4">
+
+                <p class="text-center">Already have an account? <a href="{{ path('login') }}" class="text-decoration-none">Login here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

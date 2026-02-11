@@ -1,0 +1,141 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\AppointmentRepository;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[ORM\Entity(repositoryClass: AppointmentRepository::class)]
+class Appointment
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 180)]
+    private ?string $patientEmail = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $patientName = null;
+
+    #[ORM\Column(length: 180)]
+    private ?string $doctorEmail = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $doctorName = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\NotBlank(message: 'Appointment date is required')]
+    #[Assert\GreaterThan('now', message: 'Appointment date must be in the future')]
+    private ?\DateTimeInterface $appointmentDate = null;
+
+    #[ORM\Column(length: 20)]
+    private ?string $status = 'pending'; // pending, confirmed, cancelled
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $notes = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createdAt = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getPatientEmail(): ?string
+    {
+        return $this->patientEmail;
+    }
+
+    public function setPatientEmail(string $patientEmail): static
+    {
+        $this->patientEmail = $patientEmail;
+        return $this;
+    }
+
+    public function getPatientName(): ?string
+    {
+        return $this->patientName;
+    }
+
+    public function setPatientName(string $patientName): static
+    {
+        $this->patientName = $patientName;
+        return $this;
+    }
+
+    public function getDoctorEmail(): ?string
+    {
+        return $this->doctorEmail;
+    }
+
+    public function setDoctorEmail(string $doctorEmail): static
+    {
+        $this->doctorEmail = $doctorEmail;
+        return $this;
+    }
+
+    public function getDoctorName(): ?string
+    {
+        return $this->doctorName;
+    }
+
+    public function setDoctorName(string $doctorName): static
+    {
+        $this->doctorName = $doctorName;
+        return $this;
+    }
+
+    public function getAppointmentDate(): ?\DateTimeInterface
+    {
+        return $this->appointmentDate;
+    }
+
+    public function setAppointmentDate(\DateTimeInterface $appointmentDate): static
+    {
+        $this->appointmentDate = $appointmentDate;
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(?string $notes): static
+    {
+        $this->notes = $notes;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+}
