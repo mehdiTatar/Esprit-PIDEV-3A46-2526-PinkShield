@@ -11,8 +11,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -58,7 +56,7 @@ class AppointmentFormType extends AbstractType
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Appointment date is required',
+                        'message' => 'Please select an appointment date',
                     ]),
                     new Assert\GreaterThan([
                         'value' => 'now',
@@ -80,15 +78,6 @@ class AppointmentFormType extends AbstractType
         $builder->get('doctorEmail')->addModelTransformer(
             new DoctorToEmailTransformer($this->doctorRepository)
         );
-
-        // Handle empty datetime values before transformation
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-            $data = $event->getData();
-            if (is_array($data) && (empty($data['appointmentDate']) || $data['appointmentDate'] === '')) {
-                $data['appointmentDate'] = null;
-                $event->setData($data);
-            }
-        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -37,7 +37,7 @@ class Appointment
     private ?string $doctorName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\NotBlank(message: 'Appointment date is required')]
+    #[Assert\NotBlank(message: 'Please select an appointment date')]
     #[Assert\GreaterThan('now', message: 'Appointment date must be in the future')]
     private ?\DateTimeInterface $appointmentDate = null;
 
@@ -124,7 +124,7 @@ class Appointment
         return $this->appointmentDate;
     }
 
-    public function setAppointmentDate(\DateTimeInterface $appointmentDate): static
+    public function setAppointmentDate(?\DateTimeInterface $appointmentDate): static
     {
         $this->appointmentDate = $appointmentDate;
         return $this;

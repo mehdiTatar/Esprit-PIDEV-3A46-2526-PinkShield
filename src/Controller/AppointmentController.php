@@ -5,9 +5,11 @@ namespace App\Controller;
 use App\Entity\Appointment;
 use App\Entity\User;
 use App\Entity\Doctor;
+use App\Entity\Notification;
 use App\Repository\AppointmentRepository;
 use App\Repository\DoctorRepository;
 use App\Repository\DailyTrackingRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +44,7 @@ class AppointmentController extends AbstractController
     }
 
     #[Route('/new', name: 'appointment_new')]
-    public function new(Request $request, DoctorRepository $doctorRepository, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, DoctorRepository $doctorRepository, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         // Only patients can book appointments
@@ -78,6 +80,19 @@ class AppointmentController extends AbstractController
             }
 
             $entityManager->persist($appointment);
+            $entityManager->flush();
+
+            // Create notification for all admins
+            $admins = $userRepository->findByRole('ROLE_ADMIN');
+            foreach ($admins as $admin) {
+                $notification = new Notification();
+                $notification->setUser($admin);
+                $notification->setTitle('New Appointment Booking');
+                $notification->setMessage($appointment->getPatientName() . ' booked an appointment with ' . $appointment->getDoctorName() . ' on ' . $appointment->getAppointmentDate()->format('Y-m-d H:i'));
+                $notification->setType('info');
+                $notification->setIcon('fas fa-calendar-check');
+                $entityManager->persist($notification);
+            }
             $entityManager->flush();
 
             $this->addFlash('success', 'Appointment booked successfully! Waiting for doctor confirmation.');

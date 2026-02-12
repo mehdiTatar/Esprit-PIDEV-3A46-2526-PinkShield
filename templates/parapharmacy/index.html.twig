@@ -386,6 +386,10 @@
 
     // Wishlist functionality
     function toggleWishlist(button, productId) {
+        // Prevent multiple clicks during request
+        if (button.disabled) return;
+        
+        button.disabled = true;
         const isInWishlist = button.classList.contains('in-wishlist');
         const url = isInWishlist 
             ? `{{ path('wishlist_remove_by_product', {productId: 0}) }}`.replace('0', productId)
@@ -414,7 +418,18 @@
                 console.error('Error:', data.message);
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            // Revert on error
+            if (isInWishlist) {
+                button.classList.add('in-wishlist');
+            } else {
+                button.classList.remove('in-wishlist');
+            }
+        })
+        .finally(() => {
+            button.disabled = false;
+        });
     }
 
     // Initialize wishlist buttons on page load

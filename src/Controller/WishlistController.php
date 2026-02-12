@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Wishlist;
 use App\Entity\Parapharmacie;
+use App\Entity\Notification;
 use App\Repository\WishlistRepository;
 use App\Repository\ParapharmacieRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,6 +35,7 @@ class WishlistController extends AbstractController
         int $productId,
         ParapharmacieRepository $productRepository,
         WishlistRepository $wishlistRepository,
+        UserRepository $userRepository,
         EntityManagerInterface $entityManager
     ): JsonResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
@@ -55,6 +58,19 @@ class WishlistController extends AbstractController
         $wishlist->setProduct($product);
 
         $entityManager->persist($wishlist);
+        $entityManager->flush();
+
+        // Create notification for all admins
+        $admins = $userRepository->findByRole('ROLE_ADMIN');
+        foreach ($admins as $admin) {
+            $notification = new Notification();
+            $notification->setUser($admin);
+            $notification->setTitle('New Wishlist Addition');
+            $notification->setMessage($user->getFullName() . ' added "' . $product->getName() . '" to their wishlist');
+            $notification->setType('info');
+            $notification->setIcon('fas fa-heart');
+            $entityManager->persist($notification);
+        }
         $entityManager->flush();
 
         return new JsonResponse(['success' => true, 'message' => 'Added to wishlist']);

@@ -20,7 +20,7 @@ class DoctorFormType extends AbstractType
         $builder
             ->add('email', TextType::class, [
                 'label' => 'Email Address',
-                'required' => false,
+                'required' => true,
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter email address',
@@ -32,7 +32,7 @@ class DoctorFormType extends AbstractType
             ])
             ->add('fullName', TextType::class, [
                 'label' => 'Full Name',
-                'required' => false,
+                'required' => true,
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter full name',
@@ -49,7 +49,7 @@ class DoctorFormType extends AbstractType
             ])
             ->add('speciality', ChoiceType::class, [
                 'label' => 'Speciality',
-                'required' => false,
+                'required' => true,
                 'attr' => [
                     'class' => 'form-control',
                 ],
@@ -76,16 +76,11 @@ class DoctorFormType extends AbstractType
             ])
             ->add('address', TextType::class, [
                 'label' => 'Address',
-                'required' => false,
-                'attr' => ['class' => 'form-control', 'placeholder' => 'Enter address (optional)'],
+                'attr' => ['class' => 'form-control'],
             ])
             ->add('phone', TextType::class, [
                 'label' => 'Phone Number',
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                    'placeholder' => 'Enter phone number (optional)',
-                ],
+                'attr' => ['class' => 'form-control'],
                 'constraints' => [
                     new Assert\Length([
                         'max' => 20,
@@ -102,7 +97,6 @@ class DoctorFormType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter password',
                 ],
                 'constraints' => !$isEdit ? [
                     new Assert\NotBlank(['message' => 'Password cannot be empty']),
@@ -110,7 +104,12 @@ class DoctorFormType extends AbstractType
                         'min' => 6,
                         'minMessage' => 'Password must be at least 6 characters',
                     ]),
-                ] : [],
+                ] : [
+                    new Assert\Length([
+                        'min' => 6,
+                        'minMessage' => 'Password must be at least 6 characters',
+                    ]),
+                ],
             ]);
     }
 

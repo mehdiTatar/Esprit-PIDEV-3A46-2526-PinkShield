@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Admin;
 use App\Entity\HealthLog;
+use App\Entity\BlogPost;
 use App\Form\AdminFormType;
 use App\Repository\AdminRepository;
 use App\Repository\HealthLogRepository;
+use App\Repository\BlogPostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,6 +74,38 @@ class AdminController extends AbstractController
             'total' => $total,
             'avgMood' => round($avgMood, 2),
             'avgStress' => round($avgStress, 2),
+        ]);
+    }
+
+    #[Route('/manage-blog', name: 'admin_manage_blog')]
+    public function manageBlog(Request $request, BlogPostRepository $blogPostRepository, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $search = $request->query->get('search', '');
+        $sortBy = $request->query->get('sortBy', 'date_newest');
+        
+        $posts = $blogPostRepository->searchAndFilter($search ?: null, $sortBy);
+
+        // Handle delete requests
+        if ($request->isMethod('POST') && $request->request->get('deleteId')) {
+            $deleteId = $request->request->get('deleteId');
+            $post = $blogPostRepository->find($deleteId);
+            if ($post) {
+                $entityManager->remove($post);
+                $entityManager->flush();
+                $this->addFlash('success', 'Blog post deleted successfully');
+                return $this->redirectToRoute('admin_manage_blog', [
+                    'search' => $search,
+                    'sortBy' => $sortBy
+                ]);
+            }
+        }
+
+        return $this->render('admin/manage_blog.html.twig', [
+            'posts' => $posts,
+            'search' => $search,
+            'sortBy' => $sortBy,
         ]);
     }
 

@@ -20,10 +20,17 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class BlogController extends AbstractController
 {
     #[Route('/', name: 'blog_index')]
-    public function index(BlogPostRepository $blogPostRepository): Response
+    public function index(Request $request, BlogPostRepository $blogPostRepository): Response
     {
+        $search = $request->query->get('search', '');
+        $sortBy = $request->query->get('sortBy', 'date_newest');
+        
+        $posts = $blogPostRepository->searchAndFilter($search ?: null, $sortBy);
+
         return $this->render('blog/index.html.twig', [
-            'posts' => $blogPostRepository->findAllLatest(),
+            'posts' => $posts,
+            'search' => $search,
+            'sortBy' => $sortBy,
         ]);
     }
 
