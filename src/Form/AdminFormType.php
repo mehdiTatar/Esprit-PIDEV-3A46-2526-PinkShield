@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\Admin;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -17,8 +17,9 @@ class AdminFormType extends AbstractType
         $isEdit = isset($options['data']) && $options['data']->getId();
 
         $builder
-            ->add('email', EmailType::class, [
+            ->add('email', TextType::class, [
                 'label' => 'Email Address',
+                'required' => false,
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter email address',
@@ -30,7 +31,7 @@ class AdminFormType extends AbstractType
             ])
             ->add('password', PasswordType::class, [
                 'label' => $isEdit ? 'Password (leave blank to keep current)' : 'Password',
-                'required' => !$isEdit,
+                'required' => false,
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter password',

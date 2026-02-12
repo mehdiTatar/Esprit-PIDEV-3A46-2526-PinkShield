@@ -60,46 +60,58 @@ class AuthController extends AbstractController
         $userType = $request->query->get('user_type') ?? $request->request->get('user_type');
 
         if ($userType === 'patient') {
-            $user = new User();
-            $form = $this->createForm(UserFormType::class, $user);
-            $form->handleRequest($request);
-
-            if ($form->isSubmitted() && $form->isValid()) {
-                $user->setRoles(['ROLE_USER']);
-                // Set full name by combining first and last name
-                $fullName = trim(($user->getFirstName() ?? '') . ' ' . ($user->getLastName() ?? ''));
-                $user->setFullName($fullName ?: 'User');
-                $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
-
-                $entityManager->persist($user);
-                $entityManager->flush();
-
-                return $this->redirectToRoute('login');
-            }
-
-            return $this->render('auth/register_patient.html.twig', [
-                'form' => $form,
-            ]);
+            return $this->redirectToRoute('register_patient');
         } elseif ($userType === 'doctor') {
-            $doctor = new Doctor();
-            $form = $this->createForm(DoctorFormType::class, $doctor);
-            $form->handleRequest($request);
-
-            if ($form->isSubmitted() && $form->isValid()) {
-                $doctor->setRoles(['ROLE_DOCTOR']);
-                $doctor->setPassword($passwordHasher->hashPassword($doctor, $doctor->getPassword()));
-
-                $entityManager->persist($doctor);
-                $entityManager->flush();
-
-                return $this->redirectToRoute('login');
-            }
-
-            return $this->render('auth/register_doctor.html.twig', [
-                'form' => $form,
-            ]);
+            return $this->redirectToRoute('register_doctor');
         }
 
         return $this->render('auth/register.html.twig');
+    }
+
+    #[Route('/register/patient', name: 'register_patient')]
+    public function registerPatient(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): Response
+    {
+        $user = new User();
+        $form = $this->createForm(UserFormType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user->setRoles(['ROLE_USER']);
+            // Set full name by combining first and last name
+            $fullName = trim(($user->getFirstName() ?? '') . ' ' . ($user->getLastName() ?? ''));
+            $user->setFullName($fullName ?: 'User');
+            $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('login');
+        }
+
+        return $this->render('auth/register_patient.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/register/doctor', name: 'register_doctor')]
+    public function registerDoctor(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): Response
+    {
+        $doctor = new Doctor();
+        $form = $this->createForm(DoctorFormType::class, $doctor);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $doctor->setRoles(['ROLE_DOCTOR']);
+            $doctor->setPassword($passwordHasher->hashPassword($doctor, $doctor->getPassword()));
+
+            $entityManager->persist($doctor);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('login');
+        }
+
+        return $this->render('auth/register_doctor.html.twig', [
+            'form' => $form,
+        ]);
     }
 }

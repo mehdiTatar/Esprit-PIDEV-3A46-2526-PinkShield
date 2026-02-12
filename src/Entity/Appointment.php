@@ -18,15 +18,22 @@ class Appointment
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'Patient email is required')]
+    #[Assert\Email(message: 'Invalid patient email format')]
     private ?string $patientEmail = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Patient name is required')]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Patient name must be at least 2 characters', maxMessage: 'Patient name must not exceed 255 characters')]
     private ?string $patientName = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'Doctor email is required')]
+    #[Assert\Email(message: 'Invalid doctor email format')]
     private ?string $doctorEmail = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Doctor name must be at least 2 characters', maxMessage: 'Doctor name must not exceed 255 characters')]
     private ?string $doctorName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -35,9 +42,12 @@ class Appointment
     private ?\DateTimeInterface $appointmentDate = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: 'Status is required')]
+    #[Assert\Choice(choices: ['pending', 'confirmed', 'cancelled'], message: 'Invalid appointment status')]
     private ?string $status = 'pending'; // pending, confirmed, cancelled
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(max: 2000, maxMessage: 'Notes cannot exceed 2000 characters')]
     private ?string $notes = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

@@ -19,7 +19,7 @@
         <form method="get" action="{{ path('user_index') }}" class="row g-3">
             <div class="col-md-6">
                 <label for="search_id" class="form-label">Search by ID:</label>
-                <input type="number" class="form-control" id="search_id" name="search_id" value="{{ searchId ?? '' }}" placeholder="Enter user ID">
+                <input type="text" class="form-control" id="search_id" name="search_id" value="{{ searchId ?? '' }}" placeholder="Enter user ID">
             </div>
             <div class="col-md-6 d-flex align-items-end">
                 <button type="submit" class="btn btn-info me-2">Search</button>

@@ -135,6 +135,31 @@ class DoctorController extends AbstractController
         return $this->redirectToRoute('doctor_index');
     }
 
+    #[Route('/{id}/toggle-status', name: 'doctor_toggle_status', methods: ['POST'])]
+    public function toggleStatus(Doctor $doctor, EntityManagerInterface $entityManager): Response
+    {
+        $currentUser = $this->getUser();
+        
+        // Allow doctor to toggle their own status, or admin to toggle any doctor
+        if ($currentUser !== $doctor && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('You can only toggle your own status.');
+        }
+
+        // Toggle between active and inactive
+        $newStatus = $doctor->getStatus() === 'active' ? 'inactive' : 'active';
+        $doctor->setStatus($newStatus);
+        $entityManager->flush();
+
+        $statusText = $newStatus === 'active' ? 'Active' : 'Inactive';
+        $this->addFlash('success', "Status changed to $statusText successfully!");
+
+        // Redirect to doctor dashboard if doctor, or to doctor index if admin
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->redirectToRoute('doctor_index');
+        }
+        return $this->redirectToRoute('doctor_dashboard');
+    }
+
     #[Route('/{id}', name: 'doctor_show')]
     public function show(Doctor $doctor): Response
     {

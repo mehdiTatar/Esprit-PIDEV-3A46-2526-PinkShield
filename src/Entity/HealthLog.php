@@ -16,17 +16,22 @@ class HealthLog
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'User email is required')]
+    #[Assert\Email(message: 'Invalid user email format')]
     private ?string $userEmail = null;
 
     #[ORM\Column]
-    #[Assert\Range(min: 1, max: 5)]
+    #[Assert\NotBlank(message: 'Mood is required')]
+    #[Assert\Range(min: 1, max: 5, notInRangeMessage: 'Mood must be between 1 and 5')]
     private ?int $mood = null;
 
     #[ORM\Column]
-    #[Assert\Range(min: 1, max: 5)]
+    #[Assert\NotBlank(message: 'Stress level is required')]
+    #[Assert\Range(min: 1, max: 5, notInRangeMessage: 'Stress level must be between 1 and 5')]
     private ?int $stress = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(max: 1000, maxMessage: 'Activities cannot exceed 1000 characters')]
     private ?string $activities = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

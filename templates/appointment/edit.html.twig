@@ -14,7 +14,7 @@
                     <form method="post">
                         <div class="mb-3">
                             <label for="date" class="form-label">Date & Time</label>
-                            <input type="datetime-local" name="date" id="date" class="form-control" required value="{{ appointment.appointmentDate|date('Y-m-d\TH:i') }}">
+                            <input type="datetime-local" name="date" id="date" class="form-control" value="{{ appointment.appointmentDate|date('Y-m-d\\TH:i') }}">
                         </div>
                         <div class="mb-3">
                             <label for="notes" class="form-label">Notes</label>

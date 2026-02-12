@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\NotificationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
 class Notification
@@ -19,12 +20,17 @@ class Notification
     private ?User $user = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Notification title is required')]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Title must be at least 2 characters', maxMessage: 'Title must not exceed 255 characters')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Notification message is required')]
+    #[Assert\Length(min: 2, max: 5000, minMessage: 'Message must be at least 2 characters', maxMessage: 'Message must not exceed 5000 characters')]
     private ?string $message = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\Choice(choices: ['info', 'success', 'warning', 'danger'], message: 'Invalid notification type')]
     private ?string $type = 'info'; // info, success, warning, danger
 
     #[ORM\Column(length: 255, nullable: true)]

@@ -17,6 +17,7 @@ class Comment
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'Comment cannot be empty')]
+    #[Assert\Length(min: 2, max: 5000, minMessage: 'Comment must be at least 2 characters', maxMessage: 'Comment cannot exceed 5000 characters')]
     private ?string $content = null;
 
     #[ORM\Column(length: 180)]

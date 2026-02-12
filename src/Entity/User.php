@@ -38,6 +38,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: 'Full name is required', groups: ['profile'])]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Full name must be at least 2 characters', maxMessage: 'Full name must not exceed 255 characters')]
     private ?string $fullName = null;
 
     #[ORM\Column(length: 100, nullable: true)]
@@ -49,14 +51,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: 'Address cannot be empty')]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Address must be at least 2 characters', maxMessage: 'Address must not exceed 255 characters')]
     private ?string $address = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\NotBlank(message: 'Phone cannot be empty')]
     #[Assert\Length(max: 20, maxMessage: 'Phone must not exceed 20 characters')]
     #[Assert\Regex(pattern: '/^[\d\+\-\(\)\s]*$/', message: 'Invalid phone number format')]
     private ?string $phone = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Choice(choices: ['active', 'inactive', 'suspended'], message: 'Invalid user status')]
     private ?string $status = 'active'; // active, inactive, suspended
 
     #[ORM\OneToMany(targetEntity: DailyTracking::class, mappedBy: 'user', cascade: ['persist', 'remove'])]

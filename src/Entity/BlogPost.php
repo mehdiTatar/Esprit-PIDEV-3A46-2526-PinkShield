@@ -40,6 +40,7 @@ class BlogPost
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 500, maxMessage: 'Image path cannot exceed 500 characters')]
     private ?string $imagePath = null;
 
     #[ORM\OneToMany(mappedBy: 'blogPost', targetEntity: Comment::class, orphanRemoval: true)]

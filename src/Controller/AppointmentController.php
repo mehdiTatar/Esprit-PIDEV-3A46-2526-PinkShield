@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Form\ParapharmacieType;
+use App\Form\AppointmentFormType;
 use App\Entity\Parapharmacie;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -50,33 +51,43 @@ class AppointmentController extends AbstractController
             return $this->redirectToRoute('appointment_index');
         }
 
-        $doctors = $doctorRepository->findAll();
+        $appointment = new Appointment();
+        $appointment->setPatientEmail($this->getUser()->getUserIdentifier());
+        $appointment->setPatientName($this->getUser() instanceof User ? $this->getUser()->getFullName() : 'Patient');
+        $appointment->setStatus('pending');
 
-        if ($request->isMethod('POST')) {
-            $doctorId = $request->request->get('doctor_id');
-            $dateStr = $request->request->get('date');
-            $notes = $request->request->get('notes');
+        $form = $this->createForm(AppointmentFormType::class, $appointment);
+        $form->handleRequest($request);
 
-            $doctor = $doctorRepository->find($doctorId);
-            if ($doctor && $dateStr) {
-                $appointment = new Appointment();
-                $appointment->setPatientEmail($this->getUser()->getUserIdentifier());
-                $appointment->setPatientName($this->getUser() instanceof User ? $this->getUser()->getFullName() : 'Patient');
-                $appointment->setDoctorEmail($doctor->getEmail());
-                $appointment->setDoctorName($doctor->getFullName());
-                $appointment->setAppointmentDate(new \DateTime($dateStr));
-                $appointment->setNotes($notes);
-                $appointment->setStatus('pending');
-
-                $entityManager->persist($appointment);
-                $entityManager->flush();
-
-                $this->addFlash('success', 'Appointment booked successfully! Waiting for doctor confirmation.');
-                return $this->redirectToRoute('appointment_index');
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Ensure appointmentDate is not null
+            if (!$appointment->getAppointmentDate()) {
+                $this->addFlash('error', 'Appointment date is required and must be in the future.');
+                return $this->render('appointment/new.html.twig', [
+                    'form' => $form->createView(),
+                    'doctors' => $doctors,
+                ]);
             }
+
+            // Set doctor name from the selected doctor email
+            if ($appointment->getDoctorEmail()) {
+                $doctor = $doctorRepository->findOneBy(['email' => $appointment->getDoctorEmail()]);
+                if ($doctor) {
+                    $appointment->setDoctorName($doctor->getFullName());
+                }
+            }
+
+            $entityManager->persist($appointment);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Appointment booked successfully! Waiting for doctor confirmation.');
+            return $this->redirectToRoute('appointment_index');
         }
 
+        $doctors = $doctorRepository->findAll();
+
         return $this->render('appointment/new.html.twig', [
+            'form' => $form->createView(),
             'doctors' => $doctors,
         ]);
     }

@@ -46,7 +46,19 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min: 2, max: 255, minMessage: 'Speciality must be at least 2 characters', maxMessage: 'Speciality must not exceed 255 characters')]
     private ?string $speciality = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: 'Address cannot be empty')]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Address must be at least 2 characters', maxMessage: 'Address must not exceed 255 characters')]
+    private ?string $address = null;
+
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\NotBlank(message: 'Phone cannot be empty')]
+    #[Assert\Length(max: 20, maxMessage: 'Phone must not exceed 20 characters')]
+    #[Assert\Regex(pattern: '/^[\d\+\-\(\)\s]*$/', message: 'Invalid phone number format')]
+    private ?string $phone = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Choice(choices: ['active', 'inactive', 'suspended'], message: 'Invalid doctor status')]
     private ?string $status = 'active'; // active, inactive, suspended
 
     public function getId(): ?int
@@ -135,6 +147,30 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSpeciality(string $speciality): static
     {
         $this->speciality = $speciality;
+
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): static
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): static
+    {
+        $this->phone = $phone;
 
         return $this;
     }

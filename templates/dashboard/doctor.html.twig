@@ -44,6 +44,18 @@
         box-shadow: 0 8px 25px rgba(196, 30, 58, 0.15);
     }
 
+    .stat-card-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        cursor: pointer;
+    }
+
+    .stat-card-link:hover {
+        text-decoration: none;
+        color: inherit;
+    }
+
     .stat-card .card-body {
         padding: 25px;
     }
@@ -157,6 +169,26 @@
         font-weight: 600;
     }
 
+    .status-badge.bg-success {
+        background-color: #D4EDDA !important;
+        color: #155724 !important;
+    }
+
+    .status-badge.bg-danger {
+        background-color: #F8D7DA !important;
+        color: #721C24 !important;
+    }
+
+    .status-badge.bg-success.text-white {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+
+    .status-badge.bg-danger.text-white {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+
     .btn-edit {
         background-color: #C41E3A;
         border-color: #C41E3A;
@@ -170,6 +202,34 @@
         border-color: #8B1428;
     }
 
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #218838;
+        color: white;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+        color: #212529;
+    }
+
     .grid-2 {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -178,6 +238,14 @@
 
     .grid-full {
         grid-column: 1 / -1;
+    }
+
+    .flex-grow-1 {
+        flex-grow: 1;
+    }
+
+    .w-100 {
+        width: 100%;
     }
 
     @media (max-width: 768px) {
@@ -230,9 +298,39 @@
                         <span>{{ app.user.email }}</span>
                     </div>
                 </div>
-                <a href="{{ path('doctor_edit', {id: app.user.id}) }}" class="btn btn-edit w-100">
-                    <i class="fas fa-edit"></i> Edit Profile
-                </a>
+                <div class="profile-info">
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <label><i class="fas fa-toggle-on"></i> Account Status</label>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                            {% if app.user.status == 'active' %}
+                                <span class="status-badge bg-success text-white" style="flex-shrink: 0;">
+                                    <i class="fas fa-check-circle"></i> Active
+                                </span>
+                            {% else %}
+                                <span class="status-badge bg-danger text-white" style="flex-shrink: 0;">
+                                    <i class="fas fa-times-circle"></i> Inactive
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <a href="{{ path('doctor_edit', {id: app.user.id}) }}" class="btn btn-edit flex-grow-1">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                    <form method="POST" action="{{ path('doctor_toggle_status', {id: app.user.id}) }}" style="flex-grow: 1;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-status-' ~ app.user.id) }}">
+                        {% if app.user.status == 'active' %}
+                            <button type="submit" class="btn btn-warning w-100" onclick="return confirm('Set your status to Inactive?');">
+                                <i class="fas fa-power-off"></i> Go Inactive
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn btn-success w-100" onclick="return confirm('Set your status to Active?');">
+                                <i class="fas fa-check"></i> Go Active
+                            </button>
+                        {% endif %}
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -288,26 +386,30 @@
     <!-- Additional Features -->
     <div class="row mt-5">
         <div class="col-md-3 col-sm-6">
-            <div class="stat-card">
-                <div class="card-body text-center">
-                    <div class="card-icon">
-                        <i class="fas fa-users"></i>
+            <a href="{{ path('appointment_index') }}" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="card-body text-center">
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h5 style="color: #2C3E50; margin-bottom: 5px;">My Patients</h5>
+                        <p class="text-muted mb-0">{{ patientCount }} Patients</p>
                     </div>
-                    <h5 style="color: #2C3E50; margin-bottom: 5px;">My Patients</h5>
-                    <p class="text-muted mb-0">0 Patients</p>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-3 col-sm-6">
-            <div class="stat-card">
-                <div class="card-body text-center">
-                    <div class="card-icon">
-                        <i class="fas fa-calendar-alt"></i>
+            <a href="{{ path('appointment_index') }}" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="card-body text-center">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h5 style="color: #2C3E50; margin-bottom: 5px;">Appointments</h5>
+                        <p class="text-muted mb-0">{{ appointmentCount }} Scheduled</p>
                     </div>
-                    <h5 style="color: #2C3E50; margin-bottom: 5px;">Appointments</h5>
-                    <p class="text-muted mb-0">0 Scheduled</p>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-3 col-sm-6">
             <div class="stat-card">
@@ -326,8 +428,21 @@
                     <div class="card-icon">
                         <i class="fas fa-award"></i>
                     </div>
-                    <h5 style="color: #2C3E50; margin-bottom: 5px;">Rating</h5>
-                    <p class="text-muted mb-0">★★★★★</p>
+                    <h5 style="color: #2C3E50; margin-bottom: 5px;">Patient Rating</h5>
+                    {% if averageRating %}
+                        <p class="text-muted mb-0" style="font-size: 1.3rem;">
+                            {% for i in 1..5 %}
+                                {% if i <= averageRating|round %}
+                                    <i class="fas fa-star" style="color: #ffc107;"></i>
+                                {% else %}
+                                    <i class="fas fa-star" style="color: #ddd;"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </p>
+                        <p class="text-muted mb-0" style="font-size: 0.9rem; margin-top: 8px;">{{ averageRating|round(1) }}/5.0 ({{ ratingCount }} reviews)</p>
+                    {% else %}
+                        <p class="text-muted mb-0">No ratings yet</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

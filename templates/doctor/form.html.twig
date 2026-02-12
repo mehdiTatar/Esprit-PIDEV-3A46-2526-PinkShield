@@ -58,6 +58,30 @@
                     </div>
 
                     <div class="mb-3">
+                        {{ form_label(form.address) }}
+                        {{ form_widget(form.address) }}
+                        {% if form.address.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.address.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.phone) }}
+                        {{ form_widget(form.phone) }}
+                        {% if form.phone.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.phone.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
                         {{ form_label(form.password) }}
                         {{ form_widget(form.password) }}
                         {% if form.password.vars.errors|length > 0 %}

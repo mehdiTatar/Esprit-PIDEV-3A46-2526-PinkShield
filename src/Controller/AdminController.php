@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Admin;
+use App\Entity\HealthLog;
 use App\Form\AdminFormType;
 use App\Repository\AdminRepository;
+use App\Repository\HealthLogRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +26,52 @@ class AdminController extends AbstractController
 
         return $this->render('admin/index.html.twig', [
             'admins' => $admins,
+        ]);
+    }
+
+    #[Route('/health-logs', name: 'admin_health_logs')]
+    public function healthLogs(HealthLogRepository $healthLogRepository): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $logs = $healthLogRepository->findBy([], ['createdAt' => 'DESC']);
+
+        return $this->render('dashboard/admin_health_logs.html.twig', [
+            'logs' => $logs,
+        ]);
+    }
+
+    #[Route('/health-logs/{id}/delete', name: 'admin_health_log_delete', requirements: ['id' => '\\d+'])]
+    public function healthLogDelete(int $id, HealthLogRepository $healthLogRepository, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $log = $healthLogRepository->find($id);
+        if (!$log) {
+            throw $this->createNotFoundException('Health log not found');
+        }
+
+        $entityManager->remove($log);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Health log deleted successfully');
+        return $this->redirectToRoute('admin_health_logs');
+    }
+
+    #[Route('/health-stats', name: 'admin_health_stats')]
+    public function healthStats(HealthLogRepository $healthLogRepository): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $all = $healthLogRepository->findAll();
+        $total = count($all);
+        $avgMood = $total ? array_sum(array_map(fn($l) => $l->getMood(), $all)) / $total : 0;
+        $avgStress = $total ? array_sum(array_map(fn($l) => $l->getStress(), $all)) / $total : 0;
+
+        return $this->render('dashboard/admin_health_stats.html.twig', [
+            'total' => $total,
+            'avgMood' => round($avgMood, 2),
+            'avgStress' => round($avgStress, 2),
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\AdminRepository;
 use App\Repository\AppointmentRepository;
 use App\Repository\DoctorRepository;
+use App\Repository\RatingRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -49,12 +50,27 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/doctor/dashboard', name: 'doctor_dashboard')]
-    public function doctorDashboard(): Response
+    public function doctorDashboard(RatingRepository $ratingRepository, AppointmentRepository $appointmentRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_DOCTOR');
         
+        $doctor = $this->getUser();
+        $doctorEmail = $doctor->getEmail();
+        
+        // Get ratings
+        $averageRating = $ratingRepository->getAverageRating($doctor);
+        $ratingCount = $ratingRepository->getRatingCount($doctor);
+        
+        // Get appointment statistics
+        $patientCount = $appointmentRepository->countUniquePatientsByDoctor($doctorEmail);
+        $appointmentCount = $appointmentRepository->countScheduledByDoctor($doctorEmail);
+        
         return $this->render('dashboard/doctor.html.twig', [
             'title' => 'Doctor Dashboard',
+            'averageRating' => $averageRating,
+            'ratingCount' => $ratingCount,
+            'patientCount' => $patientCount,
+            'appointmentCount' => $appointmentCount,
         ]);
     }
 

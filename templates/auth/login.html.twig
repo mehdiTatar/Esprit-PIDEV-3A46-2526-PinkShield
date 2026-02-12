@@ -5,7 +5,7 @@
 {% block stylesheets %}
 <style>
     body {
-        background: linear-gradient(135deg, #C41E3A 0%, #8B1428 100%) !important;
+        background: white !important;
         background-attachment: fixed !important;
         min-height: 100vh;
     }
@@ -23,8 +23,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0 !important;
-        min-height: calc(100vh - 70px);
+        padding: 20px !important;
+        padding-top: 100px !important;
+        min-height: 100vh;
     }
 
     .container-desktop {
@@ -57,7 +58,9 @@
     }
 
     .login-branding {
-        background: linear-gradient(135deg, #C41E3A 0%, #8B1428 100%);
+        background: linear-gradient(135deg, rgba(196, 30, 58, 0.85) 0%, rgba(139, 20, 40, 0.85) 100%),
+                    url('{{ asset("images/doctor-woman.png") }}') center/cover no-repeat;
+        background-attachment: fixed;
         color: white;
         padding: 50px 45px;
         display: flex;
@@ -65,6 +68,25 @@
         justify-content: center;
         align-items: center;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+        min-height: 500px;
+    }
+
+    .login-branding::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(196, 30, 58, 0.7) 0%, rgba(139, 20, 40, 0.7) 100%);
+        z-index: 1;
+    }
+
+    .login-branding > * {
+        position: relative;
+        z-index: 2;
     }
 
     .login-branding h2 {
@@ -170,6 +192,68 @@
         width: 16px;
     }
 
+    .form-group {
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
+    }
+
+    .form-group:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .form-group:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .form-group:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-control {
+        animation: fieldHover 0.3s ease;
+    }
+
+    .form-control:hover {
+        border-color: #C41E3A;
+        box-shadow: 0 4px 12px rgba(196, 30, 58, 0.1);
+    }
+
+    .remember-me {
+        animation: fadeInUp 0.6s ease-out 0.4s both;
+    }
+
+    .btn-login {
+        animation: fadeInUp 0.6s ease-out 0.5s both;
+    }
+
+    .register-section {
+        animation: fadeInUp 0.6s ease-out 0.6s both;
+    }
+
+    @keyframes fieldHover {
+        0% {
+            box-shadow: 0 0 0 rgba(196, 30, 58, 0);
+        }
+        100% {
+            box-shadow: 0 4px 12px rgba(196, 30, 58, 0.1);
+        }
+    }
+
+    .login-form-wrapper h3 {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
     .btn-login {
         background-color: #C41E3A;
         border-color: #C41E3A;
@@ -249,6 +333,24 @@
         border-left: 4px solid #ef4444;
     }
 
+    .invalid-feedback {
+        display: block !important;
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        background-color: #fff5f5;
+    }
+
+    .form-control.is-invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
     .captcha-question {
         background: #f9fafb;
         padding: 12px;
@@ -291,6 +393,7 @@
         .login-branding {
             padding: 35px 25px;
             order: 2;
+            min-height: auto;
         }
 
         .login-form-wrapper {
@@ -377,14 +480,14 @@
                     <label for="inputUsername" class="form-label">
                         <i class="fas fa-envelope"></i> Email Address
                     </label>
-                    <input type="email" name="_username" id="inputUsername" class="form-control" value="{{ last_username }}" placeholder="your@email.com" required autofocus>
+                    <input type="text" name="_username" id="inputUsername" class="form-control" value="{{ last_username }}" placeholder="your@email.com">
                 </div>
 
                 <div class="form-group">
                     <label for="inputPassword" class="form-label">
                         <i class="fas fa-lock"></i> Password
                     </label>
-                    <input type="password" name="_password" id="inputPassword" class="form-control" placeholder="Enter your password" required>
+                    <input type="password" name="_password" id="inputPassword" class="form-control" placeholder="Enter your password">
                 </div>
 
                 <div class="form-group">

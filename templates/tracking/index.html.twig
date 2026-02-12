@@ -22,7 +22,7 @@
                         <div class="mb-3">
                             <label for="mood" class="form-label">Mood (1-10):</label>
                             <div class="input-group">
-                                <input type="range" class="form-range" id="mood" name="mood" min="1" max="10" value="5" required>
+                                <input type="range" class="form-range" id="mood" name="mood" min="1" max="10" value="5">
                                 <span class="input-group-text ms-2"><span id="moodValue">5</span>/10</span>
                             </div>
                             <small class="text-muted">1 = Very Bad, 10 = Excellent</small>
@@ -31,7 +31,7 @@
                         <div class="mb-3">
                             <label for="stress" class="form-label">Stress Level (1-10):</label>
                             <div class="input-group">
-                                <input type="range" class="form-range" id="stress" name="stress" min="1" max="10" value="5" required>
+                                <input type="range" class="form-range" id="stress" name="stress" min="1" max="10" value="5">>
                                 <span class="input-group-text ms-2"><span id="stressValue">5</span>/10</span>
                             </div>
                             <small class="text-muted">1 = Very Relaxed, 10 = Very Stressed</small>
@@ -297,6 +297,7 @@
                                         <th>Mood</th>
                                         <th>Stress</th>
                                         <th>Activities</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -317,6 +318,16 @@
                                                 <span title="{{ entry.activities }}">
                                                     {{ entry.activities|slice(0, 50) }}{% if entry.activities|length > 50 %}...{% endif %}
                                                 </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ path('tracking_edit', {id: entry.id}) }}" class="btn btn-sm btn-warning" title="Edit entry">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <form method="post" action="{{ path('tracking_delete', {id: entry.id}) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this entry?');">
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete entry">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     {% endfor %}

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ParapharmacieRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ParapharmacieRepository::class)]
 class Parapharmacie
@@ -15,12 +16,17 @@ class Parapharmacie
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
+    #[Assert\NotBlank(message: 'Product name is required')]
+    #[Assert\Length(min: 2, max: 150, minMessage: 'Product name must be at least 2 characters', maxMessage: 'Product name must not exceed 150 characters')]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(max: 1000, maxMessage: 'Description cannot exceed 1000 characters')]
     private ?string $description = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    #[Assert\NotBlank(message: 'Price is required')]
+    #[Assert\PositiveOrZero(message: 'Price must be a positive number')]
     private ?string $price = '0.00';
 
     #[ORM\ManyToOne(targetEntity: Appointment::class, inversedBy: 'parapharmacies')]

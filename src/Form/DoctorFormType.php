@@ -4,9 +4,8 @@ namespace App\Form;
 
 use App\Entity\Doctor;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -19,8 +18,9 @@ class DoctorFormType extends AbstractType
         $isEdit = isset($options['data']) && $options['data']->getId();
 
         $builder
-            ->add('email', EmailType::class, [
+            ->add('email', TextType::class, [
                 'label' => 'Email Address',
+                'required' => false,
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter email address',
@@ -32,6 +32,7 @@ class DoctorFormType extends AbstractType
             ])
             ->add('fullName', TextType::class, [
                 'label' => 'Full Name',
+                'required' => false,
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter full name',
@@ -48,6 +49,7 @@ class DoctorFormType extends AbstractType
             ])
             ->add('speciality', ChoiceType::class, [
                 'label' => 'Speciality',
+                'required' => false,
                 'attr' => [
                     'class' => 'form-control',
                 ],
@@ -72,9 +74,32 @@ class DoctorFormType extends AbstractType
                     new Assert\NotBlank(['message' => 'Please select a speciality']),
                 ],
             ])
+            ->add('address', TextType::class, [
+                'label' => 'Address',
+                'required' => false,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Enter address (optional)'],
+            ])
+            ->add('phone', TextType::class, [
+                'label' => 'Phone Number',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter phone number (optional)',
+                ],
+                'constraints' => [
+                    new Assert\Length([
+                        'max' => 20,
+                        'maxMessage' => 'Phone must not exceed 20 characters',
+                    ]),
+                    new Assert\Regex([
+                        'pattern' => '/^[\d\+\-\(\)\s]*$/',
+                        'message' => 'Invalid phone number format',
+                    ]),
+                ],
+            ])
             ->add('password', PasswordType::class, [
                 'label' => $isEdit ? 'Password (leave blank to keep current)' : 'Password',
-                'required' => !$isEdit,
+                'required' => false,
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter password',

@@ -41,4 +41,30 @@ class AppointmentRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-}
+
+    /**
+     * Count scheduled appointments for a doctor
+     */
+    public function countScheduledByDoctor(string $email): int
+    {
+        return $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->andWhere('a.doctorEmail = :email')
+            ->andWhere("a.status != 'cancelled'")
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Count unique patients for a doctor
+     */
+    public function countUniquePatientsByDoctor(string $email): int
+    {
+        return $this->createQueryBuilder('a')
+            ->select('COUNT(DISTINCT a.patientEmail)')
+            ->andWhere('a.doctorEmail = :email')
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }}
