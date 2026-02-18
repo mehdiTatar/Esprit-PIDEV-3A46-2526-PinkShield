@@ -1,0 +1,10 @@
+# CSRF Protection Configuration
+framework:
+    form:
+        csrf_protection:
+            enabled: true
+            field_name: _token
+
+    # Disable framework CSRF protection if using form bundle
+    csrf_protection:
+        enabled: true

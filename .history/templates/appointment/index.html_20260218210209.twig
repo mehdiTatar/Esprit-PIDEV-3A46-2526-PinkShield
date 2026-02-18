@@ -1,0 +1,230 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Appointments{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>My Appointments</h1>
+        {% if is_granted('ROLE_USER') and not is_granted('ROLE_DOCTOR') and not is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('appointment_new') }}" class="btn btn-primary">
+                <i class="fas fa-calendar-plus"></i> Book Appointment
+            </a>
+        {% endif %}
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <!-- Calendar Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar"></i> Appointment Calendar</h5>
+                </div>
+                <div class="card-body">
+                    <div id="calendar-holder"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments List Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Appointments List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    {% if is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
+                                        <th>Patient</th>
+                                    {% endif %}
+                                    {% if not is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
+                                        <th>Doctor</th>
+                                    {% endif %}
+                                    <th>Status</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in appointments %}
+                                    <tr>
+                                        <td>{{ appointment.appointmentDate|date('M d, Y H:i') }}</td>
+                                        {% if is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
+                                            <td>{{ appointment.patientName }}</td>
+                                        {% endif %}
+                                        {% if not is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
+                                            <td>{{ appointment.doctorName }}</td>
+                                        {% endif %}
+                                        <td>
+                                            <span class="badge {% if appointment.status == 'confirmed' %}bg-success{% elseif appointment.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ appointment.status|capitalize }}
+                                            </span>
+                                        </td>
+                                        <td>{{ appointment.notes|default('-') }}</td>
+                                        <td>
+                                            {% if appointment.status == 'pending' %}
+                                                {% if is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
+                                                    <a href="{{ path('appointment_confirm', {'id': appointment.id}) }}" class="btn btn-sm btn-success">Confirm</a>
+                                                {% endif %}
+                                                <a href="{{ path('appointment_cancel', {'id': appointment.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to cancel?')">Cancel</a>
+                                            {% elseif appointment.status == 'confirmed' %}
+                                                <a href="{{ path('appointment_cancel', {'id': appointment.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to cancel?')">Cancel</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4">No appointments found.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FullCalendar v4 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@4.2.0/core/main.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@4.2.0/daygrid/main.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@4.2.0/timegrid/main.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@4.2.0/bootstrap/main.css" rel="stylesheet">
+
+<!-- FullCalendar v4 JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@4.2.0/core/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@4.2.0/daygrid/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@4.2.0/timegrid/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@4.2.0/bootstrap/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@4.2.0/core/locales/fr.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar-holder');
+    
+    // Fetch events from the API
+    fetch('{{ path("fc_load_events") }}')
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('Failed to load appointments: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(function(events) {
+            console.log('Loaded events:', events);
+            
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: [ 'dayGrid', 'timeGrid', 'bootstrap' ],
+                themeSystem: 'bootstrap',
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                defaultView: 'dayGridMonth',
+                locale: 'fr',
+                height: 'auto',
+                contentHeight: 'auto',
+                events: events,
+                eventClick: function(info) {
+                    var event = info.event;
+                    var props = event.extendedProps;
+                    var message = 'Appointment: ' + event.title + '\n' +
+                                 'Patient: ' + (props.patientName || 'N/A') + ' (' + (props.patientEmail || 'N/A') + ')\n' +
+                                 'Doctor: ' + (props.doctorName || 'N/A') + ' (' + (props.doctorEmail || 'N/A') + ')\n' +
+                                 'Status: ' + (props.status || 'N/A') + '\n' +
+                                 'Time: ' + (event.start ? event.start.toLocaleString() : 'N/A') + '\n';
+                    if (props.notes) {
+                        message += 'Notes: ' + props.notes;
+                    }
+                    alert(message);
+                },
+                eventRender: function(info) {
+                    // Add custom styling
+                    info.el.style.cursor = 'pointer';
+                }
+            });
+            calendar.render();
+            
+            // Show count of appointments
+            if (events.length === 0) {
+                var alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-info';
+                alertDiv.textContent = 'No appointments scheduled for the selected period.';
+                calendarEl.parentElement.insertBefore(alertDiv, calendarEl);
+            }
+        })
+        .catch(function(error) {
+            console.error('Error loading appointments:', error);
+            var alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-warning';
+            alertDiv.innerHTML = '<strong>Could not load appointments.</strong> Error: ' + error.message + '<br>Please refresh the page or try again later.';
+            calendarEl.parentElement.insertBefore(alertDiv, calendarEl);
+        });
+});
+</script>
+
+<style>
+    #calendar-holder {
+        position: relative;
+    }
+
+    .fc {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .fc-button-primary {
+        background-color: #007bff !important;
+        border-color: #0056b3 !important;
+    }
+
+    .fc-button-primary:hover {
+        background-color: #0056b3 !important;
+    }
+
+    .fc-button-primary.fc-button-active {
+        background-color: #0056b3 !important;
+    }
+
+    .fc-button-group > * {
+        margin-right: 2px;
+    }
+
+    .fc-title {
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .fc-time {
+        font-size: 0.75rem;
+    }
+
+    .card {
+        border-radius: 0.375rem;
+    }
+
+    .table-responsive {
+        border-radius: 0.375rem;
+    }
+</style>
+{% endblock %}
