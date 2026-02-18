@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Doctor;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -18,33 +19,55 @@ class DoctorFormType extends AbstractType
         $isEdit = isset($options['data']) && $options['data']->getId();
 
         $builder
-            ->add('email', TextType::class, [
+            ->add('email', EmailType::class, [
                 'label' => 'Email Address',
                 'required' => true,
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter email address',
+                    'data-validate' => 'email',
                 ],
                 'constraints' => [
                     new Assert\NotBlank(['message' => 'Email cannot be empty']),
                     new Assert\Email(['message' => 'Invalid email format']),
                 ],
             ])
-            ->add('fullName', TextType::class, [
-                'label' => 'Full Name',
+            ->add('firstName', TextType::class, [
+                'label' => 'First Name',
                 'required' => true,
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter full name',
+                    'placeholder' => 'Enter first name',
+                    'data-validate' => 'name',
                 ],
                 'constraints' => [
-                    new Assert\NotBlank(['message' => 'Full name cannot be empty']),
+                    new Assert\NotBlank(['message' => 'First name cannot be empty']),
                     new Assert\Length([
                         'min' => 2,
-                        'max' => 255,
-                        'minMessage' => 'Full name must be at least 2 characters',
-                        'maxMessage' => 'Full name must not exceed 255 characters',
+                        'max' => 100,
+                        'minMessage' => 'First name must be at least 2 characters',
+                        'maxMessage' => 'First name must not exceed 100 characters',
                     ]),
+                    new Assert\Regex(['pattern' => "/^[a-zA-ZÀ-ÿ\s\-']+$/", 'message' => 'First name can only contain letters, spaces, hyphens and apostrophes']),
+                ],
+            ])
+            ->add('lastName', TextType::class, [
+                'label' => 'Last Name',
+                'required' => true,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter last name',
+                    'data-validate' => 'name',
+                ],
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'Last name cannot be empty']),
+                    new Assert\Length([
+                        'min' => 2,
+                        'max' => 100,
+                        'minMessage' => 'Last name must be at least 2 characters',
+                        'maxMessage' => 'Last name must not exceed 100 characters',
+                    ]),
+                    new Assert\Regex(['pattern' => "/^[a-zA-ZÀ-ÿ\s\-']+$/", 'message' => 'Last name can only contain letters, spaces, hyphens and apostrophes']),
                 ],
             ])
             ->add('speciality', ChoiceType::class, [
@@ -76,12 +99,27 @@ class DoctorFormType extends AbstractType
             ])
             ->add('address', TextType::class, [
                 'label' => 'Address',
-                'attr' => ['class' => 'form-control'],
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter address',
+                    'data-validate' => 'address',
+                ],
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'Address cannot be empty']),
+                    new Assert\Length(['min' => 2, 'max' => 255, 'minMessage' => 'Address must be at least 2 characters', 'maxMessage' => 'Address must not exceed 255 characters']),
+                ],
             ])
             ->add('phone', TextType::class, [
                 'label' => 'Phone Number',
-                'attr' => ['class' => 'form-control'],
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter phone number',
+                    'data-validate' => 'phone',
+                ],
                 'constraints' => [
+                    new Assert\NotBlank(['message' => 'Phone cannot be empty']),
                     new Assert\Length([
                         'max' => 20,
                         'maxMessage' => 'Phone must not exceed 20 characters',
@@ -97,6 +135,8 @@ class DoctorFormType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
+                    'placeholder' => 'Enter password',
+                    'data-validate' => 'password',
                 ],
                 'constraints' => !$isEdit ? [
                     new Assert\NotBlank(['message' => 'Password cannot be empty']),

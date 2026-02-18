@@ -6,12 +6,16 @@ use App\Entity\User;
 use App\Entity\Doctor;
 use App\Form\UserFormType;
 use App\Form\DoctorFormType;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -112,6 +116,100 @@ class AuthController extends AbstractController
 
         return $this->render('auth/register_doctor.html.twig', [
             'form' => $form,
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  FORGOT PASSWORD
+    // ─────────────────────────────────────────────────────────────
+
+    #[Route('/forgot-password', name: 'forgot_password', methods: ['GET', 'POST'])]
+    public function forgotPassword(
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer
+    ): Response {
+        if ($request->isMethod('POST')) {
+            $emailAddress = $request->request->get('email');
+            $user = $userRepository->findOneBy(['email' => $emailAddress]);
+
+            // Always show success to prevent user enumeration
+            if ($user) {
+                $token = bin2hex(random_bytes(32));
+                $user->setResetToken($token);
+                $user->setResetTokenExpiresAt(new \DateTimeImmutable('+1 hour'));
+                $entityManager->flush();
+
+                $resetUrl = $this->generateUrl(
+                    'reset_password',
+                    ['token' => $token],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                );
+
+                $email = (new Email())
+                    ->from('mehditatarpidev7@gmail.com')
+                    ->to($user->getEmail())
+                    ->subject('PinkShield — Réinitialisation de votre mot de passe')
+                    ->html($this->renderView('emails/reset_password.html.twig', [
+                        'user'     => $user,
+                        'resetUrl' => $resetUrl,
+                    ]));
+
+                $mailer->send($email);
+            }
+
+            $this->addFlash('success', 'Si cet email existe, un lien de réinitialisation vous a été envoyé.');
+            return $this->redirectToRoute('forgot_password');
+        }
+
+        return $this->render('auth/forgot_password.html.twig');
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  RESET PASSWORD
+    // ─────────────────────────────────────────────────────────────
+
+    #[Route('/reset-password/{token}', name: 'reset_password', methods: ['GET', 'POST'])]
+    public function resetPassword(
+        string $token,
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        $user = $userRepository->findOneBy(['resetToken' => $token]);
+
+        if (!$user || $user->getResetTokenExpiresAt() < new \DateTimeImmutable()) {
+            $this->addFlash('danger', 'Ce lien de réinitialisation est invalide ou a expiré.');
+            return $this->redirectToRoute('forgot_password');
+        }
+
+        if ($request->isMethod('POST')) {
+            $newPassword = $request->request->get('password');
+            $confirmPassword = $request->request->get('confirm_password');
+
+            if (strlen($newPassword) < 6) {
+                $this->addFlash('danger', 'Le mot de passe doit contenir au moins 6 caractères.');
+                return $this->redirectToRoute('reset_password', ['token' => $token]);
+            }
+
+            if ($newPassword !== $confirmPassword) {
+                $this->addFlash('danger', 'Les mots de passe ne correspondent pas.');
+                return $this->redirectToRoute('reset_password', ['token' => $token]);
+            }
+
+            $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
+            $user->setResetToken(null);
+            $user->setResetTokenExpiresAt(null);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Mot de passe mis à jour avec succès ! Vous pouvez maintenant vous connecter.');
+            return $this->redirectToRoute('login');
+        }
+
+        return $this->render('auth/reset_password.html.twig', [
+            'token' => $token,
         ]);
     }
 }

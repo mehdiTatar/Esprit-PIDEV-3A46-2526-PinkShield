@@ -16,8 +16,12 @@ class Notification
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', onDelete: 'CASCADE', nullable: true)]
     private ?User $user = null;
+
+    #[ORM\ManyToOne(targetEntity: Admin::class)]
+    #[ORM\JoinColumn(name: 'admin_id', referencedColumnName: 'id', onDelete: 'CASCADE', nullable: true)]
+    private ?Admin $admin = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Notification title is required')]
@@ -60,6 +64,17 @@ class Notification
     public function setUser(?User $user): static
     {
         $this->user = $user;
+        return $this;
+    }
+
+    public function getAdmin(): ?Admin
+    {
+        return $this->admin;
+    }
+
+    public function setAdmin(?Admin $admin): static
+    {
+        $this->admin = $admin;
         return $this;
     }
 

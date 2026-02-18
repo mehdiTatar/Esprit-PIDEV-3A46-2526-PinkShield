@@ -36,14 +36,22 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min: 6, minMessage: 'Password must be at least 6 characters')]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Full name cannot be empty')]
-    #[Assert\Length(min: 2, max: 255, minMessage: 'Full name must be at least 2 characters', maxMessage: 'Full name must not exceed 255 characters')]
-    private ?string $fullName = null;
+    #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'First name cannot be empty')]
+    #[Assert\Length(min: 2, max: 100, minMessage: 'First name must be at least 2 characters', maxMessage: 'First name must not exceed 100 characters')]
+    #[Assert\Regex(pattern: "/^[a-zA-ZÀ-ÿ\s\-']+$/", message: 'First name can only contain letters, spaces, hyphens and apostrophes')]
+    private ?string $firstName = null;
+
+    #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Last name cannot be empty')]
+    #[Assert\Length(min: 2, max: 100, minMessage: 'Last name must be at least 2 characters', maxMessage: 'Last name must not exceed 100 characters')]
+    #[Assert\Regex(pattern: "/^[a-zA-ZÀ-ÿ\s\-']+$/", message: 'Last name can only contain letters, spaces, hyphens and apostrophes')]
+    private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Speciality cannot be empty')]
     #[Assert\Length(min: 2, max: 255, minMessage: 'Speciality must be at least 2 characters', maxMessage: 'Speciality must not exceed 255 characters')]
+    #[Assert\Regex(pattern: "/^[a-zA-ZÀ-ÿ\s\-'()]+$/", message: 'Speciality can only contain letters, spaces, hyphens and apostrophes')]
     private ?string $speciality = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -127,16 +135,33 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getFullName(): ?string
+    public function getFirstName(): ?string
     {
-        return $this->fullName;
+        return $this->firstName;
     }
 
-    public function setFullName(string $fullName): static
+    public function setFirstName(string $firstName): static
     {
-        $this->fullName = $fullName;
+        $this->firstName = $firstName;
 
         return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): static
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getFullName(): ?string
+    {
+        return $this->firstName . ' ' . $this->lastName;
     }
 
     public function getSpeciality(): ?string

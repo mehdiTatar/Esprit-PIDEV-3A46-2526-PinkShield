@@ -5,7 +5,7 @@
 {% block stylesheets %}
 <style>
     body {
-        background: white !important;
+        background: #B8E6DB !important;
         background-attachment: fixed !important;
         min-height: 100vh;
     }
@@ -24,7 +24,7 @@
         align-items: center;
         justify-content: center;
         padding: 20px !important;
-        padding-top: 100px !important;
+        padding-top: 40px !important;
         min-height: 100vh;
     }
 
@@ -47,18 +47,18 @@
 
     .register-container {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1.1fr 1fr;
         gap: 0;
-        max-width: 1100px;
+        max-width: 1200px;
         width: 100%;
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
         overflow: hidden;
     }
 
     .register-branding {
-        background: linear-gradient(135deg, #C41E3A 0%, #8B1428 100%);
+        background: linear-gradient(135deg, #4CAF87 0%, #58A582 100%);
         color: white;
         padding: 50px 45px;
         display: flex;
@@ -156,8 +156,8 @@
     }
 
     .form-control:focus {
-        border-color: #C41E3A;
-        box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+        border-color: #4CAF87;
+        box-shadow: 0 0 0 3px rgba(76, 175, 135, 0.1);
         outline: none;
         background-color: white;
     }
@@ -173,7 +173,7 @@
     }
 
     .form-label i {
-        color: #C41E3A;
+        color: #4CAF87;
         font-size: 1rem;
         width: 16px;
     }
@@ -223,19 +223,19 @@
 
     .user-type-label i {
         font-size: 1.2rem;
-        color: #C41E3A;
+        color: #4CAF87;
     }
 
     .user-type-option input[type="radio"]:checked + .user-type-label {
-        border-color: #C41E3A;
-        background-color: rgba(196, 30, 58, 0.05);
+        border-color: #4CAF87;
+        background-color: rgba(76, 175, 135, 0.05);
         color: #1f2937;
-        box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
+        box-shadow: 0 0 0 3px rgba(76, 175, 135, 0.1);
     }
 
     .btn-register {
-        background-color: #C41E3A;
-        border-color: #C41E3A;
+        background-color: #4CAF87;
+        border-color: #4CAF87;
         color: white;
         font-weight: 600;
         padding: 12px 24px;
@@ -248,11 +248,11 @@
     }
 
     .btn-register:hover {
-        background-color: #8B1428;
-        border-color: #8B1428;
+        background-color: #3a8f6f;
+        border-color: #3a8f6f;
         color: white;
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(196, 30, 58, 0.35);
+        box-shadow: 0 8px 24px rgba(76, 175, 135, 0.35);
     }
 
     .login-section {
@@ -270,8 +270,8 @@
 
     .btn-login {
         background-color: #f3f4f6;
-        border: 2px solid #C41E3A;
-        color: #C41E3A;
+        border: 2px solid #4CAF87;
+        color: #4CAF87;
         text-decoration: none;
         font-weight: 600;
         padding: 11px 25px;
@@ -282,10 +282,10 @@
     }
 
     .btn-login:hover {
-        background-color: #C41E3A;
+        background-color: #4CAF87;
         color: white;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(196, 30, 58, 0.2);
+        box-shadow: 0 4px 12px rgba(76, 175, 135, 0.2);
     }
 
     .alert {
@@ -342,13 +342,13 @@
                 <!-- Shield shape with heart -->
                 <defs>
                     <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#FFB6C1;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#FF69B4;stop-opacity:1" />
+                        <stop offset="0%" style="stop-color:#4CAF87;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#58A582;stop-opacity:1" />
                     </linearGradient>
                 </defs>
                 <!-- Outer shield -->
                 <path d="M 100 20 C 100 20 60 40 60 90 C 60 130 100 170 100 170 C 100 170 140 130 140 90 C 140 40 100 20 100 20 Z" 
-                      fill="none" stroke="#C41E3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                      fill="none" stroke="#4CAF87" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                 <!-- Inner shield -->
                 <path d="M 100 25 C 100 25 65 42 65 90 C 65 127 100 162 100 162 C 100 162 135 127 135 90 C 135 42 100 25 100 25 Z" 
                       fill="url(#shieldGradient)" opacity="0.8"/>

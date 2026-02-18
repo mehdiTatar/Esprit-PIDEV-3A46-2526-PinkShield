@@ -23,4 +23,16 @@ class AdminRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['email' => $email]);
     }
+
+    /**
+     * Find all admins with a specific role
+     */
+    public function findByRole(string $role): array
+    {
+        return $this->createQueryBuilder('a')
+                    ->andWhere('a.roles LIKE :role')
+                    ->setParameter('role', '%' . $role . '%')
+                    ->getQuery()
+                    ->getResult();
+    }
 }

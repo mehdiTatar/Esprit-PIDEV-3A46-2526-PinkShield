@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Notification;
 use App\Form\UserFormType;
 use App\Repository\UserRepository;
+use App\Repository\AdminRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,7 +69,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'user_edit')]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, TokenStorageInterface $tokenStorage): Response
+    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, TokenStorageInterface $tokenStorage, AdminRepository $adminRepository): Response
     {
         // Allow admin to edit any user; users can edit their own profile regardless of role
         $currentUser = $this->getUser();
@@ -88,6 +90,20 @@ class UserController extends AbstractController
             }
 
             $entityManager->flush();
+            
+            // Create notification for all admins
+            $admins = $adminRepository->findByRole('ROLE_ADMIN');
+            foreach ($admins as $admin) {
+                $notification = new Notification();
+                $notification->setAdmin($admin);
+                $notification->setTitle('User Profile Updated');
+                $notification->setMessage($user->getFullName() . ' updated their profile');
+                $notification->setType('info');
+                $notification->setIcon('fas fa-user-edit');
+                $entityManager->persist($notification);
+            }
+            $entityManager->flush();
+            
             $this->addFlash('success', 'Profile updated successfully!');
 
             // Redirect back to appropriate dashboard if available

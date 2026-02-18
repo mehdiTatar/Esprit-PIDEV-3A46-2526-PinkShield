@@ -19,7 +19,7 @@ class BlogPost
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Title cannot be empty')]
-    #[Assert\Length(min: 5, max: 255, minMessage: 'Title must be at least 5 characters')]
+    #[Assert\Length(min: 5, max: 255, minMessage: 'Title must be at least 5 characters', maxMessage: 'Title must not exceed 255 characters')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -31,6 +31,9 @@ class BlogPost
     private ?string $authorEmail = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Author name cannot be empty')]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Author name must be at least 2 characters', maxMessage: 'Author name must not exceed 255 characters')]
+    #[Assert\Regex(pattern: "/^[a-zA-ZÀ-ÿ\s\-']+$/", message: 'Author name can only contain letters, spaces, hyphens and apostrophes')]
     private ?string $authorName = null;
 
     #[ORM\Column(length: 50)]

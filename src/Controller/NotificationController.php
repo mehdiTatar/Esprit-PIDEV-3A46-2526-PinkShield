@@ -17,7 +17,7 @@ class NotificationController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_USER');
         
         $user = $this->getUser();
-        $notifications = $notificationRepository->findByUser($user);
+        $notifications = $notificationRepository->findByUserOrAdmin($user);
 
         return $this->render('notification/index.html.twig', [
             'notifications' => $notifications,
@@ -30,7 +30,7 @@ class NotificationController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_USER');
         
         $user = $this->getUser();
-        $notifications = $notificationRepository->findByUser($user);
+        $notifications = $notificationRepository->findByUserOrAdmin($user);
         $unreadCount = $notificationRepository->countUnreadByUser($user);
 
         $data = [];
@@ -63,8 +63,19 @@ class NotificationController extends AbstractController
         $user = $this->getUser();
         $notification = $notificationRepository->find($id);
 
-        if (!$notification || $notification->getUser() !== $user) {
+        if (!$notification) {
             return new JsonResponse(['success' => false], 404);
+        }
+
+        // Check if notification belongs to this user (either as regular user or admin)
+        if (get_class($user) === 'App\\Entity\\Admin') {
+            if ($notification->getAdmin() !== $user) {
+                return new JsonResponse(['success' => false], 404);
+            }
+        } else {
+            if ($notification->getUser() !== $user) {
+                return new JsonResponse(['success' => false], 404);
+            }
         }
 
         $notification->setIsRead(true);

@@ -1,451 +1,515 @@
 {% extends "base.html.twig" %}
 
-{% block title %}Doctor Dashboard - PinkShield{% endblock %}
+{% block title %}Doctor Dashboard — PinkShield{% endblock %}
 
 {% block stylesheets %}
 <style>
-    .dashboard-container {
-        margin-top: 20px;
+    /* ══════════════════════════════════════════════════════
+       DOCTOR DASHBOARD — Deep Teal Clinical Theme
+       Color palette: #0f766e (teal), #14b8a6, #f0fdfa
+    ══════════════════════════════════════════════════════ */
+
+    :root {
+        --doc-teal:        #0f766e;
+        --doc-teal-mid:    #0d9488;
+        --doc-teal-light:  #14b8a6;
+        --doc-teal-bg:     rgba(20, 184, 166, 0.1);
+        --doc-surface:     #f0fdfa;
+        --doc-border:      #ccfbf1;
+        --doc-navy:        #134e4a;
+        --doc-amber:       #f59e0b;
+        --doc-red:         #ef4444;
+        --doc-green:       #22c55e;
     }
 
-    .dashboard-header {
-        background: linear-gradient(135deg, #C41E3A 0%, #8B1428 100%);
-        color: white;
-        padding: 40px;
-        border-radius: 12px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(196, 30, 58, 0.2);
-    }
+    body { background: var(--doc-surface) !important; }
 
-    .dashboard-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0;
-    }
+    /* ── Page layout ── */
+    .doc-wrap { display: flex; flex-direction: column; gap: 24px; }
 
-    .dashboard-header p {
-        margin: 10px 0 0 0;
-        opacity: 0.95;
-        font-size: 1.1rem;
-    }
-
-    .stat-card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        background: white;
-        border-left: 5px solid #C41E3A;
-        margin-bottom: 20px;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(196, 30, 58, 0.15);
-    }
-
-    .stat-card-link {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-        cursor: pointer;
-    }
-
-    .stat-card-link:hover {
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .stat-card .card-body {
-        padding: 25px;
-    }
-
-    .card-icon {
-        font-size: 2.5rem;
-        color: #C41E3A;
-        margin-bottom: 15px;
-    }
-
-    .profile-card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        background: white;
+    /* ── Clinical header ── */
+    .doc-header {
+        background: linear-gradient(135deg, var(--doc-teal) 0%, var(--doc-navy) 100%);
+        color: #fff;
+        border-radius: 16px;
+        padding: 36px 40px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+        box-shadow: 0 8px 32px rgba(15, 118, 110, 0.3);
+        position: relative;
         overflow: hidden;
     }
 
-    .profile-card-header {
-        background: linear-gradient(135deg, #C41E3A 0%, #8B1428 100%);
-        color: white;
-        padding: 20px;
+    /* Stethoscope watermark */
+    .doc-header::after {
+        content: '\f0f1';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        right: 40px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 8rem;
+        opacity: 0.06;
+        color: #fff;
+        pointer-events: none;
     }
 
-    .profile-card-header i {
-        font-size: 2rem;
-        margin-right: 15px;
+    .doc-header > * { position: relative; z-index: 1; }
+
+    .doc-avatar {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.15);
+        border: 3px solid rgba(255,255,255,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        flex-shrink: 0;
     }
 
-    .profile-card .card-body {
-        padding: 25px;
+    .doc-header-text h1 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin: 0 0 4px;
+        letter-spacing: -0.3px;
     }
 
-    .profile-info {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-        margin-bottom: 20px;
+    .doc-header-text .speciality-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        margin-top: 6px;
     }
 
-    .info-item {
-        padding: 10px 0;
-        border-bottom: 1px solid #f0f0f0;
+    .doc-header-text p {
+        margin: 4px 0 0;
+        opacity: 0.75;
+        font-size: 0.88rem;
     }
 
-    .info-item label {
-        color: #999;
+    /* ── Status toggle bar ── */
+    .status-bar {
+        background: #fff;
+        border-radius: 12px;
+        padding: 16px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        border-left: 4px solid var(--doc-teal-mid);
+        flex-wrap: wrap;
+    }
+
+    .status-bar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .status-indicator.active { color: #16a34a; }
+    .status-indicator.inactive { color: #dc2626; }
+
+    .status-indicator .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .status-indicator.active .dot   { background: #22c55e; animation: blink 2s infinite; }
+    .status-indicator.inactive .dot { background: #ef4444; }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+        50%       { opacity: 0.7; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+    }
+
+    .status-bar-right { display: flex; gap: 10px; }
+
+    .toggle-btn {
+        padding: 8px 18px;
+        border-radius: 8px;
         font-size: 0.85rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.22s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .toggle-btn.go-inactive { background: #fef3c7; color: #92400e; }
+    .toggle-btn.go-inactive:hover { background: #fbbf24; color: #fff; }
+    .toggle-btn.go-active   { background: #dcfce7; color: #166534; }
+    .toggle-btn.go-active:hover   { background: #22c55e; color: #fff; }
+    .toggle-btn.edit-btn    { background: var(--doc-teal-bg); color: var(--doc-teal); }
+    .toggle-btn.edit-btn:hover    { background: var(--doc-teal); color: #fff; }
+
+    /* ── Stats row ── */
+    .doc-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+    }
+
+    .doc-stat {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.22s ease;
+        border-bottom: 3px solid var(--doc-teal-light);
+    }
+
+    .doc-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(20,184,166,0.15);
+        color: inherit;
+    }
+
+    .doc-stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--doc-teal-bg);
+        color: var(--doc-teal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .doc-stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--doc-navy);
+        line-height: 1;
+    }
+
+    .doc-stat-label {
+        font-size: 0.78rem;
+        color: #64748b;
         font-weight: 600;
         text-transform: uppercase;
-        display: block;
-        margin-bottom: 5px;
+        letter-spacing: 0.4px;
     }
 
-    .info-item span {
-        color: #2C3E50;
-        font-size: 1rem;
-        font-weight: 500;
-    }
-
-    .feature-card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        background: white;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        margin-bottom: 20px;
-    }
-
-    .feature-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(196, 30, 58, 0.15);
-    }
-
-    .feature-card-header {
-        background: linear-gradient(135deg, #C41E3A 0%, #8B1428 100%);
-        color: white;
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .feature-card-header i {
-        font-size: 2rem;
-    }
-
-    .feature-card-header h5 {
-        margin: 0;
-        font-weight: 700;
-    }
-
-    .feature-card .card-body {
-        padding: 20px;
-    }
-
-    .feature-status {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-    .status-badge {
-        background-color: #FFF3CD;
-        color: #856404;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .status-badge.bg-success {
-        background-color: #D4EDDA !important;
-        color: #155724 !important;
-    }
-
-    .status-badge.bg-danger {
-        background-color: #F8D7DA !important;
-        color: #721C24 !important;
-    }
-
-    .status-badge.bg-success.text-white {
-        background-color: #28a745 !important;
-        color: white !important;
-    }
-
-    .status-badge.bg-danger.text-white {
-        background-color: #dc3545 !important;
-        color: white !important;
-    }
-
-    .btn-edit {
-        background-color: #C41E3A;
-        border-color: #C41E3A;
-        color: white;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-edit:hover {
-        background-color: #8B1428;
-        border-color: #8B1428;
-    }
-
-    .btn-success {
-        background-color: #28a745;
-        border-color: #28a745;
-        color: white;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-success:hover {
-        background-color: #218838;
-        border-color: #218838;
-        color: white;
-    }
-
-    .btn-warning {
-        background-color: #ffc107;
-        border-color: #ffc107;
-        color: #212529;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-warning:hover {
-        background-color: #e0a800;
-        border-color: #d39e00;
-        color: #212529;
-    }
-
-    .grid-2 {
+    /* ── Content grid ── */
+    .doc-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: 1fr 1fr;
         gap: 20px;
     }
 
-    .grid-full {
-        grid-column: 1 / -1;
+    /* ── Feature panel ── */
+    .doc-panel {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        overflow: hidden;
+        transition: all 0.22s ease;
     }
 
-    .flex-grow-1 {
-        flex-grow: 1;
+    .doc-panel:hover {
+        box-shadow: 0 6px 24px rgba(20,184,166,0.12);
+        transform: translateY(-2px);
     }
 
-    .w-100 {
+    .doc-panel-header {
+        background: linear-gradient(135deg, var(--doc-teal) 0%, var(--doc-teal-mid) 100%);
+        color: #fff;
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .doc-panel-header i { font-size: 1.3rem; opacity: 0.9; }
+
+    .doc-panel-header h5 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 0.98rem;
+    }
+
+    .doc-panel-header small {
+        display: block;
+        opacity: 0.75;
+        font-size: 0.78rem;
+        margin-top: 2px;
+    }
+
+    .doc-panel-body { padding: 22px; }
+
+    /* ── Feature list ── */
+    .doc-feature-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+    .doc-feature-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.87rem;
+        color: #475569;
+    }
+
+    .doc-feature-item i { color: var(--doc-teal); font-size: 0.8rem; }
+
+    /* ── CTA button ── */
+    .doc-cta {
+        display: block;
         width: 100%;
+        text-align: center;
+        padding: 11px 18px;
+        background: linear-gradient(135deg, var(--doc-teal) 0%, var(--doc-teal-mid) 100%);
+        color: #fff;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.22s ease;
     }
 
-    @media (max-width: 768px) {
-        .dashboard-header {
-            padding: 30px 20px;
-        }
+    .doc-cta:hover {
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(15,118,110,0.3);
+        filter: brightness(1.05);
+    }
 
-        .dashboard-header h1 {
-            font-size: 1.8rem;
-        }
+    /* ── Rating display ── */
+    .rating-display {
+        text-align: center;
+        padding: 10px 0;
+    }
 
-        .profile-info {
-            grid-template-columns: 1fr;
-        }
+    .rating-stars { font-size: 1.5rem; margin-bottom: 6px; }
+    .rating-stars .fa-star.filled { color: #fbbf24; }
+    .rating-stars .fa-star.empty  { color: #e2e8f0; }
+    .rating-score { font-size: 2rem; font-weight: 800; color: var(--doc-navy); }
+    .rating-meta  { font-size: 0.82rem; color: #94a3b8; margin-top: 4px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+        .doc-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+        .doc-header { padding: 24px 20px; }
+        .doc-header::after { display: none; }
+        .doc-header-text h1 { font-size: 1.4rem; }
+        .doc-stats { grid-template-columns: repeat(2, 1fr); }
+        .status-bar { flex-direction: column; align-items: flex-start; }
     }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h1><i class="fas fa-user-md"></i> Welcome back, Dr. {{ app.user.fullName }}!</h1>
-        <p><i class="fas fa-clinic-medical"></i> Doctor Dashboard - Manage your practice</p>
+<div class="doc-wrap">
+
+    {# ── Clinical Header ── #}
+    <div class="doc-header">
+        <div class="doc-avatar">
+            <i class="fas fa-user-md"></i>
+        </div>
+        <div class="doc-header-text">
+            <h1>Dr. {{ app.user.fullName }}</h1>
+            <div class="speciality-tag">
+                <i class="fas fa-stethoscope"></i>
+                {{ app.user.speciality ?? 'General Practitioner' }}
+            </div>
+            <p><i class="fas fa-clinic-medical me-1"></i> Doctor Portal &nbsp;·&nbsp; {{ "now"|date("D, d M Y") }}</p>
+        </div>
     </div>
 
-    <div class="grid-2">
-        <!-- Profile Card -->
-        <div class="profile-card">
-            <div class="profile-card-header">
-                <i class="fas fa-id-badge"></i>
-                <div>
-                    <h5 class="mb-0">Your Profile</h5>
-                    <small>Professional Information</small>
+    {# ── Status Bar ── #}
+    <div class="status-bar">
+        <div class="status-bar-left">
+            <span>Availability Status:</span>
+            {% if app.user.status == 'active' %}
+                <div class="status-indicator active">
+                    <span class="dot"></span> Active — Accepting Patients
                 </div>
+            {% else %}
+                <div class="status-indicator inactive">
+                    <span class="dot"></span> Inactive — Not Accepting Patients
+                </div>
+            {% endif %}
+        </div>
+        <div class="status-bar-right">
+            <a href="{{ path('doctor_edit', {id: app.user.id}) }}" class="toggle-btn edit-btn">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+            <form method="POST" action="{{ path('doctor_toggle_status', {id: app.user.id}) }}" style="display:inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token('toggle-status-' ~ app.user.id) }}">
+                {% if app.user.status == 'active' %}
+                    <button type="submit" class="toggle-btn go-inactive"
+                            onclick="return confirm('Set your status to Inactive?')">
+                        <i class="fas fa-power-off"></i> Go Inactive
+                    </button>
+                {% else %}
+                    <button type="submit" class="toggle-btn go-active"
+                            onclick="return confirm('Set your status to Active?')">
+                        <i class="fas fa-check"></i> Go Active
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    {# ── Stats Row ── #}
+    <div class="doc-stats">
+        <a href="{{ path('appointment_index') }}" class="doc-stat">
+            <div class="doc-stat-icon"><i class="fas fa-users"></i></div>
+            <div>
+                <div class="doc-stat-value">{{ patientCount ?? 0 }}</div>
+                <div class="doc-stat-label">My Patients</div>
             </div>
-            <div class="card-body">
-                <div class="profile-info">
-                    <div class="info-item">
-                        <label><i class="fas fa-user-md"></i> Full Name</label>
-                        <span>{{ app.user.fullName }}</span>
-                    </div>
-                    <div class="info-item">
-                        <label><i class="fas fa-stethoscope"></i> Speciality</label>
-                        <span>{{ app.user.speciality ?? 'Not specified' }}</span>
-                    </div>
-                </div>
-                <div class="profile-info">
-                    <div class="info-item" style="grid-column: 1 / -1;">
-                        <label><i class="fas fa-envelope"></i> Email</label>
-                        <span>{{ app.user.email }}</span>
-                    </div>
-                </div>
-                <div class="profile-info">
-                    <div class="info-item" style="grid-column: 1 / -1;">
-                        <label><i class="fas fa-toggle-on"></i> Account Status</label>
-                        <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
-                            {% if app.user.status == 'active' %}
-                                <span class="status-badge bg-success text-white" style="flex-shrink: 0;">
-                                    <i class="fas fa-check-circle"></i> Active
-                                </span>
-                            {% else %}
-                                <span class="status-badge bg-danger text-white" style="flex-shrink: 0;">
-                                    <i class="fas fa-times-circle"></i> Inactive
-                                </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <a href="{{ path('doctor_edit', {id: app.user.id}) }}" class="btn btn-edit flex-grow-1">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </a>
-                    <form method="POST" action="{{ path('doctor_toggle_status', {id: app.user.id}) }}" style="flex-grow: 1;">
-                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-status-' ~ app.user.id) }}">
-                        {% if app.user.status == 'active' %}
-                            <button type="submit" class="btn btn-warning w-100" onclick="return confirm('Set your status to Inactive?');">
-                                <i class="fas fa-power-off"></i> Go Inactive
-                            </button>
-                        {% else %}
-                            <button type="submit" class="btn btn-success w-100" onclick="return confirm('Set your status to Active?');">
-                                <i class="fas fa-check"></i> Go Active
-                            </button>
-                        {% endif %}
-                    </form>
-                </div>
+        </a>
+        <a href="{{ path('appointment_index') }}" class="doc-stat">
+            <div class="doc-stat-icon"><i class="fas fa-calendar-check"></i></div>
+            <div>
+                <div class="doc-stat-value">{{ appointmentCount ?? 0 }}</div>
+                <div class="doc-stat-label">Appointments</div>
+            </div>
+        </a>
+        <div class="doc-stat">
+            <div class="doc-stat-icon"><i class="fas fa-star"></i></div>
+            <div>
+                <div class="doc-stat-value">{{ averageRating ? averageRating|round(1) : '—' }}</div>
+                <div class="doc-stat-label">Avg. Rating</div>
             </div>
         </div>
-
-        <!-- Blog & Forum Card -->
-        <div class="feature-card">
-            <div class="feature-card-header">
-                <i class="fas fa-comments"></i>
-                <h5>Blog & Forum</h5>
+        <a href="{{ path('parapharmacy_index') }}" class="doc-stat">
+            <div class="doc-stat-icon"><i class="fas fa-pills"></i></div>
+            <div>
+                <div class="doc-stat-value">{{ productCount ?? 0 }}</div>
+                <div class="doc-stat-label">Products</div>
             </div>
-            <div class="card-body">
-                <div class="feature-status">
-                    <span class="status-badge bg-success text-white"><i class="fas fa-check-circle"></i> Live Now</span>
-                </div>
-                <p class="text-muted mb-3">
-                    Share medical insights and engage with fellow healthcare professionals and patients.
-                </p>
-                <ul class="list-unstyled text-muted" style="font-size: 0.9rem;">
-                    <li><i class="fas fa-check text-success"></i> Medical Discussion Posts</li>
-                    <li><i class="fas fa-check text-success"></i> Case Study Sharing</li>
-                    <li><i class="fas fa-check text-success"></i> Professional Networking</li>
-                </ul>
-                <a href="{{ path('blog_index') }}" class="btn btn-primary w-100 mt-3">
-                    <i class="fas fa-eye"></i> View Forum
-                </a>
-            </div>
-        </div>
+        </a>
+    </div>
 
-        <!-- Appointments & Pharmacy Card -->
-        <div class="feature-card">
-            <div class="feature-card-header">
+    {# ── Content Grid ── #}
+    <div class="doc-grid">
+
+        {# Appointments #}
+        <div class="doc-panel">
+            <div class="doc-panel-header">
                 <i class="fas fa-calendar-check"></i>
-                <h5>Appointments</h5>
-            </div>
-            <div class="card-body">
-                <div class="feature-status">
-                    <span class="status-badge bg-success text-white"><i class="fas fa-check-circle"></i> Live Now</span>
+                <div>
+                    <h5>Appointments</h5>
+                    <small>Manage patient consultations</small>
                 </div>
-                <p class="text-muted mb-3">
-                    Manage patient appointments and confirm your schedule in real-time.
-                </p>
-                <ul class="list-unstyled text-muted" style="font-size: 0.9rem;">
-                    <li><i class="fas fa-check text-success"></i> View Patient Appointments</li>
-                    <li><i class="fas fa-check text-success"></i> Confirm Bookings</li>
-                    <li><i class="fas fa-check text-success"></i> Patient Communication</li>
-                </ul>
-                <a href="{{ path('appointment_index') }}" class="btn btn-primary w-100 mt-3">
-                    <i class="fas fa-calendar-alt"></i> Manage Appointments
+            </div>
+            <div class="doc-panel-body">
+                <div class="doc-feature-list">
+                    <div class="doc-feature-item"><i class="fas fa-check-circle"></i> View &amp; confirm patient bookings</div>
+                    <div class="doc-feature-item"><i class="fas fa-check-circle"></i> Manage your daily schedule</div>
+                    <div class="doc-feature-item"><i class="fas fa-check-circle"></i> Patient communication history</div>
+                </div>
+                <a href="{{ path('appointment_index') }}" class="doc-cta">
+                    <i class="fas fa-calendar-alt me-2"></i> Manage Appointments
                 </a>
             </div>
         </div>
-    </div>
 
-    <!-- Additional Features -->
-    <div class="row mt-5">
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ path('appointment_index') }}" class="stat-card-link">
-                <div class="stat-card">
-                    <div class="card-body text-center">
-                        <div class="card-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <h5 style="color: #2C3E50; margin-bottom: 5px;">My Patients</h5>
-                        <p class="text-muted mb-0">{{ patientCount }} Patients</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <a href="{{ path('appointment_index') }}" class="stat-card-link">
-                <div class="stat-card">
-                    <div class="card-body text-center">
-                        <div class="card-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <h5 style="color: #2C3E50; margin-bottom: 5px;">Appointments</h5>
-                        <p class="text-muted mb-0">{{ appointmentCount }} Scheduled</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card">
-                <div class="card-body text-center">
-                    <div class="card-icon">
-                        <i class="fas fa-file-prescription"></i>
-                    </div>
-                    <h5 style="color: #2C3E50; margin-bottom: 5px;">Prescriptions</h5>
-                    <p class="text-muted mb-0">0 Issued</p>
+        {# Parapharmacy #}
+        <div class="doc-panel">
+            <div class="doc-panel-header">
+                <i class="fas fa-pills"></i>
+                <div>
+                    <h5>Parapharmacy</h5>
+                    <small>Product catalogue management</small>
                 </div>
             </div>
+            <div class="doc-panel-body">
+                <div class="doc-feature-list">
+                    <div class="doc-feature-item"><i class="fas fa-check-circle"></i> Browse medical products</div>
+                    <div class="doc-feature-item"><i class="fas fa-check-circle"></i> Recommend products to patients</div>
+                    <div class="doc-feature-item"><i class="fas fa-check-circle"></i> Manage product listings</div>
+                </div>
+                <a href="{{ path('parapharmacy_index') }}" class="doc-cta">
+                    <i class="fas fa-pills me-2"></i> Open Parapharmacy
+                </a>
+            </div>
         </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card">
-                <div class="card-body text-center">
-                    <div class="card-icon">
-                        <i class="fas fa-award"></i>
-                    </div>
-                    <h5 style="color: #2C3E50; margin-bottom: 5px;">Patient Rating</h5>
-                    {% if averageRating %}
-                        <p class="text-muted mb-0" style="font-size: 1.3rem;">
+
+        {# Forum #}
+        <div class="doc-panel">
+            <div class="doc-panel-header">
+                <i class="fas fa-comments"></i>
+                <div>
+                    <h5>Blog &amp; Forum</h5>
+                    <small>Medical community discussions</small>
+                </div>
+            </div>
+            <div class="doc-panel-body">
+                <div class="doc-feature-list">
+                    <div class="doc-feature-item"><i class="fas fa-check-circle"></i> Share medical insights &amp; case studies</div>
+                    <div class="doc-feature-item"><i class="fas fa-check-circle"></i> Answer patient questions</div>
+                    <div class="doc-feature-item"><i class="fas fa-check-circle"></i> Professional networking</div>
+                </div>
+                <a href="{{ path('blog_index') }}" class="doc-cta">
+                    <i class="fas fa-comments me-2"></i> Go to Forum
+                </a>
+            </div>
+        </div>
+
+        {# Patient Rating #}
+        <div class="doc-panel">
+            <div class="doc-panel-header">
+                <i class="fas fa-award"></i>
+                <div>
+                    <h5>My Patient Ratings</h5>
+                    <small>Feedback from your patients</small>
+                </div>
+            </div>
+            <div class="doc-panel-body">
+                {% if averageRating %}
+                    <div class="rating-display">
+                        <div class="rating-stars">
                             {% for i in 1..5 %}
-                                {% if i <= averageRating|round %}
-                                    <i class="fas fa-star" style="color: #ffc107;"></i>
-                                {% else %}
-                                    <i class="fas fa-star" style="color: #ddd;"></i>
-                                {% endif %}
+                                <i class="fas fa-star {{ i <= averageRating|round ? 'filled' : 'empty' }}"></i>
                             {% endfor %}
-                        </p>
-                        <p class="text-muted mb-0" style="font-size: 0.9rem; margin-top: 8px;">{{ averageRating|round(1) }}/5.0 ({{ ratingCount }} reviews)</p>
-                    {% else %}
-                        <p class="text-muted mb-0">No ratings yet</p>
-                    {% endif %}
-                </div>
+                        </div>
+                        <div class="rating-score">{{ averageRating|round(1) }}<span style="font-size:1rem;color:#94a3b8;">/5.0</span></div>
+                        <div class="rating-meta">Based on {{ ratingCount }} patient review{{ ratingCount != 1 ? 's' : '' }}</div>
+                    </div>
+                {% else %}
+                    <div style="text-align:center; padding: 20px 0; color: #94a3b8;">
+                        <i class="fas fa-star" style="font-size:2.5rem; margin-bottom:10px; display:block; opacity:0.3;"></i>
+                        <p style="font-size:0.9rem; margin:0;">No ratings yet.<br>Complete appointments to receive feedback.</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
+
     </div>
 </div>
 {% endblock %}

@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Doctor;
+use App\Entity\Notification;
+use App\Entity\User;
 use App\Form\DoctorFormType;
 use App\Repository\DoctorRepository;
+use App\Repository\AdminRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,7 +74,7 @@ class DoctorController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'doctor_edit')]
-    public function edit(Request $request, Doctor $doctor, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, TokenStorageInterface $tokenStorage): Response
+    public function edit(Request $request, Doctor $doctor, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, TokenStorageInterface $tokenStorage, AdminRepository $adminRepository): Response
     {
         // Doctor can only edit their own profile, Admin can edit any doctor
         $currentUser = $tokenStorage->getToken()->getUser();
@@ -88,6 +91,20 @@ class DoctorController extends AbstractController
             }
 
             $entityManager->flush();
+            
+            // Create notification for all admins
+            $admins = $adminRepository->findByRole('ROLE_ADMIN');
+            foreach ($admins as $admin) {
+                $notification = new Notification();
+                $notification->setAdmin($admin);
+                $notification->setTitle('Doctor Profile Updated');
+                $notification->setMessage($doctor->getFullName() . ' updated their profile');
+                $notification->setType('info');
+                $notification->setIcon('fas fa-user-md');
+                $entityManager->persist($notification);
+            }
+            $entityManager->flush();
+            
             $this->addFlash('success', 'Profile updated successfully!');
 
             return $this->redirectToRoute('doctor_dashboard');

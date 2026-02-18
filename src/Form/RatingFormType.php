@@ -39,6 +39,7 @@ class RatingFormType extends AbstractType
                     'class' => 'form-control',
                     'rows' => 4,
                     'placeholder' => 'Share your experience with this doctor (optional)',
+                    'data-validate' => 'comment',
                 ],
                 'constraints' => [
                     new Assert\Length(['max' => 1000, 'maxMessage' => 'Comment cannot exceed 1000 characters']),

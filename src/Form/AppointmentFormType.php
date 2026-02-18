@@ -71,6 +71,10 @@ class AppointmentFormType extends AbstractType
                     'class' => 'form-control',
                     'rows' => 3,
                     'placeholder' => 'Symptoms or reasons for visit...',
+                    'data-validate' => 'notes',
+                ],
+                'constraints' => [
+                    new Assert\Length(['max' => 1000, 'maxMessage' => 'Notes cannot exceed 1000 characters']),
                 ],
             ]);
 

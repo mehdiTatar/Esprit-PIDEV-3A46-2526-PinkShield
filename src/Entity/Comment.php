@@ -21,9 +21,14 @@ class Comment
     private ?string $content = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'Email cannot be empty')]
+    #[Assert\Email(message: 'Invalid email format')]
     private ?string $authorEmail = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Author name cannot be empty')]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Author name must be at least 2 characters', maxMessage: 'Author name must not exceed 255 characters')]
+    #[Assert\Regex(pattern: "/^[a-zA-ZÀ-ÿ\s\-']+$/", message: 'Author name can only contain letters, spaces, hyphens and apostrophes')]
     private ?string $authorName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

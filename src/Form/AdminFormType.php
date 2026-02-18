@@ -23,6 +23,7 @@ class AdminFormType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter email address',
+                    'data-validate' => 'email',
                 ],
                 'constraints' => [
                     new Assert\NotBlank(['message' => 'Email cannot be empty']),
@@ -35,6 +36,7 @@ class AdminFormType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter password',
+                    'data-validate' => 'password',
                 ],
                 'constraints' => !$isEdit ? [
                     new Assert\NotBlank(['message' => 'Password cannot be empty']),

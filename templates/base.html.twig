@@ -1,51 +1,84 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token('') }}">
-        <title>{% block title %}PinkShield - Medical Management System{% endblock %}</title>
+        <title>{% block title %}PinkShield — Medical Management System{% endblock %}</title>
         <link rel="icon" href="{{ asset('images/colored-logo.png') }}">
+
+        {# Fonts #}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+        {# Bootstrap & Icons #}
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
         {% block stylesheets %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+
         <style>
+            /* ─── Design Tokens ─────────────────────────────────────────── */
             :root {
-                --primary: #C41E3A;
-                --primary-dark: #8B1428;
-                --secondary: #dc2626;
-                --light-bg: #f9fafb;
-                --border: #e5e7eb;
-                --text-dark: #1f2937;
-                --text-gray: #6b7280;
+                --primary:        #4CAF87;
+                --primary-dark:   #3a8f6f;
+                --primary-light:  rgba(76, 175, 135, 0.12);
+                --secondary:      #B8E6DB;
+                --light-bg:       #f4fdf8;
+                --border:         #d1ede5;
+                --text-dark:      #1a2332;
+                --text-gray:      #6b7280;
+                --text-muted:     #9ca3af;
+                --navbar-height:  64px;
+                --sidebar-width:  260px;
+                --card-radius:    12px;
+                --shadow-sm:      0 1px 3px rgba(0,0,0,0.06);
+                --shadow-md:      0 4px 16px rgba(0,0,0,0.08);
+                --shadow-lg:      0 8px 32px rgba(0,0,0,0.10);
+                --transition:     all 0.22s ease;
             }
 
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+            /* ─── Reset & Base ──────────────────────────────────────────── */
+            *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-            html, body {
-                height: 100%;
-            }
+            html, body { height: 100%; }
 
             body {
                 background-color: var(--light-bg);
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 color: var(--text-dark);
                 line-height: 1.6;
                 display: flex;
                 flex-direction: column;
+                font-size: 0.95rem;
             }
 
-            /* Navbar Styling */
+            /* ─── Accessibility ─────────────────────────────────────────── */
+            .skip-link {
+                position: absolute;
+                top: -100%;
+                left: 1rem;
+                background: var(--primary);
+                color: #fff;
+                padding: 0.5rem 1rem;
+                border-radius: 0 0 8px 8px;
+                font-weight: 600;
+                z-index: 9999;
+                text-decoration: none;
+                transition: top 0.2s;
+            }
+            .skip-link:focus { top: 0; }
+
+            /* ─── Navbar ────────────────────────────────────────────────── */
             .navbar {
-                background: #FFF0F2;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-                border-bottom: 2px solid #FFD6E0;
-                padding: 1rem 0;
+                background: rgba(184, 230, 219, 0.92);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                box-shadow: var(--shadow-sm);
+                border-bottom: 2px solid var(--primary);
+                height: var(--navbar-height);
+                padding: 0;
                 position: sticky;
                 top: 0;
                 z-index: 1030;
@@ -54,183 +87,156 @@
             .navbar-brand {
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                font-weight: 700;
-                color: var(--primary) !important;
-                font-size: 1.25rem;
-                letter-spacing: -0.3px;
+                gap: 10px;
+                font-weight: 800;
+                color: var(--primary-dark) !important;
+                font-size: 1.2rem;
+                letter-spacing: -0.4px;
                 text-decoration: none;
             }
 
-            .navbar-brand img {
-                height: 32px;
-                width: auto;
-            }
+            .navbar-brand img { height: 30px; width: auto; }
 
             .nav-link {
                 color: var(--text-gray) !important;
                 font-weight: 500;
-                font-size: 0.95rem;
-                padding: 0.5rem 1rem !important;
-                border-radius: 6px;
-                transition: all 0.2s;
+                font-size: 0.9rem;
+                padding: 0.45rem 0.9rem !important;
+                border-radius: 8px;
+                transition: var(--transition);
                 display: flex;
                 align-items: center;
                 gap: 6px;
             }
 
-            .nav-link:hover {
-                color: var(--primary) !important;
-                background-color: rgba(196, 30, 58, 0.05);
-            }
+            .nav-link:hover  { color: var(--primary) !important; background: var(--primary-light); }
+            .nav-link.active { color: var(--primary) !important; background: var(--primary-light); font-weight: 600; }
 
-            .nav-link.active {
-                color: var(--primary) !important;
-                background-color: rgba(196, 30, 58, 0.1);
-                font-weight: 600;
-            }
+            .navbar-toggler       { border: none; }
+            .navbar-toggler:focus { box-shadow: none; }
 
-            .navbar-toggler {
-                border: none;
-            }
-
-            .navbar-toggler:focus {
-                box-shadow: none;
-            }
-
+            /* ─── Dropdown ──────────────────────────────────────────────── */
             .dropdown-menu {
                 border: 1px solid var(--border);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                border-radius: 8px;
-                margin-top: 8px;
+                box-shadow: var(--shadow-lg);
+                border-radius: var(--card-radius);
+                margin-top: 6px;
+                padding: 6px;
             }
 
             .dropdown-item {
                 color: var(--text-dark);
                 font-weight: 500;
-                padding: 0.7rem 1rem;
-                transition: all 0.2s;
+                padding: 0.65rem 0.9rem;
+                border-radius: 8px;
+                transition: var(--transition);
                 display: flex;
                 align-items: center;
                 gap: 8px;
+                font-size: 0.9rem;
             }
 
-            .dropdown-item:hover {
-                background-color: rgba(196, 30, 58, 0.05);
-                color: var(--primary);
-            }
+            .dropdown-item:hover { background: var(--primary-light); color: var(--primary); }
 
+            /* ─── Buttons ───────────────────────────────────────────────── */
             .btn-primary {
-                background-color: var(--primary);
+                background: var(--primary);
                 border-color: var(--primary);
                 font-weight: 600;
                 padding: 0.5rem 1.2rem;
-                border-radius: 6px;
-                transition: all 0.2s;
+                border-radius: 8px;
+                transition: var(--transition);
             }
 
             .btn-primary:hover {
-                background-color: var(--primary-dark);
+                background: var(--primary-dark);
                 border-color: var(--primary-dark);
                 transform: translateY(-1px);
-                box-shadow: 0 4px 12px rgba(196, 30, 58, 0.2);
+                box-shadow: 0 4px 14px rgba(76, 175, 135, 0.3);
             }
 
             .btn-outline-primary {
                 color: var(--primary);
                 border-color: var(--primary);
                 font-weight: 600;
+                border-radius: 8px;
+                transition: var(--transition);
             }
 
             .btn-outline-primary:hover {
-                background-color: var(--primary);
+                background: var(--primary);
                 border-color: var(--primary);
+                transform: translateY(-1px);
             }
 
-            /* Role Badge */
+            /* ─── Role Badge ────────────────────────────────────────────── */
             .role-badge {
                 display: inline-block;
-                padding: 0.25rem 0.7rem;
+                padding: 0.2rem 0.6rem;
                 border-radius: 6px;
-                font-size: 0.75rem;
+                font-size: 0.7rem;
                 font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.4px;
-                margin-left: 8px;
+                letter-spacing: 0.5px;
+                margin-left: 6px;
             }
 
-            .role-admin {
-                background: rgba(196, 30, 58, 0.15);
-                color: var(--primary);
-            }
+            .role-admin  { background: rgba(76, 175, 135, 0.15); color: var(--primary); }
+            .role-doctor { background: rgba(34, 197, 94, 0.15);  color: #16a34a; }
+            .role-user   { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
 
-            .role-doctor {
-                background: rgba(34, 197, 94, 0.15);
-                color: #16a34a;
-            }
-
-            .role-user {
-                background: rgba(59, 130, 246, 0.15);
-                color: #3b82f6;
-            }
-
-            /* Notification Badge */
+            /* ─── Notification Bell ─────────────────────────────────────── */
             .notification-badge {
                 position: relative;
                 display: flex;
                 align-items: center;
                 cursor: pointer;
-                font-size: 1.3rem;
+                font-size: 1.2rem;
                 color: var(--text-gray);
-                transition: all 0.2s ease;
-                padding: 8px 12px;
+                transition: var(--transition);
+                padding: 8px 10px;
                 border-radius: 8px;
             }
 
-            .notification-badge:hover {
-                color: var(--primary);
-                background-color: rgba(196, 30, 58, 0.05);
-            }
+            .notification-badge:hover { color: var(--primary); background: var(--primary-light); }
 
             .notification-badge .badge {
                 position: absolute;
-                top: 0;
-                right: 0;
-                background-color: #ef4444;
-                color: white;
-                font-size: 0.65rem;
-                padding: 0.25rem 0.5rem;
+                top: 2px;
+                right: 2px;
+                background: var(--primary);
+                color: #fff;
+                font-size: 0.6rem;
+                padding: 0.2rem 0.4rem;
                 border-radius: 10px;
                 font-weight: 700;
-                min-width: 20px;
+                min-width: 18px;
+                text-align: center;
+                display: none; /* hidden until JS loads a real count */
                 animation: pulse 2s infinite;
             }
 
             @keyframes pulse {
-                0%, 100% {
-                    opacity: 1;
-                }
-                50% {
-                    opacity: 0.7;
-                }
+                0%, 100% { opacity: 1; }
+                50%       { opacity: 0.6; }
             }
 
-            .notification-dropdown {
-                min-width: 380px !important;
-            }
+            .notification-dropdown { min-width: 370px !important; }
 
             .notification-dropdown .dropdown-header {
-                background-color: rgba(196, 30, 58, 0.05);
-                color: var(--primary);
+                background: var(--primary-light);
+                color: var(--primary-dark);
                 font-weight: 700;
-                padding: 1rem;
+                padding: 0.9rem 1rem;
                 border-radius: 8px 8px 0 0;
+                font-size: 0.9rem;
             }
 
             .notification-dropdown .dropdown-item {
-                padding: 0.9rem 1rem;
+                padding: 0.85rem 1rem;
                 border-bottom: 1px solid var(--border);
                 white-space: normal;
+                border-radius: 0;
             }
 
             .notification-dropdown .dropdown-item:last-child {
@@ -238,239 +244,262 @@
                 border-radius: 0 0 8px 8px;
             }
 
-            .notification-item {
-                display: flex;
-                align-items: flex-start;
-                gap: 10px;
-            }
+            .notification-item { display: flex; align-items: flex-start; gap: 10px; }
 
             .notification-icon {
-                font-size: 1.1rem;
+                font-size: 1rem;
                 color: var(--primary);
                 flex-shrink: 0;
-                margin-top: 2px;
+                margin-top: 3px;
             }
 
-            .notification-content {
-                flex: 1;
+            .notification-content { flex: 1; }
+            .notification-content small { display: block; line-height: 1.4; }
+
+            /* ─── Sidebar Toggle Button ─────────────────────────────────── */
+            .sidebar-toggle-btn {
+                position: fixed;
+                top: calc(var(--navbar-height) + 10px);
+                left: 10px;
+                z-index: 2000;
+                background: var(--primary);
+                color: #fff;
+                border: none;
+                border-radius: 50%;
+                width: 38px;
+                height: 38px;
+                box-shadow: 0 2px 10px rgba(76, 175, 135, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: var(--transition);
+                cursor: pointer;
             }
 
-            .notification-content small {
-                display: block;
-                line-height: 1.4;
+            .sidebar-toggle-btn:hover {
+                background: var(--primary-dark);
+                transform: scale(1.08);
             }
 
-            /* Sidebar */
+            /* ─── Sidebar ───────────────────────────────────────────────── */
             .sidebar {
-                background: #FFF0F2;
-                border-right: 2px solid #FFD6E0;
+                background: #fff;
+                border-right: 1px solid var(--border);
                 position: fixed;
                 left: 0;
-                top: 60px;
-                width: 260px;
-                height: calc(100vh - 60px);
+                top: var(--navbar-height);
+                width: var(--sidebar-width);
+                height: calc(100vh - var(--navbar-height));
                 overflow-y: auto;
+                overflow-x: hidden;
                 padding: 0;
                 z-index: 1020;
+                transform: translateX(0);
+                transition: transform 0.35s cubic-bezier(0.77, 0, 0.175, 1);
+                box-shadow: 2px 0 16px rgba(76, 175, 135, 0.06);
             }
 
             .sidebar-logo {
-                padding: 24px 20px;
-                border-bottom: 2px solid #FFD6E0;
-                text-align: center;
+                padding: 20px;
+                border-bottom: 1px solid var(--border);
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             }
 
             .sidebar-logo a {
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                gap: 12px;
+                gap: 10px;
                 text-decoration: none;
             }
 
-            .sidebar-logo img {
-                height: 40px;
-                width: auto;
-            }
+            .sidebar-logo img { height: 32px; width: auto; }
 
             .sidebar-logo span {
-                font-size: 1.1rem;
-                font-weight: 700;
-                color: var(--primary);
+                font-size: 1rem;
+                font-weight: 800;
+                color: #fff;
+                letter-spacing: -0.3px;
             }
 
-            .sidebar-section {
-                padding: 20px 0;
-            }
+            .sidebar-section { padding: 16px 0 8px; }
 
             .sidebar-section-title {
-                padding: 0 20px;
-                margin-bottom: 10px;
-                font-size: 0.75rem;
+                padding: 0 18px;
+                margin-bottom: 8px;
+                font-size: 0.7rem;
                 font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
-                color: var(--text-gray);
+                letter-spacing: 0.8px;
+                color: var(--text-muted);
             }
 
-            .sidebar-nav {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
+            .sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
 
             .sidebar-link {
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                padding: 10px 20px;
+                gap: 10px;
+                padding: 10px 12px;
                 color: var(--text-gray);
                 text-decoration: none;
                 font-weight: 500;
-                font-size: 0.95rem;
-                transition: all 0.2s;
+                font-size: 0.9rem;
+                transition: var(--transition);
+                border-radius: 8px;
                 border-left: 3px solid transparent;
             }
 
             .sidebar-link:hover {
                 color: var(--primary);
-                background-color: rgba(196, 30, 58, 0.05);
+                background: var(--primary-light);
                 border-left-color: var(--primary);
             }
 
             .sidebar-link.active {
                 color: var(--primary);
-                background-color: rgba(196, 30, 58, 0.1);
+                background: var(--primary-light);
                 border-left-color: var(--primary);
                 font-weight: 600;
             }
 
-            .sidebar-link i {
-                width: 20px;
-                text-align: center;
-            }
+            .sidebar-link i { width: 18px; text-align: center; font-size: 0.95rem; }
 
-            /* Main Content */
+            /* ─── Main Content ──────────────────────────────────────────── */
             main {
                 flex: 1;
-                margin-left: 260px;
-                margin-top: 60px;
+                margin-left: var(--sidebar-width);
+                margin-top: var(--navbar-height);
                 overflow-y: auto;
             }
 
             .container-desktop {
                 max-width: 1200px;
                 margin: 0 auto;
-                padding: 40px 30px;
+                padding: 36px 28px;
                 width: 100%;
             }
 
-            /* Alert Styling */
+            /* ─── Alerts ────────────────────────────────────────────────── */
             .alert {
                 border: none;
-                border-radius: 8px;
+                border-radius: var(--card-radius);
                 font-weight: 500;
                 display: flex;
                 align-items: center;
                 gap: 12px;
                 border-left: 4px solid;
+                padding: 0.85rem 1rem;
             }
 
-            .alert-success {
-                background-color: #dcfce7;
-                color: #166534;
-                border-left-color: #22c55e;
+            .alert-success { background: #dcfce7; color: #166534; border-left-color: #22c55e; }
+            .alert-danger  { background: #fee2e2; color: #b91c1c; border-left-color: #ef4444; }
+            .alert-warning { background: #fef3c7; color: #b45309; border-left-color: #f59e0b; }
+            .alert-info    { background: #dbeafe; color: #1e40af; border-left-color: #3b82f6; }
+
+            /* ─── Form Validation ───────────────────────────────────────── */
+            .form-control.is-invalid {
+                border-color: #dc3545;
+                box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
             }
 
-            .alert-danger {
-                background-color: #fee2e2;
-                color: #b91c1c;
-                border-left-color: #ef4444;
+            .form-control.is-valid {
+                border-color: #28a745;
+                box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15);
             }
 
-            .alert-warning {
-                background-color: #fef3c7;
-                color: #b45309;
-                border-left-color: #f59e0b;
+            .ajax-error {
+                color: #dc3545;
+                font-size: 0.82em;
+                margin-top: 0.25rem;
+                display: none;
             }
 
-            .alert-info {
-                background-color: #dbeafe;
-                color: #1e40af;
-                border-left-color: #3b82f6;
+            .ajax-error.d-block { display: block !important; }
+
+            /* Hide Symfony default form errors — using AJAX validation */
+            .form-text.text-danger,
+            .invalid-feedback,
+            .form-group .alert-danger { display: none !important; }
+
+            /* ─── Footer ────────────────────────────────────────────────── */
+            footer {
+                background: #fff;
+                border-top: 1px solid var(--border);
+                padding: 1.2rem 2rem;
+                text-align: center;
+                font-size: 0.82rem;
+                color: var(--text-muted);
+                margin-left: var(--sidebar-width);
             }
 
-            /* Responsive */
+            footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+            footer a:hover { text-decoration: underline; }
+
+            /* ─── Responsive ────────────────────────────────────────────── */
             @media (max-width: 991px) {
-                .sidebar {
-                    width: 0;
-                    transform: translateX(-100%);
-                    transition: all 0.3s ease;
-                }
-
-                .sidebar.show {
-                    width: 260px;
-                    transform: translateX(0);
-                }
-
-                main {
-                    margin-left: 0;
-                }
+                .sidebar { transform: translateX(-100%); }
+                .sidebar.show { transform: translateX(0); }
+                main   { margin-left: 0; }
+                footer { margin-left: 0; }
             }
 
             @media (max-width: 768px) {
-                .container-desktop {
-                    padding: 20px 15px;
-                }
-
-                .navbar-brand span {
-                    display: none;
-                }
-
-                .nav-link span {
-                    display: none;
-                }
+                .container-desktop { padding: 20px 16px; }
+                .navbar-brand span { display: none; }
             }
         </style>
     </head>
     <body>
-        <!-- Professional Navbar -->
-        <nav class="navbar navbar-expand-lg">
+        {# Accessibility: skip to main content #}
+        <a href="#main-content" class="skip-link">Skip to main content</a>
+
+        {# ── Navbar ──────────────────────────────────────────────────────── #}
+        <nav class="navbar navbar-expand-lg" aria-label="Main navigation">
             <div class="container-fluid px-4">
                 <a class="navbar-brand" href="{{ path('home') }}">
-                    <img src="{{ asset('images/colored-logo.png') }}" alt="PinkShield">
+                    <img src="{{ asset('images/colored-logo.png') }}" alt="PinkShield logo">
                     <span>PinkShield</span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav" aria-controls="navbarNav"
+                        aria-expanded="false" aria-label="Toggle navigation">
                     <i class="fas fa-bars"></i>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <ul class="navbar-nav ms-auto align-items-center gap-1">
                         {% if app.user %}
-                            <!-- Notification Bell -->
+                            {# Notification Bell #}
                             <li class="nav-item dropdown">
-                                <button class="btn btn-link nav-link notification-badge p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationBell">
+                                <button class="btn btn-link nav-link notification-badge p-0"
+                                        type="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false" aria-label="Notifications"
+                                        id="notificationBell">
                                     <i class="fas fa-bell"></i>
-                                    <span class="badge" id="notificationBadge">0</span>
+                                    <span class="badge" id="notificationBadge" aria-live="polite">0</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end notification-dropdown" id="notificationDropdown">
-                                    <li class="dropdown-header fw-bold">
+                                    <li class="dropdown-header">
                                         <i class="fas fa-bell me-2"></i>Notifications
-                                        <span class="badge bg-danger float-end" id="unreadCount">0 New</span>
+                                        <span class="badge bg-danger float-end" id="unreadCount"></span>
                                     </li>
                                     <li id="notificationsContainer"></li>
                                     <li><hr class="dropdown-divider m-0"></li>
-                                    <li><a class="dropdown-item text-center text-primary" href="{{ path('notifications_index') }}"><small><i class="fas fa-bell me-1"></i>View all notifications</small></a></li>
+                                    <li>
+                                        <a class="dropdown-item text-center" href="{{ path('notifications_index') }}" style="color: var(--primary);">
+                                            <small><i class="fas fa-list me-1"></i>View all notifications</small>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
 
-                            <!-- Profile Dropdown -->
+                            {# Profile Dropdown #}
                             <li class="nav-item dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user"></i>
-                                    <span class="d-none d-md-inline ms-2">{{ app.user.userIdentifier }}</span>
+                                <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span class="d-none d-md-inline">{{ app.user.userIdentifier }}</span>
                                     {% if is_granted('ROLE_ADMIN') %}
                                         <span class="role-badge role-admin">Admin</span>
                                     {% elseif is_granted('ROLE_DOCTOR') %}
@@ -481,14 +510,22 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     {% if is_granted('ROLE_ADMIN') %}
-                                        <li><a class="dropdown-item" href="{{ path('admin_edit', {id: app.user.id}) }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('admin_edit', {id: app.user.id}) }}">
+                                            <i class="fas fa-cog"></i> Settings
+                                        </a></li>
                                     {% elseif is_granted('ROLE_DOCTOR') %}
-                                        <li><a class="dropdown-item" href="{{ path('doctor_edit', {id: app.user.id}) }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('doctor_edit', {id: app.user.id}) }}">
+                                            <i class="fas fa-cog"></i> Settings
+                                        </a></li>
                                     {% elseif is_granted('ROLE_USER') %}
-                                        <li><a class="dropdown-item" href="{{ path('user_edit', {id: app.user.id}) }}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('user_edit', {id: app.user.id}) }}">
+                                            <i class="fas fa-cog"></i> Settings
+                                        </a></li>
                                     {% endif %}
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="{{ path('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                                    <li><a class="dropdown-item text-danger" href="{{ path('logout') }}">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </a></li>
                                 </ul>
                             </li>
 
@@ -500,7 +537,7 @@
                             </li>
                             <li class="nav-item">
                                 <a href="{{ path('register') }}" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-user-plus me-1"></i> <span>Register</span>
+                                    <i class="fas fa-user-plus me-1"></i> Register
                                 </a>
                             </li>
                         {% endif %}
@@ -509,9 +546,13 @@
             </div>
         </nav>
 
-        <!-- Professional Sidebar -->
+        {# ── Sidebar (authenticated users only) ──────────────────────────── #}
         {% if app.user %}
-        <aside class="sidebar" id="sidebar">
+        <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
             <div class="sidebar-logo">
                 <a href="{{ path('home') }}">
                     <img src="{{ asset('images/colored-logo.png') }}" alt="PinkShield">
@@ -522,20 +563,13 @@
             {% if is_granted('ROLE_ADMIN') %}
                 <div class="sidebar-section">
                     <div class="sidebar-section-title">Administration</div>
-                    <nav class="sidebar-nav">
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'admin_dashboard' %}active{% endif %}" href="{{ path('admin_dashboard') }}">
+                    <nav class="sidebar-nav" aria-label="Admin navigation">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'admin_dashboard' %}active{% endif %}"
+                           href="{{ path('admin_dashboard') }}">
                             <i class="fas fa-chart-line"></i> Dashboard
                         </a>
-                        <a class="sidebar-link" href="{{ path('user_index') }}">
-                            <i class="fas fa-users"></i> Users
-                        </a>
-                        <a class="sidebar-link" href="{{ path('doctor_index') }}">
-                            <i class="fas fa-stethoscope"></i> Doctors
-                        </a>
-                        <a class="sidebar-link" href="{{ path('appointment_index') }}">
-                            <i class="fas fa-calendar"></i> Appointments
-                        </a>
-                        <a class="sidebar-link" href="{{ path('blog_index') }}">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'blog_' %}active{% endif %}"
+                           href="{{ path('blog_index') }}">
                             <i class="fas fa-newspaper"></i> Blog
                         </a>
                     </nav>
@@ -543,18 +577,18 @@
 
             {% elseif is_granted('ROLE_DOCTOR') %}
                 <div class="sidebar-section">
-                    <div class="sidebar-section-title">Doctor</div>
-                    <nav class="sidebar-nav">
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'doctor_dashboard' %}active{% endif %}" href="{{ path('doctor_dashboard') }}">
+                    <div class="sidebar-section-title">Doctor Portal</div>
+                    <nav class="sidebar-nav" aria-label="Doctor navigation">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'doctor_dashboard' %}active{% endif %}"
+                           href="{{ path('doctor_dashboard') }}">
                             <i class="fas fa-chart-line"></i> Dashboard
                         </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'appointment_' %}active{% endif %}" href="{{ path('appointment_index') }}">
-                            <i class="fas fa-calendar"></i> Appointments
-                        </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'parapharmacy_index' %}active{% endif %}" href="{{ path('parapharmacy_index') }}">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'parapharmacy_index' %}active{% endif %}"
+                           href="{{ path('parapharmacy_index') }}">
                             <i class="fas fa-pills"></i> Parapharmacy
                         </a>
-                        <a class="sidebar-link" href="{{ path('blog_index') }}">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'blog_' %}active{% endif %}"
+                           href="{{ path('blog_index') }}">
                             <i class="fas fa-comments"></i> Forum
                         </a>
                     </nav>
@@ -562,28 +596,31 @@
 
             {% elseif is_granted('ROLE_USER') %}
                 <div class="sidebar-section">
-                    <div class="sidebar-section-title">Patient Dashboard</div>
-                    <nav class="sidebar-nav">
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'user_dashboard' %}active{% endif %}" href="{{ path('user_dashboard') }}">
+                    <div class="sidebar-section-title">Patient Portal</div>
+                    <nav class="sidebar-nav" aria-label="Patient navigation">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'user_dashboard' %}active{% endif %}"
+                           href="{{ path('user_dashboard') }}">
                             <i class="fas fa-home"></i> Home
                         </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'notifications_index' %}active{% endif %}" href="{{ path('notifications_index') }}">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'notifications_index' %}active{% endif %}"
+                           href="{{ path('notifications_index') }}">
                             <i class="fas fa-bell"></i> Notifications
                         </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'tracking_index' %}active{% endif %}" href="{{ path('tracking_index') }}">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'tracking_index' %}active{% endif %}"
+                           href="{{ path('tracking_index') }}">
                             <i class="fas fa-heartbeat"></i> Health Tracking
                         </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'appointment_' %}active{% endif %}" href="{{ path('appointment_index') }}">
-                            <i class="fas fa-calendar"></i> Appointments
-                        </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'parapharmacy_index' %}active{% endif %}" href="{{ path('parapharmacy_index') }}">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'parapharmacy_index' %}active{% endif %}"
+                           href="{{ path('parapharmacy_index') }}">
                             <i class="fas fa-pills"></i> Pharmacy
                         </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'wishlist_index' %}active{% endif %}" href="{{ path('wishlist_index') }}">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') == 'wishlist_index' %}active{% endif %}"
+                           href="{{ path('wishlist_index') }}">
                             <i class="fas fa-heart"></i> My Wishlist
                         </a>
-                        <a class="sidebar-link" href="{{ path('blog_index') }}">
-                            <i class="fas fa-book"></i> Blog
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'blog_' %}active{% endif %}"
+                           href="{{ path('blog_index') }}">
+                            <i class="fas fa-book-open"></i> Blog
                         </a>
                     </nav>
                 </div>
@@ -591,20 +628,26 @@
         </aside>
         {% endif %}
 
-        <!-- Main Content -->
-        <main>
+        {# ── Main Content ────────────────────────────────────────────────── #}
+        <main id="main-content">
             <div class="container-desktop">
-                <!-- Flash Messages -->
+                {# Flash Messages #}
                 {% for label, messages in app.flashes %}
                     {% for message in messages %}
-                        <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : 'warning') }} alert-dismissible fade show mb-4" role="alert">
+                        <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : (label == 'warning' ? 'warning' : 'info')) }} alert-dismissible fade show mb-4" role="alert">
                             <div>
-                                {% if label == 'error' %}<i class="fas fa-exclamation-circle"></i>
-                                {% elseif label == 'success' %}<i class="fas fa-check-circle"></i>
-                                {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                                {% if label == 'error' or label == 'danger' %}
+                                    <i class="fas fa-exclamation-circle"></i>
+                                {% elseif label == 'success' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elseif label == 'warning' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle"></i>
+                                {% endif %}
                             </div>
                             <div>{{ message }}</div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
                 {% endfor %}
@@ -613,72 +656,112 @@
             </div>
         </main>
 
-        <!-- Scripts -->
+        {# ── Footer ──────────────────────────────────────────────────────── #}
+        <footer>
+            &copy; {{ "now"|date("Y") }} <strong>PinkShield</strong> — Medical Management System &nbsp;·&nbsp;
+            Built with <a href="https://symfony.com" target="_blank" rel="noopener">Symfony 7</a>
+        </footer>
+
+        {# ── Scripts ─────────────────────────────────────────────────────── #}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        {# Collapse navbar on mobile link click #}
         <script>
             document.querySelectorAll('.navbar-collapse a:not(.dropdown-toggle)').forEach(link => {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', () => {
                     const collapse = document.querySelector('.navbar-collapse');
                     if (collapse?.classList.contains('show')) {
                         bootstrap.Collapse.getInstance(collapse)?.hide();
                     }
                 });
             });
+        </script>
 
-            // Load notifications
+        {# Sidebar toggle logic #}
+        {% if app.user %}
+        <script>
+            (function () {
+                const sidebar       = document.getElementById('sidebar');
+                const toggleBtn     = document.getElementById('sidebarToggle');
+                const MOBILE_BP     = 992;
+                let isVisible       = window.innerWidth >= MOBILE_BP;
+
+                function applyState() {
+                    sidebar.classList.toggle('show', isVisible);
+                }
+
+                toggleBtn.addEventListener('click', () => {
+                    isVisible = !isVisible;
+                    applyState();
+                });
+
+                window.addEventListener('resize', () => {
+                    isVisible = window.innerWidth >= MOBILE_BP;
+                    applyState();
+                });
+
+                applyState();
+            })();
+        </script>
+        {% endif %}
+
+        {# Notification loader #}
+        {% if app.user %}
+        <script>
             function loadNotifications() {
-                // Only load if user is authenticated (check if notification elements exist)
                 const badgeEl = document.getElementById('notificationBadge');
                 if (!badgeEl) return;
 
                 fetch('{{ path('notifications_api_list') }}')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to load notifications');
-                        }
-                        return response.json();
-                    })
+                    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
                     .then(data => {
-                        if (!data || !data.notifications) return;
-                        
-                        const unreadCountEl = document.getElementById('unreadCount');
+                        if (!data?.notifications) return;
+
+                        const unreadEl    = document.getElementById('unreadCount');
                         const containerEl = document.getElementById('notificationsContainer');
+                        const count       = data.unreadCount ?? 0;
 
-                        badgeEl.textContent = data.unreadCount > 0 ? data.unreadCount : '0';
-                        unreadCountEl.textContent = data.unreadCount + (data.unreadCount === 1 ? ' New' : ' New');
-
-                        if (data.notifications.length === 0) {
-                            containerEl.innerHTML = '<li class="dropdown-item text-center text-muted"><small>No notifications</small></li>';
+                        // Only show badge when there are unread notifications
+                        if (count > 0) {
+                            badgeEl.textContent = count;
+                            badgeEl.style.display = 'block';
                         } else {
-                            containerEl.innerHTML = data.notifications.slice(0, 5).map(notif => `
-                                <li class="dropdown-item ${notif.isRead ? '' : 'fw-bold'}">
-                                    <div class="notification-item">
-                                        <div class="notification-icon">
-                                            <i class="${notif.icon}"></i>
+                            badgeEl.style.display = 'none';
+                        }
+
+                        if (unreadEl) {
+                            unreadEl.textContent = count > 0 ? `${count} New` : '';
+                        }
+
+                        if (containerEl) {
+                            if (data.notifications.length === 0) {
+                                containerEl.innerHTML = '<li class="dropdown-item text-center text-muted"><small><i class="fas fa-check-circle me-1"></i>No new notifications</small></li>';
+                            } else {
+                                containerEl.innerHTML = data.notifications.slice(0, 5).map(n => `
+                                    <li class="dropdown-item ${n.isRead ? '' : 'fw-semibold'}">
+                                        <div class="notification-item">
+                                            <div class="notification-icon"><i class="${n.icon}"></i></div>
+                                            <div class="notification-content">
+                                                <small><strong>${n.title}</strong></small>
+                                                <small class="text-muted d-block">${n.createdAt}</small>
+                                            </div>
                                         </div>
-                                        <div class="notification-content">
-                                            <small><strong>${notif.title}</strong></small>
-                                            <small class="text-muted">${notif.createdAt}</small>
-                                        </div>
-                                    </div>
-                                </li>
-                            `).join('');
+                                    </li>
+                                `).join('');
+                            }
                         }
                     })
-                    .catch(error => console.log('Notifications unavailable:', error));
+                    .catch(() => {}); // Silently fail — non-critical
             }
 
-            // Load notifications on page load
-            {% if app.user %}
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', loadNotifications);
-            } else {
-                loadNotifications();
-            }
-
-            // Refresh notifications every 30 seconds
+            document.addEventListener('DOMContentLoaded', loadNotifications);
             setInterval(loadNotifications, 30000);
-            {% endif %}
         </script>
+        {% endif %}
+
+        {# Form Validation Script #}
+        <script src="{{ asset('js/form-validation.js') }}"></script>
+
+        {% block javascripts %}{% endblock %}
     </body>
 </html>

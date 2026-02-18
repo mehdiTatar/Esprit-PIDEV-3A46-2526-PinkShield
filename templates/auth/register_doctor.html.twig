@@ -4,8 +4,14 @@
 
 {% block stylesheets %}
 <style>
+    /* Override sticky navbar on registration pages */
+    .navbar {
+        position: static !important;
+        z-index: auto !important;
+    }
+
     body {
-        background: white !important;
+        background: #B8E6DB !important;
         background-attachment: fixed !important;
         min-height: 100vh;
     }
@@ -24,7 +30,7 @@
         align-items: center;
         justify-content: center;
         padding: 20px !important;
-        padding-top: 100px !important;
+        padding-top: 40px !important;
         min-height: 100vh;
     }
 
@@ -47,18 +53,17 @@
 
     .register-doctor-container {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1.1fr 1fr;
         gap: 0;
-        max-width: 1100px;
+        max-width: 1200px;
         width: 100%;
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
     }
 
     .register-doctor-branding {
-        background: linear-gradient(135deg, #C41E3A 0%, #8B1428 100%);
+        background: linear-gradient(135deg, #4CAF87 0%, #58A582 100%);
         color: white;
         padding: 50px 45px;
         display: flex;
@@ -112,8 +117,6 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
-        max-height: auto;
-        overflow-y: visible;
     }
 
     .button-group {
@@ -133,10 +136,37 @@
 
     .form-group {
         margin-bottom: 12px;
+        display: block !important;
+        visibility: visible !important;
+        overflow: visible !important;
     }
+        /* DEBUG: force email visible and remove nested scrollbars during troubleshooting */
+        #doctor_email {
+            outline: 3px solid #e3342f !important;
+            position: relative !important;
+            z-index: 9999 !important;
+            display: block !important;
+            visibility: visible !important;
+            max-height: none !important;
+        }
+
+        .register-doctor-form-wrapper,
+        .register-doctor-container,
+        main {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+
+        /* ensure body shows single scrollbar only */
+        html, body {
+            height: 100% !important;
+            overflow-y: auto !important;
+        }
 
     .form-label {
         margin-bottom: 5px !important;
+        display: block !important;
+        visibility: visible !important;
     }
 
     .form-control, .form-select {
@@ -147,6 +177,10 @@
         transition: all 0.3s ease;
         background-color: #f9fafb;
         width: 100%;
+        display: block !important;
+        visibility: visible !important;
+        height: auto !important;
+        min-height: 40px !important;
     }
 
     .form-control::placeholder {
@@ -154,7 +188,7 @@
     }
 
     .form-control:focus, .form-select:focus {
-        border-color: #C41E3A;
+        border-color: #4CAF87;
         box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
         outline: none;
         background-color: white;
@@ -171,14 +205,14 @@
     }
 
     .form-label i {
-        color: #C41E3A;
+        color: #4CAF87;
         font-size: 1rem;
         width: 16px;
     }
 
     .btn-register-doctor {
-        background-color: #C41E3A;
-        border-color: #C41E3A;
+        background-color: #4CAF87;
+        border-color: #4CAF87;
         color: white;
         font-weight: 600;
         padding: 12px 24px;
@@ -194,8 +228,8 @@
     }
 
     .btn-register-doctor:hover {
-        background-color: #8B1428;
-        border-color: #8B1428;
+        background-color: #3a8f6f;
+        border-color: #3a8f6f;
         color: white;
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(196, 30, 58, 0.35);
@@ -204,8 +238,8 @@
 
     .btn-back {
         background-color: #f3f4f6;
-        border: 2px solid #C41E3A;
-        color: #C41E3A;
+        border: 2px solid #4CAF87;
+        color: #4CAF87;
         text-decoration: none;
         font-weight: 600;
         padding: 11px 25px;
@@ -219,7 +253,7 @@
     }
 
     .btn-back:hover {
-        background-color: #C41E3A;
+        background-color: #4CAF87;
         color: white;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(196, 30, 58, 0.2);
@@ -240,8 +274,8 @@
 
     .btn-login {
         background-color: #f3f4f6;
-        border: 2px solid #C41E3A;
-        color: #C41E3A;
+        border: 2px solid #4CAF87;
+        color: #4CAF87;
         text-decoration: none;
         font-weight: 600;
         padding: 11px 25px;
@@ -252,7 +286,7 @@
     }
 
     .btn-login:hover {
-        background-color: #C41E3A;
+        background-color: #4CAF87;
         color: white;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(196, 30, 58, 0.2);
@@ -272,12 +306,21 @@
         padding: 0.5rem;
     }
 
+    /* Error messages handled by AJAX only */
     .invalid-feedback {
-        display: block !important;
+        display: none !important;
+    }
+
+    .ajax-error {
+        display: none;
         color: #dc3545;
         font-size: 0.85rem;
         margin-top: 5px;
         font-weight: 500;
+    }
+
+    .ajax-error.d-block {
+        display: block !important;
     }
 
     .form-control.is-invalid {
@@ -298,6 +341,18 @@
     .form-select.is-invalid:focus {
         border-color: #dc3545;
         box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    @media (max-width: 1024px) {
+        .register-doctor-container {
+            grid-template-columns: 1fr;
+        }
     }
 
     @media (max-width: 768px) {
@@ -330,6 +385,10 @@
         .register-doctor-wrapper {
             padding: 15px;
         }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
@@ -343,13 +402,13 @@
                 <!-- Shield shape with heart -->
                 <defs>
                     <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#FFB6C1;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#FF69B4;stop-opacity:1" />
+                        <stop offset="0%" style="stop-color:#4CAF87;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#58A582;stop-opacity:1" />
                     </linearGradient>
                 </defs>
                 <!-- Outer shield -->
                 <path d="M 100 20 C 100 20 60 40 60 90 C 60 130 100 170 100 170 C 100 170 140 130 140 90 C 140 40 100 20 100 20 Z" 
-                      fill="none" stroke="#C41E3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                      fill="none" stroke="#4CAF87" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                 <!-- Inner shield -->
                 <path d="M 100 25 C 100 25 65 42 65 90 C 65 127 100 162 100 162 C 100 162 135 127 135 90 C 135 42 100 25 100 25 Z" 
                       fill="url(#shieldGradient)" opacity="0.8"/>
@@ -399,90 +458,45 @@
                 {% endif %}
 
                 <div class="form-group">
-                    {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
-                    {% set emailClass = form.email.vars.errors|length > 0 ? 'form-control is-invalid' : 'form-control' %}
-                    <input type="text" name="{{ form.email.vars.full_name }}" id="{{ form.email.vars.id }}" class="{{ emailClass }}" placeholder="your@email.com" value="{{ form.email.vars.value }}">
-                    {% if form.email.vars.errors|length > 0 %}
-                        <div class="invalid-feedback">
-                            {% for error in form.email.vars.errors %}
-                                <i class="fas fa-times-circle me-1"></i>{{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                    <label for="doctor_email" class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'your@email.com', 'data-validate': 'email', 'id': 'doctor_email'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="doctor_firstName" class="form-label"><i class="fas fa-user"></i> First Name</label>
+                        {{ form_widget(form.firstName, {'attr': {'class': 'form-control', 'placeholder': 'First Name', 'data-validate': 'name', 'id': 'doctor_firstName'}}) }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="doctor_lastName" class="form-label"><i class="fas fa-user"></i> Last Name</label>
+                        {{ form_widget(form.lastName, {'attr': {'class': 'form-control', 'placeholder': 'Last Name', 'data-validate': 'name', 'id': 'doctor_lastName'}}) }}
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    {{ form_label(form.fullName, null, {'label_attr': {'class': 'form-label'}}) }}
-                    {% set fullNameClass = form.fullName.vars.errors|length > 0 ? 'form-control is-invalid' : 'form-control' %}
-                    <input type="text" name="{{ form.fullName.vars.full_name }}" id="{{ form.fullName.vars.id }}" class="{{ fullNameClass }}" placeholder="Dr. Full Name" value="{{ form.fullName.vars.value }}">
-                    {% if form.fullName.vars.errors|length > 0 %}
-                        <div class="invalid-feedback">
-                            {% for error in form.fullName.vars.errors %}
-                                <i class="fas fa-times-circle me-1"></i>{{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    {{ form_label(form.speciality, null, {'label_attr': {'class': 'form-label'}}) }}
-                    {% set specialityClass = form.speciality.vars.errors|length > 0 ? 'form-select is-invalid' : 'form-select' %}
-                    <select name="{{ form.speciality.vars.full_name }}" id="{{ form.speciality.vars.id }}" class="{{ specialityClass }}">
-                        <option value="">Select a speciality...</option>
-                        {% for choice in form.speciality.vars.choices %}
-                            <option value="{{ choice.value }}" {% if choice.value == form.speciality.vars.value %}selected{% endif %}>{{ choice.label }}</option>
-                        {% endfor %}
-                    </select>
-                    {% if form.speciality.vars.errors|length > 0 %}
-                        <div class="invalid-feedback">
-                            {% for error in form.speciality.vars.errors %}
-                                <i class="fas fa-times-circle me-1"></i>{{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                    <label for="doctor_speciality" class="form-label"><i class="fas fa-stethoscope"></i> Speciality</label>
+                    {{ form_widget(form.speciality, {'attr': {'class': 'form-control form-select', 'id': 'doctor_speciality'}}) }}
                 </div>
 
                 {% if form.address is defined %}
                     <div class="form-group">
-                        {{ form_label(form.address, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {% set addressClass = form.address.vars.errors|length > 0 ? 'form-control is-invalid' : 'form-control' %}
-                        <input type="text" name="{{ form.address.vars.full_name }}" id="{{ form.address.vars.id }}" class="{{ addressClass }}" placeholder="Your address" value="{{ form.address.vars.value }}">
-                        {% if form.address.vars.errors|length > 0 %}
-                            <div class="invalid-feedback">
-                                {% for error in form.address.vars.errors %}
-                                    <i class="fas fa-times-circle me-1"></i>{{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                        <label for="doctor_address" class="form-label"><i class="fas fa-map-marker-alt"></i> Address</label>
+                        {{ form_widget(form.address, {'attr': {'class': 'form-control', 'placeholder': 'Your address', 'data-validate': 'address', 'id': 'doctor_address'}}) }}
                     </div>
                 {% endif %}
 
                 {% if form.phone is defined %}
                     <div class="form-group">
-                        {{ form_label(form.phone, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {% set phoneClass = form.phone.vars.errors|length > 0 ? 'form-control is-invalid' : 'form-control' %}
-                        <input type="text" name="{{ form.phone.vars.full_name }}" id="{{ form.phone.vars.id }}" class="{{ phoneClass }}" placeholder="+1 (555) 000-0000" value="{{ form.phone.vars.value }}">
-                        {% if form.phone.vars.errors|length > 0 %}
-                            <div class="invalid-feedback">
-                                {% for error in form.phone.vars.errors %}
-                                    <i class="fas fa-times-circle me-1"></i>{{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                        <label for="doctor_phone" class="form-label"><i class="fas fa-phone"></i> Phone Number</label>
+                        {{ form_widget(form.phone, {'attr': {'class': 'form-control', 'placeholder': '+1 (555) 000-0000', 'data-validate': 'phone', 'id': 'doctor_phone'}}) }}
                     </div>
                 {% endif %}
 
                 <div class="form-group">
-                    {{ form_label(form.password, null, {'label_attr': {'class': 'form-label'}}) }}
-                    {% set passwordClass = form.password.vars.errors|length > 0 ? 'form-control is-invalid' : 'form-control' %}
-                    <input type="password" name="{{ form.password.vars.full_name }}" id="{{ form.password.vars.id }}" class="{{ passwordClass }}">
-                    {% if form.password.vars.errors|length > 0 %}
-                        <div class="invalid-feedback">
-                            {% for error in form.password.vars.errors %}
-                                <i class="fas fa-times-circle me-1"></i>{{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                    <label for="doctor_password" class="form-label"><i class="fas fa-lock"></i> Password</label>
+                    {{ form_widget(form.password, {'attr': {'class': 'form-control', 'data-validate': 'password', 'id': 'doctor_password'}}) }}
                 </div>
 
                 <div class="button-group">
