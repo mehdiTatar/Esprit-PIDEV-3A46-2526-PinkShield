@@ -28,16 +28,14 @@ class UserController extends AbstractController
         $searchId = $request->query->get('search_id');
 
         if ($searchId) {
-            $users = $userRepository->findById((int) $searchId);
-            if (!$users) {
-                $users = [];
-            }
+            $found = $userRepository->findById((int) $searchId);
+            $users = $found ? [$found] : [];
         } else {
             $users = $userRepository->findAll();
         }
 
         return $this->render('user/index.html.twig', [
-            'users' => $users,
+            'users'    => $users,
             'searchId' => $searchId,
         ]);
     }

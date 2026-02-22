@@ -95,4 +95,50 @@ class AppointmentRepository extends ServiceEntityRepository
 
         return $rows;
     }
+
+    /**
+     * Count appointments grouped by status.
+     * @return array{pending:int, confirmed:int, cancelled:int}
+     */
+    public function countByStatus(): array
+    {
+        $rows = $this->createQueryBuilder('a')
+            ->select('a.status, COUNT(a.id) AS cnt')
+            ->groupBy('a.status')
+            ->getQuery()
+            ->getResult();
+
+        $map = ['pending' => 0, 'confirmed' => 0, 'cancelled' => 0];
+        foreach ($rows as $row) {
+            $map[$row['status']] = (int)$row['cnt'];
+        }
+        return $map;
+    }
+
+    /**
+     * Return top $limit doctors ranked by total appointment count.
+     * Each row: doctorName, doctorEmail, total
+     */
+    public function findTopDoctors(int $limit = 5): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.doctorName, a.doctorEmail, COUNT(a.id) AS total')
+            ->groupBy('a.doctorEmail')
+            ->addGroupBy('a.doctorName')
+            ->orderBy('total', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Count total appointments.
+     */
+    public function countTotal(): int
+    {
+        return (int) $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

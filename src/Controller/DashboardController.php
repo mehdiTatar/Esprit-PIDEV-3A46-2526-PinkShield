@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\AdminRepository;
 use App\Repository\AppointmentRepository;
+use App\Repository\BlogPostRepository;
 use App\Repository\DoctorRepository;
 use App\Repository\RatingRepository;
 use App\Repository\UserRepository;
@@ -37,15 +38,61 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/admin/dashboard', name: 'admin_dashboard')]
-    public function adminDashboard(UserRepository $userRepository, DoctorRepository $doctorRepository, AdminRepository $adminRepository): Response
-    {
+    public function adminDashboard(
+        UserRepository        $userRepository,
+        DoctorRepository      $doctorRepository,
+        AdminRepository       $adminRepository,
+        AppointmentRepository $appointmentRepository,
+        BlogPostRepository    $blogPostRepository,
+        RatingRepository      $ratingRepository,
+    ): Response {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        
+
+        // ── Basic counts ──────────────────────────────────────
+        $totalUsers        = count($userRepository->findAll());
+        $totalDoctors      = count($doctorRepository->findAll());
+        $totalAdmins       = count($adminRepository->findAll());
+        $totalBlogPosts    = count($blogPostRepository->findAll());
+        $totalAppointments = $appointmentRepository->countTotal();
+
+        // ── Status breakdowns ─────────────────────────────────
+        $usersByStatus        = $userRepository->countByStatus();
+        $appointmentsByStatus = $appointmentRepository->countByStatus();
+
+        // ── Charts: registrations by month (last 6 months) ───
+        $registrationLabels = [];
+        $registrationCounts = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $registrationLabels[] = (new \DateTimeImmutable("first day of -$i month"))->format('M Y');
+            $registrationCounts[] = 0; // placeholder — User has no createdAt column
+        }
+
+        // ── Top 5 doctors by appointment count ───────────────
+        $topDoctors = $appointmentRepository->findTopDoctors(5);
+
+        // ── Recent 5 patients ─────────────────────────────────
+        $recentUsers = $userRepository->findRecentUsers(5);
+
+        // ── Average rating ────────────────────────────────────
+        $allRatings = $ratingRepository->findAll();
+        $avgRating  = count($allRatings)
+            ? round(array_sum(array_map(fn($r) => $r->getRating(), $allRatings)) / count($allRatings), 1)
+            : 0;
+
         return $this->render('dashboard/admin.html.twig', [
-            'title' => 'Admin Dashboard',
-            'totalUsers' => count($userRepository->findAll()),
-            'totalDoctors' => count($doctorRepository->findAll()),
-            'totalAdmins' => count($adminRepository->findAll()),
+            'title'                => 'Admin Dashboard',
+            'totalUsers'           => $totalUsers,
+            'totalDoctors'         => $totalDoctors,
+            'totalAdmins'          => $totalAdmins,
+            'totalBlogPosts'       => $totalBlogPosts,
+            'totalAppointments'    => $totalAppointments,
+            'usersByStatus'        => $usersByStatus,
+            'appointmentsByStatus' => $appointmentsByStatus,
+            'registrationLabels'   => $registrationLabels,
+            'registrationCounts'   => $registrationCounts,
+            'topDoctors'           => $topDoctors,
+            'recentUsers'          => $recentUsers,
+            'avgRating'            => $avgRating,
         ]);
     }
 

@@ -49,6 +49,7 @@ security:
         - { path: ^/doctor, roles: [ROLE_DOCTOR, ROLE_ADMIN, ROLE_USER] }
         - { path: ^/user, roles: ROLE_USER }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/face-login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
 
 when@test:

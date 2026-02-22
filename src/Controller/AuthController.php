@@ -7,9 +7,11 @@ use App\Entity\Doctor;
 use App\Form\UserFormType;
 use App\Form\DoctorFormType;
 use App\Repository\UserRepository;
+use App\Service\FaceRecognitionService;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,29 +31,100 @@ class AuthController extends AbstractController
 
     public function __construct(
         ParameterBagInterface $params,
-        private NotificationService $notificationService
+        private NotificationService $notificationService,
+        private FaceRecognitionService $faceRecognitionService
     ) {
-        $this->recaptchaSiteKey = $params->get('recaptcha_site_key');
+        $this->recaptchaSiteKey  = $params->get('recaptcha_site_key');
         $this->recaptchaSecretKey = $params->get('recaptcha_secret_key');
     }
 
     #[Route('/login', name: 'login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
+        if ($this->getUser()) {
+            return $this->redirectToRoute('dashboard');
+        }
 
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
+        $error        = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('auth/login.html.twig', [
-            'last_username' => $lastUsername,
-            'error' => $error,
-            'captcha_error' => null,
+            'last_username'      => $lastUsername,
+            'error'              => $error,
+            'captcha_error'      => null,
             'recaptcha_site_key' => $this->recaptchaSiteKey,
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  FACE RECOGNITION LOGIN
+    // ─────────────────────────────────────────────────────────────
+
+    #[Route('/face-login', name: 'face_login', methods: ['POST'])]
+    public function faceLogin(
+        Request        $request,
+        UserRepository $userRepository,
+        Security       $security
+    ): JsonResponse {
+        $email     = trim((string) $request->request->get('email', ''));
+        $facePhoto = $request->files->get('face_photo');
+
+        // ── Basic validation ────────────────────────────────────
+        if ($email === '' || !$facePhoto) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Please enter your email and capture/upload your face photo.',
+            ], 400);
+        }
+
+        // ── Find user ───────────────────────────────────────────
+        $user = $userRepository->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No account found with this email address.',
+            ], 404);
+        }
+
+        if (!$user->getFaceImagePath()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'This account does not have a registered face. Please use email & password.',
+            ], 400);
+        }
+
+        // ── Compare faces via Face++ ────────────────────────────
+        $confidence = $this->faceRecognitionService->compareFaces(
+            $user->getFaceImagePath(),
+            $facePhoto
+        );
+
+        if ($confidence < 70.0) {
+            return new JsonResponse([
+                'success'    => false,
+                'message'    => 'Face not recognised. Please try again or use email & password.',
+                'confidence' => $confidence,
+            ], 401);
+        }
+
+        // ── Log the user in programmatically ───────────────────
+        $security->login($user, 'form_login', 'main');
+
+        // Determine redirect based on role
+        if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            $redirectRoute = 'admin_dashboard';
+        } elseif (in_array('ROLE_DOCTOR', $user->getRoles(), true)) {
+            $redirectRoute = 'doctor_dashboard';
+        } else {
+            $redirectRoute = 'user_dashboard';
+        }
+
+        return new JsonResponse([
+            'success'      => true,
+            'message'      => 'Face recognised! Signing you in…',
+            'confidence'   => $confidence,
+            'redirect_url' => $this->generateUrl($redirectRoute),
         ]);
     }
 
@@ -183,6 +256,17 @@ class AuthController extends AbstractController
             $fullName = trim(($user->getFirstName() ?? '') . ' ' . ($user->getLastName() ?? ''));
             $user->setFullName($fullName ?: 'User');
             $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
+
+            // ── Face Recognition (optional, non-blocking) ────────────────
+            $facePhoto = $request->files->get('face_photo');
+            if ($facePhoto) {
+                // Use a temporary unique ID before the entity has a real DB id
+                $tempId = uniqid('user_', true);
+                $result = $this->faceRecognitionService->processUploadedFace($facePhoto, $tempId);
+                $user->setFaceId($result['face_token']);
+                $user->setFaceImagePath($result['image_path']);
+            }
+            // ─────────────────────────────────────────────────────────────
 
             $entityManager->persist($user);
             $entityManager->flush();

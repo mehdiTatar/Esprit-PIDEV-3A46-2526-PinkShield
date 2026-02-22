@@ -9,6 +9,8 @@
 parameters:
     recaptcha_site_key: '%env(RECAPTCHA_SITE_KEY)%'
     recaptcha_secret_key: '%env(RECAPTCHA_SECRET_KEY)%'
+    face_api_key: '%env(FACE_API_KEY)%'
+    face_api_secret: '%env(FACE_API_SECRET)%'
 
 services:
     # default configuration for services in *this* file
@@ -27,3 +29,9 @@ services:
     App\EventListener\LoginCaptchaListener:
         arguments:
             $recaptchaSecretKey: '%recaptcha_secret_key%'
+
+    App\Service\FaceRecognitionService:
+        arguments:
+            $apiKey: '%face_api_key%'
+            $apiSecret: '%face_api_secret%'
+            $projectDir: '%kernel.project_dir%'

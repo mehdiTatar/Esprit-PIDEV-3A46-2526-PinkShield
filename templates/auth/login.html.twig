@@ -8,7 +8,7 @@
     .navbar { position: static !important; }
 
     body {
-        background: linear-gradient(135deg, #d4f0e6 0%, #b8e6db 100%) !important;
+        background: linear-gradient(135deg, #fce4ec 0%, #f8d0df 100%) !important;
         min-height: 100vh;
     }
 
@@ -19,10 +19,10 @@
         margin-left: 0 !important;
         margin-top: 0 !important;
         display: flex;
-        align-items: center;
+        align-items: center; /* Back to center */
         justify-content: center;
         min-height: calc(100vh - var(--navbar-height, 64px));
-        padding: 32px 20px;
+        padding: 40px 20px; 
     }
 
     footer { margin-left: 0 !important; }
@@ -32,7 +32,7 @@
         padding: 0 !important;
         width: 100%;
         display: flex;
-        align-items: center;
+        align-items: center; /* Centered */
         justify-content: center;
     }
 
@@ -40,8 +40,9 @@
     .login-wrapper {
         width: 100%;
         display: flex;
-        align-items: center;
+        align-items: center; /* Centered */
         justify-content: center;
+        padding-bottom: 40px;
     }
 
     .login-container {
@@ -53,11 +54,12 @@
         border-radius: 20px;
         box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12);
         overflow: hidden;
+        margin-top: 20px;
     }
 
     /* ── Branding panel ── */
     .login-branding {
-        background: linear-gradient(145deg, #4CAF87 0%, #2d8a62 100%);
+        background: linear-gradient(145deg, var(--primary, #c0396b) 0%, #9b2553 100%);
         color: #fff;
         padding: 56px 48px;
         display: flex;
@@ -130,7 +132,7 @@
         padding: 56px 48px;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start; /* Consistent flow */
     }
 
     .login-form-wrapper h3 {
@@ -159,7 +161,7 @@
         font-size: 0.88rem;
     }
 
-    .form-label i { color: #4CAF87; font-size: 0.9rem; width: 14px; }
+    .form-label i { color: var(--primary, #c0396b); font-size: 0.9rem; width: 14px; }
 
     .form-control {
         border: 1.5px solid #e5e7eb;
@@ -173,11 +175,11 @@
 
     .form-control::placeholder { color: #c4c9d4; }
 
-    .form-control:hover { border-color: #a8d5c2; }
+    .form-control:hover { border-color: #f3c6d8; }
 
     .form-control:focus {
-        border-color: #4CAF87;
-        box-shadow: 0 0 0 3px rgba(76, 175, 135, 0.12);
+        border-color: var(--primary, #c0396b);
+        box-shadow: 0 0 0 3px rgba(192, 57, 107, 0.12);
         outline: none;
         background: #fff;
     }
@@ -203,11 +205,11 @@
         margin: 0 0 0 7px;
     }
 
-    .remember-row input { accent-color: #4CAF87; cursor: pointer; }
+    .remember-row input { accent-color: var(--primary, #c0396b); cursor: pointer; }
 
     .forgot-link {
         font-size: 0.85rem;
-        color: #4CAF87;
+        color: var(--primary, #c0396b);
         text-decoration: none;
         font-weight: 600;
     }
@@ -216,7 +218,7 @@
 
     /* ── Submit button ── */
     .btn-login {
-        background: linear-gradient(135deg, #4CAF87 0%, #3a8f6f 100%);
+        background: linear-gradient(135deg, var(--primary, #c0396b) 0%, #e8557a 100%);
         border: none;
         color: #fff;
         font-weight: 700;
@@ -232,7 +234,7 @@
 
     .btn-login:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(76, 175, 135, 0.35);
+        box-shadow: 0 8px 24px rgba(192, 57, 107, 0.35);
         filter: brightness(1.05);
     }
 
@@ -254,8 +256,8 @@
 
     .btn-register {
         background: transparent;
-        border: 2px solid #4CAF87;
-        color: #4CAF87;
+        border: 2px solid var(--primary, #c0396b);
+        color: var(--primary, #c0396b);
         text-decoration: none;
         font-weight: 700;
         padding: 10px 24px;
@@ -266,10 +268,10 @@
     }
 
     .btn-register:hover {
-        background: #4CAF87;
+        background: var(--primary, #c0396b);
         color: #fff;
         transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(76, 175, 135, 0.3);
+        box-shadow: 0 6px 18px rgba(192, 57, 107, 0.3);
     }
 
     /* ── Alert ── */
@@ -282,13 +284,166 @@
     /* ── CAPTCHA ── */
     .captcha-wrapper {
         background: #f9fafb;
-        padding: 12px;
+        padding: 10px;
         border-radius: 10px;
         border: 1px solid #e5e7eb;
     }
 
     .g-recaptcha { display: flex; justify-content: center; }
-    .g-recaptcha iframe { max-width: 100%; }
+    .g-recaptcha iframe { max-width: 100%; transform: scale(0.9); transform-origin: center; }
+
+    /* ── OR divider ── */
+    .or-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 22px 0 18px;
+        color: #9ca3af;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+    .or-divider::before, .or-divider::after {
+        content: ''; flex: 1;
+        height: 1px; background: #e5e7eb;
+    }
+
+    /* ── Face login panel ── */
+    .face-login-section {
+        background: linear-gradient(135deg, #fffafa 0%, #fff0f5 100%);
+        border: 2px dashed #f3c6d8;
+        border-radius: 16px;
+        padding: 24px;
+        margin-top: 10px;
+        position: relative;
+    }
+
+    .face-login-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--primary, #c0396b);
+        margin-bottom: 18px;
+    }
+    .face-login-header i { font-size: 1.2rem; }
+    
+    .face-badge {
+        background: #c0396b;
+        color: #fff;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 3px 10px;
+        border-radius: 30px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-left: auto;
+    }
+
+    .face-preview-row {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    @media (min-width: 500px) {
+        .face-preview-row { flex-direction: row; align-items: flex-start; }
+    }
+
+    .webcam-box { 
+        flex: 1; 
+        min-width: 0;
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        background: #000;
+    }
+
+    #loginWebcamVideo, #loginCapturedCanvas {
+        width: 100%;
+        display: block;
+        max-height: 200px;
+        object-fit: cover;
+        aspect-ratio: 4/3;
+    }
+    #loginCapturedCanvas { display: none; }
+
+    .face-controls-col {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    @media (min-width: 500px) {
+        .face-controls-col { width: 160px; flex-shrink: 0; }
+    }
+
+    .btn-face {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: none;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
+    
+    .btn-face-open    { background: #1e1b34; color: #fff; }
+    .btn-face-open:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(30,27,52,0.3); }
+    .btn-face-capture { background: #22c55e; color: #fff; }
+    .btn-face-capture:disabled { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
+    .btn-face-capture:not(:disabled):hover { background: #16a34a; transform: translateY(-1px); }
+    .btn-face-retake  { background: #f59e0b; color: #fff; }
+    .btn-face-retake:hover { background: #d97706; }
+    .btn-face-upload  { background: #fff; color: #4b5563; border: 1.5px solid #e5e7eb; }
+    .btn-face-upload:hover { border-color: var(--primary,#c0396b); color: var(--primary,#c0396b); }
+
+    .btn-face-login {
+        width: 100%;
+        margin-top: 18px;
+        padding: 14px;
+        background: linear-gradient(135deg, var(--primary, #c0396b), #9b2553);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .btn-face-login:hover:not(:disabled) {
+        transform: scale(1.02);
+        box-shadow: 0 10px 25px rgba(192,57,107,0.4);
+    }
+    .btn-face-login:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
+    .face-feedback {
+        margin-top: 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 10px 14px;
+        border-radius: 10px;
+        display: none;
+        animation: fadeUp 0.3s ease;
+    }
+    .face-feedback.captured  { display: flex; align-items: center; gap: 8px; background: #ecfdf5; color: #059669; border: 1px solid #10b981; }
+    .face-feedback.scanning  { display: flex; align-items: center; gap: 8px; background: #eff6ff; color: #2563eb; border: 1px solid #3b82f6; }
+    .face-feedback.error     { display: flex; align-items: center; gap: 8px; background: #fef2f2; color: #dc2626; border: 1px solid #ef4444; }
+    .face-feedback.success   { display: flex; align-items: center; gap: 8px; background: #ecfdf5; color: #059669; border: 1px solid #10b981; }
 
     /* ── Animations ── */
     @keyframes fadeUp {
@@ -306,18 +461,16 @@
     .register-section        { animation: fadeUp 0.5s ease 0.44s both; }
 
     /* ── Responsive ── */
-    @media (max-width: 768px) {
-        .login-container { grid-template-columns: 1fr; }
-
-        .login-branding {
-            padding: 36px 28px;
-            min-height: auto;
-        }
-
-        .login-branding h2 { font-size: 1.7rem; }
+    @media (max-width: 991px) {
+        .login-container { max-width: 500px; grid-template-columns: 1fr; }
+        .login-branding { min-height: 200px; padding: 40px 30px; }
         .benefits { display: none; }
+    }
 
-        .login-form-wrapper { padding: 36px 28px; }
+    @media (max-width: 576px) {
+        main { padding: 24px 15px; }
+        .login-form-wrapper { padding: 40px 24px; }
+        .login-branding h2 { font-size: 1.8rem; }
     }
 
     /* Error messages via AJAX only */
@@ -332,6 +485,7 @@
     }
 
     .ajax-error.d-block { display: block !important; }
+
 </style>
 {% endblock %}
 
@@ -347,13 +501,13 @@
                 <defs>
                     <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%"   style="stop-color:#ffffff;stop-opacity:0.95"/>
-                        <stop offset="100%" style="stop-color:#d4f0e6;stop-opacity:0.95"/>
+                        <stop offset="100%" style="stop-color:#fce4ec;stop-opacity:0.95"/>
                     </linearGradient>
                 </defs>
                 <path d="M100 20 C100 20 60 40 60 90 C60 130 100 170 100 170 C100 170 140 130 140 90 C140 40 100 20 100 20Z"
                       fill="url(#shieldGrad)" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
                 <path d="M100 75 C100 75 92 68 86 68 C80 68 76 72 76 78 C76 85 85 95 100 110 C115 95 124 85 124 78 C124 72 120 68 114 68 C108 68 100 75 100 75Z"
-                      fill="#4CAF87"/>
+                      fill="#e8557a"/>
             </svg>
 
             <h2>PinkShield</h2>
@@ -445,6 +599,48 @@
                 </button>
             </form>
 
+            {# ── Face Recognition Login ── #}
+            <div class="or-divider">or sign in with face</div>
+
+            <div class="face-login-section">
+                <div class="face-login-header">
+                    <i class="fas fa-camera"></i>
+                    Face Recognition
+                    <span class="face-badge">BIOMETRIC</span>
+                </div>
+
+                <div class="face-preview-row">
+                    <div class="webcam-box">
+                        <video id="loginWebcamVideo" autoplay playsinline muted></video>
+                        <canvas id="loginCapturedCanvas"></canvas>
+                    </div>
+                    <div class="face-controls-col">
+                        <button type="button" class="btn-face btn-face-open" id="loginBtnOpen">
+                            <i class="fas fa-video"></i> Open Camera
+                        </button>
+                        <button type="button" class="btn-face btn-face-capture" id="loginBtnCapture" disabled>
+                            <i class="fas fa-circle"></i> Capture
+                        </button>
+                        <button type="button" class="btn-face btn-face-retake" id="loginBtnRetake" style="display:none">
+                            <i class="fas fa-redo"></i> Retake
+                        </button>
+                        <label class="btn-face btn-face-upload" style="cursor:pointer">
+                            <i class="fas fa-upload"></i> Upload Photo
+                            <input type="file" id="loginFaceFileInput" accept="image/*" style="display:none">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="face-feedback" id="loginFaceFeedback">
+                    <i class="fas fa-check-circle"></i> <span id="loginFaceMsg">Photo captured</span>
+                </div>
+
+                <button type="button" class="btn-face-login" id="btnFaceLogin" disabled>
+                    <i class="fas fa-user-check"></i> Sign In with Face
+                </button>
+            </div>
+            {# ──────────────────────────────── #}
+
             <div class="register-section">
                 <p>Don't have an account yet?</p>
                 <a href="{{ path('register') }}" class="btn-register">
@@ -461,13 +657,153 @@
 {% block javascripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // ── Standard form AJAX validation ──────────────────────────────
     const form = document.getElementById('loginForm');
-    if (!form) return;
-    AjaxValidator.attachBlur(form);
-    AjaxValidator.attachSubmit(form, null, function () {
-        // Let Symfony handle actual auth — just submit normally
-        form.removeEventListener('submit', null);
-        form.submit();
+    if (form) {
+        AjaxValidator.attachBlur(form);
+        AjaxValidator.attachSubmit(form, null, function () {
+            form.removeEventListener('submit', null);
+            form.submit();
+        });
+    }
+
+    // ── Face Recognition Login ──────────────────────────────────────
+    const video         = document.getElementById('loginWebcamVideo');
+    const canvas        = document.getElementById('loginCapturedCanvas');
+    const btnOpen       = document.getElementById('loginBtnOpen');
+    const btnCapture    = document.getElementById('loginBtnCapture');
+    const btnRetake     = document.getElementById('loginBtnRetake');
+    const fileInput     = document.getElementById('loginFaceFileInput');
+    const btnFaceLogin  = document.getElementById('btnFaceLogin');
+    const feedback      = document.getElementById('loginFaceFeedback');
+    const feedbackMsg   = document.getElementById('loginFaceMsg');
+    const emailInput    = document.getElementById('inputUsername');
+
+    let stream        = null;
+    let capturedBlob  = null;
+
+    function setFeedback(type, msg, icon = '') {
+        feedback.className = 'face-feedback ' + type;
+        feedbackMsg.textContent = msg;
+        if (icon) feedback.querySelector('i').className = icon;
+    }
+
+    function stopStream() {
+        if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    }
+
+    function showCanvasState() {
+        video.style.display   = 'none';
+        canvas.style.display  = 'block';
+        btnCapture.style.display = 'none';
+        btnRetake.style.display  = 'inline-flex';
+        btnOpen.style.display    = 'none';
+        stopStream();
+    }
+
+    function showVideoState() {
+        video.style.display   = 'block';
+        canvas.style.display  = 'none';
+        btnCapture.style.display = 'inline-flex';
+        btnRetake.style.display  = 'none';
+    }
+
+    // Open camera
+    btnOpen.addEventListener('click', async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            video.srcObject = stream;
+            video.style.display = 'block';
+            btnCapture.disabled = false;
+            btnOpen.innerHTML   = '<i class="fas fa-video"></i> Camera On';
+            btnOpen.style.opacity = '0.6';
+        } catch (err) {
+            alert('Camera access denied: ' + err.message + '\n\nUse the Upload Photo button instead.');
+        }
+    });
+
+    // Capture frame
+    btnCapture.addEventListener('click', () => {
+        canvas.width  = video.videoWidth  || 320;
+        canvas.height = video.videoHeight || 240;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        showCanvasState();
+        canvas.toBlob(blob => {
+            capturedBlob = blob;
+            btnFaceLogin.disabled = false;
+            setFeedback('captured', 'Photo captured — ready to sign in', 'fas fa-check-circle');
+        }, 'image/jpeg', 0.92);
+    });
+
+    // Retake
+    btnRetake.addEventListener('click', async () => {
+        capturedBlob = null;
+        btnFaceLogin.disabled = true;
+        feedback.className = 'face-feedback';
+        showVideoState();
+        btnCapture.disabled = true;
+        btnOpen.innerHTML   = '<i class="fas fa-video"></i> Open Camera';
+        btnOpen.style.opacity = '';
+        btnOpen.click();
+    });
+
+    // Upload photo fallback
+    fileInput.addEventListener('change', () => {
+        if (!fileInput.files.length) return;
+        capturedBlob = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.onload = () => {
+                canvas.width  = img.width;
+                canvas.height = img.height;
+                canvas.getContext('2d').drawImage(img, 0, 0);
+                showCanvasState();
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(capturedBlob);
+        btnFaceLogin.disabled = false;
+        setFeedback('captured', 'Photo loaded — ready to sign in', 'fas fa-check-circle');
+    });
+
+    // Submit face login
+    btnFaceLogin.addEventListener('click', async () => {
+        const email = emailInput ? emailInput.value.trim() : '';
+        if (!email) {
+            setFeedback('error', 'Please enter your email address above first.', 'fas fa-exclamation-circle');
+            emailInput && emailInput.focus();
+            return;
+        }
+        if (!capturedBlob) {
+            setFeedback('error', 'Please capture or upload a photo first.', 'fas fa-exclamation-circle');
+            return;
+        }
+
+        setFeedback('scanning', 'Scanning face, please wait…', 'fas fa-spinner fa-spin');
+        btnFaceLogin.disabled = true;
+
+        const fd = new FormData();
+        fd.append('email', email);
+        fd.append('face_photo', capturedBlob instanceof File
+            ? capturedBlob
+            : new File([capturedBlob], 'face_login.jpg', { type: 'image/jpeg' }));
+
+        try {
+            const res  = await fetch('{{ path('face_login') }}', { method: 'POST', body: fd });
+            const data = await res.json();
+
+            if (data.success) {
+                setFeedback('success', data.message || 'Face recognised! Redirecting…', 'fas fa-check-circle');
+                setTimeout(() => { window.location.href = data.redirect_url; }, 800);
+            } else {
+                setFeedback('error', data.message || 'Face not recognised. Please try again.', 'fas fa-times-circle');
+                btnFaceLogin.disabled = false;
+            }
+        } catch (err) {
+            setFeedback('error', 'Network error. Please try again.', 'fas fa-times-circle');
+            btnFaceLogin.disabled = false;
+        }
     });
 });
 </script>

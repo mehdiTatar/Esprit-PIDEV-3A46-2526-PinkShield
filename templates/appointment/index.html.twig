@@ -1,42 +1,138 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}My Appointments{% endblock %}
+{% block title %}My Appointments — PinkShield{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .appt-hero {
+        background: linear-gradient(135deg, #1e1b34 0%, #2d1b3d 100%);
+        border-radius: 16px;
+        padding: 32px 40px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+        box-shadow: 0 8px 30px rgba(30,27,52,0.28);
+    }
+
+    .appt-hero h1 { font-size: 1.75rem; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.3px; }
+    .appt-hero p  { margin: 0; opacity: 0.7; font-size: 0.9rem; }
+
+    .appt-panel {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+
+    .appt-panel-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff;
+    }
+
+    .appt-panel-header h6 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+    }
+
+    .appt-table { width: 100%; border-collapse: collapse; }
+
+    .appt-table thead th {
+        background: #fafafa;
+        padding: 13px 18px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .appt-table tbody td {
+        padding: 14px 18px;
+        border-bottom: 1px solid #f8f4f6;
+        font-size: 0.88rem;
+        color: var(--text-dark);
+        vertical-align: middle;
+    }
+
+    .appt-table tbody tr:last-child td { border-bottom: none; }
+    .appt-table tbody tr:hover { background: #fff5f8; }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.77rem;
+        font-weight: 700;
+    }
+
+    .status-confirmed { background: #dcfce7; color: #166534; }
+    .status-pending   { background: #fef3c7; color: #92400e; }
+    .status-cancelled { background: #fee2e2; color: #b91c1c; }
+
+    .appt-empty {
+        text-align: center;
+        padding: 60px 0;
+        color: var(--text-muted);
+    }
+
+    .appt-empty i { font-size: 3rem; color: var(--primary); opacity: 0.3; margin-bottom: 16px; display: block; }
+    .appt-empty h5 { color: var(--text-dark); }
+    .appt-empty p  { font-size: 0.88rem; }
+
+    .date-cell .date-main { font-weight: 700; font-size: 0.9rem; }
+    .date-cell .date-time { font-size: 0.77rem; color: var(--text-muted); }
+</style>
+{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>My Appointments</h1>
+<div>
+    {# Hero #}
+    <div class="appt-hero">
+        <div>
+            <h1><i class="fas fa-calendar-check me-2" style="opacity:0.8;"></i>
+                {% if is_granted('ROLE_ADMIN') %}All Appointments
+                {% elseif is_granted('ROLE_DOCTOR') %}My Patient Appointments
+                {% else %}My Appointments{% endif %}
+            </h1>
+            <p>Manage and track your medical consultations</p>
+        </div>
         {% if is_granted('ROLE_USER') and not is_granted('ROLE_DOCTOR') and not is_granted('ROLE_ADMIN') %}
-            <a href="{{ path('appointment_new') }}" class="btn btn-primary">
+            <a href="{{ path('appointment_new') }}" class="btn btn-primary d-flex align-items-center gap-2">
                 <i class="fas fa-calendar-plus"></i> Book Appointment
             </a>
         {% endif %}
     </div>
 
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success">
-            {{ message }}
+    {# Panel #}
+    <div class="appt-panel">
+        <div class="appt-panel-header">
+            <h6><i class="fas fa-list me-2" style="color:var(--primary);"></i>Appointment List</h6>
+            <span style="font-size:0.8rem;color:var(--text-muted);">{{ appointments|length }} record(s)</span>
         </div>
-    {% endfor %}
-    {% for message in app.flashes('error') %}
-        <div class="alert alert-danger">
-            {{ message }}
-        </div>
-    {% endfor %}
 
-    <div class="card shadow-sm">
-        <div class="card-body">
+        {% if appointments|length > 0 %}
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="appt-table">
                     <thead>
                         <tr>
                             <th>Date & Time</th>
-                            {% if is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
-                                <th>Patient</th>
-                            {% endif %}
-                            {% if not is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
-                                <th>Doctor</th>
-                            {% endif %}
+                            {% if is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}<th>Patient</th>{% endif %}
+                            {% if not is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}<th>Doctor</th>{% endif %}
                             <th>Status</th>
                             <th>Notes</th>
                             <th>Actions</th>
@@ -45,39 +141,73 @@
                     <tbody>
                         {% for appointment in appointments %}
                             <tr>
-                                <td>{{ appointment.appointmentDate|date('M d, Y H:i') }}</td>
+                                <td class="date-cell">
+                                    <div class="date-main">{{ appointment.appointmentDate|date('M d, Y') }}</div>
+                                    <div class="date-time"><i class="far fa-clock me-1"></i>{{ appointment.appointmentDate|date('H:i') }}</div>
+                                </td>
                                 {% if is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
-                                    <td>{{ appointment.patientName }}</td>
+                                    <td><i class="fas fa-user-injured me-1" style="color:var(--primary);opacity:0.7;"></i>{{ appointment.patientName }}</td>
                                 {% endif %}
                                 {% if not is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
-                                    <td>{{ appointment.doctorName }}</td>
+                                    <td><i class="fas fa-user-md me-1" style="color:var(--primary);opacity:0.7;"></i>{{ appointment.doctorName }}</td>
                                 {% endif %}
                                 <td>
-                                    <span class="badge {% if appointment.status == 'confirmed' %}bg-success{% elseif appointment.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    <span class="status-pill status-{{ appointment.status }}">
+                                        {% if appointment.status == 'confirmed' %}<i class="fas fa-check-circle"></i>
+                                        {% elseif appointment.status == 'pending' %}<i class="fas fa-hourglass-half"></i>
+                                        {% else %}<i class="fas fa-times-circle"></i>{% endif %}
                                         {{ appointment.status|capitalize }}
                                     </span>
                                 </td>
-                                <td>{{ appointment.notes|default('-') }}</td>
-                                <td>
-                                    {% if appointment.status == 'pending' %}
-                                        {% if is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
-                                            <a href="{{ path('appointment_confirm', {'id': appointment.id}) }}" class="btn btn-sm btn-success">Confirm</a>
-                                        {% endif %}
-                                        <a href="{{ path('appointment_cancel', {'id': appointment.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to cancel?')">Cancel</a>
-                                    {% elseif appointment.status == 'confirmed' %}
-                                        <a href="{{ path('appointment_cancel', {'id': appointment.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to cancel?')">Cancel</a>
-                                    {% endif %}
+                                <td style="color:var(--text-muted);font-style:{{ appointment.notes ? 'normal' : 'italic' }};">
+                                    {{ appointment.notes|default('—') }}
                                 </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center py-4">No appointments found.</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        {% if appointment.status == 'pending' %}
+                                            {% if is_granted('ROLE_DOCTOR') or is_granted('ROLE_ADMIN') %}
+                                                <a href="{{ path('appointment_confirm', {'id': appointment.id}) }}"
+                                                   class="btn btn-sm btn-success d-flex align-items-center gap-1">
+                                                    <i class="fas fa-check"></i> Confirm
+                                                </a>
+                                            {% endif %}
+                                            <a href="{{ path('appointment_cancel', {'id': appointment.id}) }}"
+                                               class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
+                                               onclick="return confirm('Cancel this appointment?')">
+                                                <i class="fas fa-times"></i> Cancel
+                                            </a>
+                                        {% elseif appointment.status == 'confirmed' %}
+                                            <a href="{{ path('appointment_cancel', {'id': appointment.id}) }}"
+                                               class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
+                                               onclick="return confirm('Cancel this appointment?')">
+                                                <i class="fas fa-times"></i> Cancel
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-        </div>
+        {% else %}
+            <div class="appt-empty">
+                <i class="fas fa-calendar-times"></i>
+                <h5>No appointments found</h5>
+                <p>
+                    {% if is_granted('ROLE_USER') and not is_granted('ROLE_DOCTOR') %}
+                        Ready to see a doctor?
+                    {% else %}
+                        No appointments scheduled yet.
+                    {% endif %}
+                </p>
+                {% if is_granted('ROLE_USER') and not is_granted('ROLE_DOCTOR') and not is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('appointment_new') }}" class="btn btn-primary mt-2">
+                        <i class="fas fa-calendar-plus me-2"></i>Book an Appointment
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

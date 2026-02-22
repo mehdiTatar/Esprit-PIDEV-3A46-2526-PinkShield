@@ -79,6 +79,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: DailyTracking::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $dailyTrackings;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $faceId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $faceImagePath = null;
+
     public function __construct()
     {
         $this->dailyTrackings = new ArrayCollection();
@@ -208,21 +214,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
-    public function __serialize(): array
-    {
-        $data = (array) $this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
-
-        return $data;
-    }
-
-    #[\Deprecated]
     public function eraseCredentials(): void
     {
-        // @deprecated, to be removed when upgrading to Symfony 8
+        // nothing sensitive stored in plain text
     }
 
     public function getStatus(): ?string
@@ -284,6 +278,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $dailyTracking->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getFaceId(): ?string
+    {
+        return $this->faceId;
+    }
+
+    public function setFaceId(?string $faceId): static
+    {
+        $this->faceId = $faceId;
+
+        return $this;
+    }
+
+    public function getFaceImagePath(): ?string
+    {
+        return $this->faceImagePath;
+    }
+
+    public function setFaceImagePath(?string $faceImagePath): static
+    {
+        $this->faceImagePath = $faceImagePath;
 
         return $this;
     }

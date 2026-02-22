@@ -9,11 +9,11 @@
 
     /* ── Welcome header ── */
     .dashboard-header {
-        background: linear-gradient(135deg, #4CAF87 0%, #2d8a62 100%);
+        background: linear-gradient(135deg, var(--primary) 0%, #e8557a 100%);
         color: #fff;
         padding: 36px 40px;
         border-radius: 16px;
-        box-shadow: 0 6px 24px rgba(76, 175, 135, 0.22);
+        box-shadow: 0 6px 24px rgba(192, 57, 107, 0.22);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -65,14 +65,14 @@
     }
 
     .quick-action-btn.primary {
-        background: var(--primary, #4CAF87);
+        background: var(--primary);
         color: #fff;
     }
 
     .quick-action-btn.primary:hover {
-        background: var(--primary-dark, #3a8f6f);
+        background: var(--primary-dark);
         transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(76,175,135,0.3);
+        box-shadow: 0 6px 18px rgba(192,57,107,0.3);
     }
 
     .quick-action-btn.outline {
