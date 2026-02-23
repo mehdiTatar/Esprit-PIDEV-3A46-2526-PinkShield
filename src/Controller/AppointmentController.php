@@ -20,6 +20,8 @@ use App\Entity\Parapharmacie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use TCPDF;
+use App\Service\AppointmentMailer;
 
 #[Route('/appointment')]
 class AppointmentController extends AbstractController
@@ -63,7 +65,12 @@ class AppointmentController extends AbstractController
         $events = [];
         foreach ($appointments as $appointment) {
             if ($appointment->getStatus() !== 'cancelled') {
-                $endDate = (clone $appointment->getAppointmentDate())->modify('+30 minutes');
+                $appointmentDateTime = $appointment->getAppointmentDate();
+                if ($appointmentDateTime instanceof \DateTime) {
+                    $endDate = (clone $appointmentDateTime)->modify('+30 minutes');
+                } else {
+                    $endDate = \DateTime::createFromInterface($appointmentDateTime)->modify('+30 minutes');
+                }
                 
                 $events[] = [
                     'id' => $appointment->getId(),
@@ -97,6 +104,8 @@ class AppointmentController extends AbstractController
             $this->addFlash('error', 'Only patients can book appointments.');
             return $this->redirectToRoute('appointment_index');
         }
+
+        $doctors = $doctorRepository->findAll();
 
         $appointment = new Appointment();
         $appointment->setPatientEmail($this->getUser()->getUserIdentifier());
@@ -143,8 +152,6 @@ class AppointmentController extends AbstractController
             $this->addFlash('success', 'Appointment booked successfully! Waiting for doctor confirmation.');
             return $this->redirectToRoute('appointment_index');
         }
-
-        $doctors = $doctorRepository->findAll();
 
         return $this->render('appointment/new.html.twig', [
             'form' => $form->createView(),
@@ -246,7 +253,205 @@ class AppointmentController extends AbstractController
         return $this->redirectToRoute('appointment_index');
     }
 
-    #[Route('/suggestion', name: 'appointment_suggestion')]
+    #[Route('/{id}/invoice', name: 'appointment_invoice')]
+    public function generateInvoice(Appointment $appointment): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $userEmail = $this->getUser()->getUserIdentifier();
+        
+        // Access: patient, doctor, or admin
+        if ($appointment->getPatientEmail() !== $userEmail && 
+            $appointment->getDoctorEmail() !== $userEmail && 
+            !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        // Calculate invoice details
+        $invoiceNumber = 'INV-' . $appointment->getId() . '-' . $appointment->getAppointmentDate()->format('Ymd');
+        $invoiceDate = new \DateTime();
+        $total = $this->calculateTotal($appointment);
+
+        // Create PDF
+        $pdf = new TCPDF();
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('PinkShield Medical Services');
+        $pdf->SetTitle('Invoice ' . $invoiceNumber);
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        $pdf->SetMargins(15, 15, 15);
+        $pdf->SetAutoPageBreak(TRUE, 15);
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', '', 11);
+
+        // Company Header
+        $pdf->SetFont('helvetica', 'B', 20);
+        $pdf->SetTextColor(196, 30, 58);
+        $pdf->Cell(0, 15, 'PinkShield', 0, 1, 'L');
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetTextColor(102, 102, 102);
+        $pdf->Cell(0, 5, 'Medical & Consulting Services', 0, 1, 'L');
+        
+        // Invoice Info (right aligned)
+        $pdf->SetY(15);
+        $pdf->SetFont('helvetica', 'B', 14);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell(0, 10, 'INVOICE', 0, 1, 'R');
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(0, 5, 'Invoice #: ' . $invoiceNumber, 0, 1, 'R');
+        $pdf->Cell(0, 5, 'Date: ' . $invoiceDate->format('M d, Y'), 0, 1, 'R');
+
+        // Separator
+        $pdf->SetDrawColor(196, 30, 58);
+        $pdf->SetLineWidth(0.5);
+        $pdf->Line(15, $pdf->GetY() + 3, 195, $pdf->GetY() + 3);
+        $pdf->Ln(8);
+
+        // Bill To / Service Provider - Fixed Layout
+        $startBillToY = $pdf->GetY();
+        
+        // BILL TO column
+        $pdf->SetFont('helvetica', 'B', 11);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetX(15);
+        $pdf->Cell(0, 5, 'BILL TO:', 0, 1, 'L');
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetX(15);
+        $pdf->MultiCell(90, 4, "Patient:\n" . $appointment->getPatientName() . "\n\nEmail:\n" . $appointment->getPatientEmail(), 0, 'L');
+        
+        // SERVICE PROVIDER column (positioned at original Y + offset)
+        $pdf->SetY($startBillToY);
+        $pdf->SetFont('helvetica', 'B', 11);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetX(120);
+        $pdf->Cell(0, 5, 'SERVICE PROVIDER:', 0, 1, 'R');
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetX(120);
+        $pdf->MultiCell(75, 4, "Doctor:\n" . $appointment->getDoctorName() . "\n\nEmail:\n" . $appointment->getDoctorEmail(), 0, 'R');
+
+        $pdf->Ln(8);
+
+        // Appointment Details
+        $pdf->SetFont('helvetica', 'B', 11);
+        $pdf->SetTextColor(196, 30, 58);
+        $pdf->Cell(0, 7, 'APPOINTMENT DETAILS', 0, 1, 'L');
+        
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFillColor(245, 245, 245);
+        $pdf->MultiCell(0, 5, 
+            "Date & Time: " . $appointment->getAppointmentDate()->format('M d, Y H:i') . "\n" .
+            "Status: " . ucfirst($appointment->getStatus()) . "\n" .
+            "Notes: " . ($appointment->getNotes() ? $appointment->getNotes() : 'None'),
+            1, 'L', TRUE
+        );
+
+        $pdf->Ln(5);
+
+        // Products Table
+        $pdf->SetFont('helvetica', 'B', 11);
+        $pdf->SetTextColor(196, 30, 58);
+        $pdf->Cell(0, 7, 'PARAPHARMACIE ITEMS', 0, 1, 'L');
+
+        $pdf->Ln(2);
+
+        // Table Header
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetFillColor(196, 30, 58);
+        $pdf->Cell(80, 8, 'Product Name', 1, 0, 'L', TRUE);
+        $pdf->Cell(50, 8, 'Description', 1, 0, 'L', TRUE);
+        $pdf->Cell(35, 8, 'Price', 1, 1, 'R', TRUE);
+
+        // Table Content
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFillColor(255, 255, 255);
+
+        if ($appointment->getParapharmacies() && count($appointment->getParapharmacies()) > 0) {
+            foreach ($appointment->getParapharmacies() as $item) {
+                $pdf->Cell(80, 7, substr($item->getName(), 0, 50), 1, 0, 'L');
+                $pdf->Cell(50, 7, substr($item->getDescription() ?? '', 0, 30), 1, 0, 'L');
+                $pdf->Cell(35, 7, '$' . number_format((float)$item->getPrice(), 2, '.', ','), 1, 1, 'R');
+            }
+        } else {
+            $pdf->SetFillColor(240, 240, 240);
+            $pdf->Cell(165, 7, 'No items', 1, 1, 'C', TRUE);
+        }
+
+        // Total
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->SetTextColor(196, 30, 58);
+        $pdf->Cell(130, 10, 'TOTAL AMOUNT:', 1, 0, 'R');
+        $pdf->Cell(35, 10, '$' . number_format($total, 2, '.', ','), 1, 1, 'R');
+
+        // Footer
+        $pdf->Ln(10);
+        $pdf->SetFont('helvetica', '', 9);
+        $pdf->SetTextColor(102, 102, 102);
+        $pdf->MultiCell(0, 4, 
+            "Thank you for choosing PinkShield Medical Services.\n" .
+            "This invoice is valid and officially issued for the appointment service provided.\n" .
+            "Generated on " . date('M d, Y H:i'),
+            0, 'C'
+        );
+
+        // Generate PDF content
+        $pdfContent = $pdf->Output('', 'S'); // S = return as string
+
+        return new Response(
+            $pdfContent,
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $invoiceNumber . '.pdf"'
+            ]
+        );
+    }
+
+    #[Route('/{id}/email-doctor', name: 'appointment_email_doctor', methods: ['POST'])]
+    public function emailDoctor(Request $request, Appointment $appointment, AppointmentMailer $mailer): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        // Only for completed appointments
+        if ($appointment->getStatus() !== 'completed') {
+            $this->addFlash('error', 'Email can only be sent for completed appointments.');
+            return $this->redirectToRoute('appointment_show', ['id' => $appointment->getId()]);
+        }
+
+        // CSRF validation
+        $token = $request->request->get('_csrf_token');
+        if (!$this->isCsrfTokenValid('email_doctor' . $appointment->getId(), $token)) {
+            $this->addFlash('error', 'Invalid CSRF token.');
+            return $this->redirectToRoute('appointment_show', ['id' => $appointment->getId()]);
+        }
+
+        try {
+            $mailer->sendAppointmentCompletedEmail($appointment);
+            $this->addFlash('success', 'Email sent to the doctor.');
+        } catch (\Throwable $e) {
+            $this->addFlash('error', 'Failed to send email: ' . $e->getMessage());
+        }
+
+        return $this->redirectToRoute('appointment_show', ['id' => $appointment->getId()]);
+    }
+
+    private function calculateTotal(Appointment $appointment): float
+    {
+        $total = 0.0;
+        
+        if ($appointment->getParapharmacies()) {
+            foreach ($appointment->getParapharmacies() as $item) {
+                $price = $item->getPrice();
+                if ($price !== null) {
+                    $total += (float) $price;
+                }
+            }
+        }
+        
+        return round($total, 2);
+    }
+
+    #[Route('/{id}/suggestion', name: 'appointment_suggestion')]
     public function suggestAppointment(DailyTrackingRepository $trackingRepository): Response
     {
         $stats = $trackingRepository->getStatistics($this->getUser());

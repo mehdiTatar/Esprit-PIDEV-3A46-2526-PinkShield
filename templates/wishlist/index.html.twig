@@ -261,6 +261,25 @@
     <p>Products you're interested in purchasing</p>
 </div>
 
+{# Smart Bundle Deals UI #}
+{% if bundleSuggestions|length > 0 %}
+    <div class="summary-card" style="background: #fffbe6; border: 2px solid #ffc107; margin-bottom: 30px;">
+        <div class="summary-title" style="color: #c41e3a;">Special Offer: Smart Bundle Deals</div>
+        {% for bundle in bundleSuggestions %}
+            <div class="mb-4 p-3" style="border-bottom: 1px dashed #ffc107;">
+                <div><strong>{{ bundle.wishlistItem.product.name }}</strong> + <strong>{{ bundle.companion.name }}</strong></div>
+                <div class="text-muted mb-2">Category: {{ bundle.wishlistItem.product.category }}</div>
+                <div>
+                    <span style="text-decoration: line-through; color: #9ca3af; font-size: 1.1rem;">${{ bundle.originalPrice|number_format(2) }}</span>
+                    <span style="color: #c41e3a; font-size: 1.3rem; font-weight: bold; margin-left: 10px;">${{ bundle.bundlePrice|number_format(2) }}</span>
+                    <span class="badge bg-warning text-dark ms-2">15% OFF</span>
+                </div>
+                <p class="text-muted mt-2 mb-0">Bundle these products for maximum savings!</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
 {% if wishlistItems|length > 0 %}
     <!-- Wishlist Table -->
     <div style="overflow-x: auto;">
@@ -309,6 +328,17 @@
     <div class="summary-card">
         <div class="summary-title">Wishlist Summary</div>
         <div class="summary-items">{{ wishlistItems|length }} {{ wishlistItems|length == 1 ? 'item' : 'items' }} in your wishlist</div>
+        <div style="font-size: 1.1rem; color: #6b7280; margin-bottom: 15px;">
+            <strong>Total Value:</strong>
+        </div>
+        <div style="font-size: 2rem; font-weight: 900; color: var(--primary); margin-bottom: 20px;">
+            $<span id="total-price">
+            {%- set total = 0.0 -%}
+            {%- for item in wishlistItems -%}
+                {%- set total = total + (item.product.price|default(0)) -%}
+            {%- endfor -%}
+            {{ (total * 100)|round / 100|number_format(2) }}</span>
+        </div>
         <a href="{{ path('parapharmacy_index') }}" class="btn-browse">
             <i class="fas fa-shopping-bag me-2"></i> Continue Shopping
         </a>
@@ -340,6 +370,15 @@
             .then(data => {
                 if (data.success) {
                     const row = button.closest('tr');
+                    const priceText = row.querySelector('.price').textContent.trim();
+                    const price = parseFloat(priceText.replace(/[$,]/g, ''));
+                    
+                    // Update total
+                    const totalPriceEl = document.getElementById('total-price');
+                    const currentTotal = parseFloat(totalPriceEl.textContent.replace(/,/g, ''));
+                    const newTotal = currentTotal - price;
+                    totalPriceEl.textContent = newTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    
                     row.style.opacity = '0.5';
                     row.style.textDecoration = 'line-through';
                     setTimeout(() => {

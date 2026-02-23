@@ -8,6 +8,20 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3>Appointment Details</h3>
             <div>
+                <a href="{{ path('appointment_invoice', {'id': appointment.id}) }}" class="btn btn-sm btn-outline-success" title="Download Invoice as PDF">
+                    <i class="fas fa-file-pdf"></i> Download Invoice
+                </a>
+
+                {# Send Email button (only for completed appointments) #}
+                {% if appointment.status == 'completed' and is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <form method="post" action="{{ path('appointment_email_doctor', {'id': appointment.id}) }}" style="display:inline-block;">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('email_doctor' ~ appointment.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-info" title="Email Invoice to Doctor">
+                            <i class="fas fa-paper-plane"></i> Email Doctor
+                        </button>
+                    </form>
+                {% endif %}
+
                 <a href="{{ path('appointment_edit', {'id': appointment.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                 <a href="{{ path('appointment_index') }}" class="btn btn-sm btn-secondary">Back</a>
             </div>

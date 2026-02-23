@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Wishlist;
 use App\Entity\Parapharmacie;
 use App\Entity\Notification;
+use App\Entity\User;
 use App\Repository\WishlistRepository;
 use App\Repository\ParapharmacieRepository;
 use App\Repository\UserRepository;
@@ -18,15 +19,41 @@ use Symfony\Component\Routing\Attribute\Route;
 class WishlistController extends AbstractController
 {
     #[Route('/', name: 'wishlist_index')]
-    public function index(WishlistRepository $wishlistRepository): Response
+    public function index(WishlistRepository $wishlistRepository, ParapharmacieRepository $parapharmacieRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
-        
         $user = $this->getUser();
         $wishlistItems = $wishlistRepository->findByUser($user);
 
+        // Smart Bundle Deals logic
+        $bundleSuggestions = [];
+        if ($wishlistItems) {
+            foreach ($wishlistItems as $item) {
+                $product = $item->getProduct();
+                $category = $product->getCategory();
+                if ($category) {
+                    // Find companion products by same category
+                    $companions = $parapharmacieRepository->findBy(['category' => $category]);
+                    foreach ($companions as $companion) {
+                        if ($companion->getId() !== $product->getId()) {
+                            // Bundle price: 15% off sum
+                            $origPrice = (float)$product->getPrice() + (float)$companion->getPrice();
+                            $bundlePrice = round($origPrice * 0.85, 2);
+                            $bundleSuggestions[] = [
+                                'wishlistItem' => $item,
+                                'companion' => $companion,
+                                'originalPrice' => $origPrice,
+                                'bundlePrice' => $bundlePrice,
+                            ]; 
+                        }
+                    }
+                }
+            }
+        }
+
         return $this->render('wishlist/index.html.twig', [
             'wishlistItems' => $wishlistItems,
+            'bundleSuggestions' => $bundleSuggestions,
         ]);
     }
 
@@ -62,11 +89,12 @@ class WishlistController extends AbstractController
 
         // Create notification for all admins
         $admins = $userRepository->findByRole('ROLE_ADMIN');
+        $userName = ($user instanceof User) ? $user->getFullName() : $user->getUserIdentifier();
         foreach ($admins as $admin) {
             $notification = new Notification();
             $notification->setUser($admin);
             $notification->setTitle('New Wishlist Addition');
-            $notification->setMessage($user->getFullName() . ' added "' . $product->getName() . '" to their wishlist');
+            $notification->setMessage($userName . ' added "' . $product->getName() . '" to their wishlist');
             $notification->setType('info');
             $notification->setIcon('fas fa-heart');
             $entityManager->persist($notification);

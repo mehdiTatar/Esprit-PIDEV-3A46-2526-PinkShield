@@ -20,6 +20,21 @@ class Parapharmacie
     #[Assert\Length(min: 2, max: 150, minMessage: 'Product name must be at least 2 characters', maxMessage: 'Product name must not exceed 150 characters')]
     private ?string $name = null;
 
+    #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Category is required')]
+    #[Assert\Length(min: 2, max: 100, minMessage: 'Category must be at least 2 characters', maxMessage: 'Category must not exceed 100 characters')]
+    private ?string $category = null;
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(string $category): static
+    {
+        $this->category = $category;
+        return $this;
+    }
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(max: 1000, maxMessage: 'Description cannot exceed 1000 characters')]
     private ?string $description = null;
