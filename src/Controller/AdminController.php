@@ -9,6 +9,7 @@ use App\Repository\AdminRepository;
 use App\Repository\BlogPostRepository;
 use App\Repository\HealthLogRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,17 +20,27 @@ use Symfony\Component\Routing\Attribute\Route;
 class AdminController extends AbstractController
 {
     #[Route('/blog', name: 'admin_blog_index')]
-    public function blogIndex(Request $request, BlogPostRepository $blogPostRepository): Response
+    public function blogIndex(Request $request, BlogPostRepository $blogPostRepository, PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $q = $request->query->get('q');
-        $sort = $request->query->get('sort');
+        $sortBy = $request->query->get('sortBy');
+
+        // Get query builder for pagination
+        $queryBuilder = $blogPostRepository->searchAndSortQueryBuilder($q, $sortBy);
+
+        // Paginate the results
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            3 // 3 posts per page in admin
+        );
 
         return $this->render('admin/blog_index.html.twig', [
-            'posts' => $blogPostRepository->searchAndSort($q, $sort),
+            'pagination' => $pagination,
             'q' => $q,
-            'sort' => $sort,
+            'sortBy' => $sortBy,
         ]);
     }
 

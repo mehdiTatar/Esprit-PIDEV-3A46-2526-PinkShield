@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CommentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -33,9 +34,17 @@ class Comment
     #[ORM\JoinColumn(nullable: false)]
     private ?BlogPost $blogPost = null;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'replies')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?Comment $parentComment = null;
+
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parentComment', cascade: ['remove'])]
+    private $replies;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->replies = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     public function getId(): ?int
@@ -96,5 +105,21 @@ class Comment
     {
         $this->blogPost = $blogPost;
         return $this;
+    }
+
+    public function getParentComment(): ?Comment
+    {
+        return $this->parentComment;
+    }
+
+    public function setParentComment(?Comment $parentComment): static
+    {
+        $this->parentComment = $parentComment;
+        return $this;
+    }
+
+    public function getReplies()
+    {
+        return $this->replies;
     }
 }

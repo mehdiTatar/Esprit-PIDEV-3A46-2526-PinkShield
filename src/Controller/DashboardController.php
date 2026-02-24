@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Repository\AdminRepository;
 use App\Repository\AppointmentRepository;
+use App\Repository\BlogPostRepository;
+use App\Repository\CommentRepository;
 use App\Repository\DoctorRepository;
 use App\Repository\RatingRepository;
 use App\Repository\UserRepository;
@@ -37,15 +39,38 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/admin/dashboard', name: 'admin_dashboard')]
-    public function adminDashboard(UserRepository $userRepository, DoctorRepository $doctorRepository, AdminRepository $adminRepository): Response
+    public function adminDashboard(
+        UserRepository $userRepository, 
+        DoctorRepository $doctorRepository, 
+        AdminRepository $adminRepository,
+        BlogPostRepository $blogPostRepository,
+        CommentRepository $commentRepository
+    ): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        
+        // Get all blog posts and comments
+        $allPosts = $blogPostRepository->findAll();
+        $allComments = $commentRepository->findAll();
+        
+        // Calculate total comments (including replies)
+        $totalComments = count($allComments);
+        
+        // Calculate comments that are replies (have a parent)
+        $totalReplies = count(array_filter($allComments, fn($c) => $c->getParentComment() !== null));
+        
+        // Calculate top-level comments (no parent)
+        $topLevelComments = $totalComments - $totalReplies;
         
         return $this->render('dashboard/admin.html.twig', [
             'title' => 'Admin Dashboard',
             'totalUsers' => count($userRepository->findAll()),
             'totalDoctors' => count($doctorRepository->findAll()),
             'totalAdmins' => count($adminRepository->findAll()),
+            'totalBlogPosts' => count($allPosts),
+            'totalComments' => $totalComments,
+            'topLevelComments' => $topLevelComments,
+            'totalReplies' => $totalReplies,
         ]);
     }
 

@@ -193,6 +193,34 @@
         <div class="stat-card">
             <div class="card-body">
                 <div class="card-icon">
+                    <i class="fas fa-blog"></i>
+                </div>
+                <div class="stat-label">Blog Posts</div>
+                <div class="stat-number">{{ totalBlogPosts }}</div>
+                <a href="{{ path('admin_blog_index') }}" class="action-btn" style="margin-top: 10px; font-size: 0.9rem;">
+                    <i class="fas fa-list"></i> Manage Blog
+                </a>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="card-body">
+                <div class="card-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-label">Total Comments</div>
+                <div class="stat-number">{{ totalComments }}</div>
+                <small class="text-muted">
+                    <i class="fas fa-comment"></i> {{ topLevelComments }} comments
+                    <br>
+                    <i class="fas fa-reply"></i> {{ totalReplies }} replies
+                </small>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="card-body">
+                <div class="card-icon">
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="stat-label">System Status</div>

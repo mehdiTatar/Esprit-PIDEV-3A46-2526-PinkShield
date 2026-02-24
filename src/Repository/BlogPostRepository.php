@@ -32,6 +32,16 @@ class BlogPostRepository extends ServiceEntityRepository
      */
     public function searchAndSort(?string $q, ?string $sort): array
     {
+        return $this->searchAndSortQueryBuilder($q, $sort)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Returns query builder for pagination
+     */
+    public function searchAndSortQueryBuilder(?string $q, ?string $sort)
+    {
         $qb = $this->createQueryBuilder('b');
 
         if ($q && trim($q) !== '') {
@@ -62,6 +72,6 @@ class BlogPostRepository extends ServiceEntityRepository
                 $qb->orderBy('b.createdAt', 'DESC');
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
 }

@@ -9,7 +9,10 @@ use App\Entity\Doctor;
 use App\Entity\User;
 use App\Form\BlogPostFormType;
 use App\Repository\BlogPostRepository;
+use App\Service\CommentModerationService;
+use App\Service\EmailNotificationService;
 use App\Repository\CommentRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,15 +24,25 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class BlogController extends AbstractController
 {
     #[Route('/', name: 'blog_index')]
-    public function index(Request $request, BlogPostRepository $blogPostRepository): Response
+    public function index(Request $request, BlogPostRepository $blogPostRepository, PaginatorInterface $paginator): Response
     {
         $q = $request->query->get('q');
-        $sort = $request->query->get('sort');
+        $sortBy = $request->query->get('sortBy'); // Changed from 'sort' to 'sortBy'
+
+        // Get query builder instead of array
+        $queryBuilder = $blogPostRepository->searchAndSortQueryBuilder($q, $sortBy);
+
+        // Paginate the results
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1), // Current page number
+            4 // Items per page
+        );
 
         return $this->render('blog/index.html.twig', [
-            'posts' => $blogPostRepository->searchAndSort($q, $sort),
+            'pagination' => $pagination,
             'q' => $q,
-            'sort' => $sort,
+            'sortBy' => $sortBy, // Changed from 'sort' to 'sortBy'
         ]);
     }
 
@@ -80,7 +93,16 @@ class BlogController extends AbstractController
     }
 
     #[Route('/{id}', name: 'blog_show', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function show(int $id, BlogPostRepository $blogPostRepository, Request $request, EntityManagerInterface $entityManager): Response
+    public function show(
+        int $id, 
+        BlogPostRepository $blogPostRepository, 
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        CommentModerationService $commentModerationService,
+        EmailNotificationService $emailNotificationService,
+        CommentRepository $commentRepository,
+        PaginatorInterface $paginator
+    ): Response
     {
         $post = $blogPostRepository->find($id);
         if (!$post) {
@@ -89,14 +111,22 @@ class BlogController extends AbstractController
 
         if ($request->isMethod('POST') && $this->getUser()) {
             $commentContent = $request->request->get('comment');
+            $parentCommentId = $request->request->get('parent_comment_id');
+            
             if ($commentContent) {
+                // Check moderation
+                if (!$commentModerationService->isApproved($commentContent)) {
+                    $this->addFlash('error', 'Your comment contains inappropriate content and was not posted.');
+                    return $this->redirectToRoute('blog_show', ['id' => $post->getId()]);
+                }
+        
                 $comment = new Comment();
                 $comment->setContent($commentContent);
                 $comment->setBlogPost($post);
-                
+        
                 $user = $this->getUser();
                 $comment->setAuthorEmail($user->getUserIdentifier());
-                
+        
                 $name = 'Anonymous';
                 if ($user instanceof Admin) {
                     $name = 'Admin';
@@ -104,17 +134,45 @@ class BlogController extends AbstractController
                     $name = $user->getFullName();
                 }
                 $comment->setAuthorName($name);
-                
+
+                // Handle reply to another comment
+                if ($parentCommentId) {
+                    $parentComment = $commentRepository->find($parentCommentId);
+                    if ($parentComment) {
+                        $comment->setParentComment($parentComment);
+                        
+                        // Send email notification to the parent comment author
+                        // Don't send if replying to yourself
+                        if ($parentComment->getAuthorEmail() !== $user->getUserIdentifier()) {
+                            $emailNotificationService->notifyCommentReply($parentComment, $comment);
+                        }
+                    }
+                }
+        
                 $entityManager->persist($comment);
                 $entityManager->flush();
-                
+        
                 $this->addFlash('success', 'Comment added!');
                 return $this->redirectToRoute('blog_show', ['id' => $post->getId()]);
             }
         }
 
+        // Get only top-level comments (no parent) for pagination
+        $queryBuilder = $commentRepository->createQueryBuilder('c')
+            ->where('c.blogPost = :post')
+            ->andWhere('c.parentComment IS NULL')
+            ->setParameter('post', $post)
+            ->orderBy('c.createdAt', 'DESC');
+
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            10 // Comments per page
+        );
+
         return $this->render('blog/show.html.twig', [
             'post' => $post,
+            'pagination' => $pagination,
         ]);
     }
 

@@ -476,6 +476,8 @@
             {% endif %}
 
             <form method="post" name="login" novalidate>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                
                 <div class="form-group">
                     <label for="inputUsername" class="form-label">
                         <i class="fas fa-envelope"></i> Email Address
