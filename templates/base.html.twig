@@ -21,6 +21,7 @@
         <style>
             /* ─── Design Tokens ─────────────────────────────────────────── */
             :root {
+                /* Colors */
                 --primary:        #c0396b;
                 --primary-dark:   #9b2553;
                 --primary-light:  rgba(192, 57, 107, 0.10);
@@ -30,11 +31,16 @@
                 --text-dark:      #1e1b34;
                 --text-gray:      #6b7280;
                 --text-muted:     #9ca3af;
+
+                /* Dimensions */
                 --navbar-height:  64px;
                 --sidebar-width:  260px;
+                --container-max:  1140px; /* Reduced from 1240 to fit better on 1366px screens */
+                --card-radius:    12px;
+
+                /* Appearance */
                 --sidebar-bg:     #1e1b34;
                 --sidebar-bg2:    #2d1b3d;
-                --card-radius:    12px;
                 --shadow-sm:      0 1px 3px rgba(0,0,0,0.06);
                 --shadow-md:      0 4px 16px rgba(0,0,0,0.08);
                 --shadow-lg:      0 8px 32px rgba(0,0,0,0.12);
@@ -510,16 +516,17 @@
 
             /* ─── Main Content ──────────────────────────────────────────── */
             main {
-                flex: 1 0 auto; /* Allow main to grow and push footer down */
+                flex: 1 0 auto;
                 margin-left: var(--sidebar-width);
-                margin-top: 0; /* Removing fixed top margin if using sticky/relative flow */
+                margin-top: 0;
                 width: calc(100% - var(--sidebar-width));
+                transition: margin-left 0.35s cubic-bezier(0.77, 0, 0.175, 1), width 0.35s cubic-bezier(0.77, 0, 0.175, 1);
             }
 
             .container-desktop {
-                max-width: 1240px;
+                max-width: var(--container-max);
                 margin: 0 auto;
-                padding: 36px 28px;
+                padding: 40px 24px;
                 width: 100%;
             }
 
@@ -594,12 +601,13 @@
                 flex-shrink: 0;
                 background: #fff0f5;
                 border-top: 1px solid var(--border);
-                padding: 1.1rem 2rem;
+                padding: 1.2rem 2rem;
                 text-align: center;
                 font-size: 0.82rem;
                 color: var(--text-muted);
                 margin-left: var(--sidebar-width);
                 width: calc(100% - var(--sidebar-width));
+                transition: margin-left 0.35s cubic-bezier(0.77, 0, 0.175, 1), width 0.35s cubic-bezier(0.77, 0, 0.175, 1);
             }
 
             footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
@@ -614,6 +622,7 @@
                 padding: 0;
                 font-size: 0.88rem;
                 width: calc(100% - var(--sidebar-width));
+                transition: margin-left 0.35s cubic-bezier(0.77, 0, 0.175, 1), width 0.35s cubic-bezier(0.77, 0, 0.175, 1);
             }
 
             .footer-inner {
@@ -739,12 +748,14 @@
             }
 
             /* ─── Responsive ────────────────────────────────────────────── */
+            @media (max-width: 1300px) {
+                :root { --sidebar-width: 240px; }
+            }
+
             @media (max-width: 991px) {
                 .sidebar { transform: translateX(-100%); }
                 .sidebar.show { transform: translateX(0); }
-                main   { margin-left: 0; width: 100%; }
-                footer { margin-left: 0; width: 100%; }
-                .site-footer { margin-left: 0; width: 100%; }
+                main, footer, .site-footer { margin-left: 0; width: 100%; transition: none; }
             }
 
             @media (max-width: 768px) {

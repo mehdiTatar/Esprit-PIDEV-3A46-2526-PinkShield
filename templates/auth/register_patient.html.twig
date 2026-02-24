@@ -17,11 +17,20 @@
     main {
         margin-left: 0 !important;
         margin-top: 0 !important;
+        width: 100% !important;
         min-height: calc(100vh - 64px);
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 40px 20px;
+        padding: 60px 24px;
+        background: radial-gradient(circle at 10% 20%, rgba(192, 57, 107, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(192, 57, 107, 0.05) 0%, transparent 40%);
+    }
+
+    footer, .site-footer {
+        margin-left: 0 !important;
+        width: 100% !important;
     }
 
     .container-desktop {
@@ -29,11 +38,22 @@
         padding: 0 !important;
         width: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        flex-grow: 1;
     }
 
     /* ── Card ────────────────────────────────────────────────── */
+    .reg-card-wrapper {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-bottom: 20px;
+        margin: auto;
+    }
+
     .reg-card {
         display: grid;
         grid-template-columns: 380px 1fr;
@@ -389,7 +409,7 @@
 {% endblock %}
 
 {% block body %}
-<div style="width:100%; display:flex; justify-content:center;">
+<div class="reg-card-wrapper">
 <div class="reg-card">
 
     {# ── Left branding panel ───────────────────────────────────── #}

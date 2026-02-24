@@ -125,7 +125,7 @@
     <div class="logs-panel">
         <div class="logs-panel-header">
             <h6><i class="fas fa-table me-2" style="color:var(--primary);"></i>Health Log Entries</h6>
-            <span style="font-size:0.8rem;color:var(--text-muted);">{{ logs|length }} record(s)</span>
+            <span style="font-size:0.8rem;color:var(--text-muted);">{{ logs.getTotalItemCount }} record(s)</span>
         </div>
 
         <div class="table-responsive">
@@ -181,6 +181,10 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        
+        <div class="px-4 py-3 border-top d-flex justify-content-center">
+            {{ knp_pagination_render(logs) }}
         </div>
     </div>
 

@@ -141,4 +141,21 @@ class AppointmentRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * Bulk update to cancel appointments that are in the past.
+     * This ensures the UI always shows correct status without manual intervention.
+     */
+    public function autoCancelPastAppointments(): int
+    {
+        return $this->createQueryBuilder('a')
+            ->update()
+            ->set('a.status', ':status')
+            ->where('a.appointmentDate < :now')
+            ->andWhere("a.status != 'cancelled'")
+            ->setParameter('status', 'cancelled')
+            ->setParameter('now', new \DateTime())
+            ->getQuery()
+            ->execute();
+    }
 }

@@ -30,6 +30,10 @@ class AppointmentController extends AbstractController
     public function index(AppointmentRepository $appointmentRepository): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        
+        // Auto-cancel past appointments before listing
+        $appointmentRepository->autoCancelPastAppointments();
+
         $user = $this->getUser();
         $appointments = [];
 

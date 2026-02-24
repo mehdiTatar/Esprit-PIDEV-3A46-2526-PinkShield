@@ -20,12 +20,21 @@
 
     main {
         margin-left: 0 !important;
+        margin-top: 0 !important;
+        width: 100% !important;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 20px !important;
-        padding-top: 40px !important;
-        min-height: 100vh;
+        min-height: calc(100vh - 64px);
+        padding: 60px 24px !important;
+        background: radial-gradient(circle at 10% 20%, rgba(76, 175, 135, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(76, 175, 135, 0.05) 0%, transparent 40%);
+    }
+
+    footer, .site-footer {
+        margin-left: 0 !important;
+        width: 100% !important;
     }
 
     .container-desktop {
@@ -33,8 +42,10 @@
         padding: 0 !important;
         width: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        flex-grow: 1;
     }
 
     .register-wrapper {
@@ -42,18 +53,19 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 30px 20px;
+        padding-bottom: 20px;
+        margin: auto;
     }
 
     .register-container {
         display: grid;
         grid-template-columns: 1.1fr 1fr;
         gap: 0;
-        max-width: 1200px;
+        max-width: 1040px; /* Reduced for better fit */
         width: 100%;
         background: white;
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        border-radius: 20px; /* Standardized with login */
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12);
         overflow: hidden;
     }
 

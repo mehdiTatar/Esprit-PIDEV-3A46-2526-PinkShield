@@ -169,8 +169,8 @@
     /* ── Stats row ── */
     .doc-stats {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
     }
 
     .doc-stat {
@@ -315,16 +315,19 @@
     .rating-score { font-size: 2rem; font-weight: 800; color: var(--doc-navy); }
     .rating-meta  { font-size: 0.82rem; color: #94a3b8; margin-top: 4px; }
 
-    /* ── Responsive ── */
+    @media (max-width: 1100px) {
+        .doc-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
     @media (max-width: 900px) {
         .doc-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 600px) {
-        .doc-header { padding: 24px 20px; }
+        .doc-header { padding: 28px 24px; }
         .doc-header::after { display: none; }
-        .doc-header-text h1 { font-size: 1.4rem; }
-        .doc-stats { grid-template-columns: repeat(2, 1fr); }
+        .doc-header-text h1 { font-size: 1.5rem; }
+        .doc-stats { grid-template-columns: 1fr; }
         .status-bar { flex-direction: column; align-items: flex-start; }
     }
 </style>
