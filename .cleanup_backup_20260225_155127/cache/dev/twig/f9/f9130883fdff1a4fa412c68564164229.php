@@ -1,0 +1,337 @@
+<?php
+
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Extension\CoreExtension;
+use Twig\Extension\SandboxExtension;
+use Twig\Markup;
+use Twig\Sandbox\SecurityError;
+use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
+use Twig\Sandbox\SecurityNotAllowedFunctionError;
+use Twig\Source;
+use Twig\Template;
+use Twig\TemplateWrapper;
+
+/* doctor/index.html.twig */
+class __TwigTemplate_8750a55181981164c3e516efe7e57ce5 extends Template
+{
+    private Source $source;
+    /**
+     * @var array<string, Template>
+     */
+    private array $macros = [];
+
+    public function __construct(Environment $env)
+    {
+        parent::__construct($env);
+
+        $this->source = $this->getSourceContext();
+
+        $this->blocks = [
+            'title' => [$this, 'block_title'],
+            'body' => [$this, 'block_body'],
+        ];
+    }
+
+    protected function doGetParent(array $context): bool|string|Template|TemplateWrapper
+    {
+        // line 1
+        return "base.html.twig";
+    }
+
+    protected function doDisplay(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "template", "doctor/index.html.twig"));
+
+        $this->parent = $this->load("base.html.twig", 1);
+        yield from $this->parent->unwrap()->yield($context, array_merge($this->blocks, $blocks));
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+    }
+
+    // line 3
+    /**
+     * @return iterable<null|scalar|\Stringable>
+     */
+    public function block_title(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "title"));
+
+        yield "Doctors - PinkShield";
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        yield from [];
+    }
+
+    // line 5
+    /**
+     * @return iterable<null|scalar|\Stringable>
+     */
+    public function block_body(array $context, array $blocks = []): iterable
+    {
+        $macros = $this->macros;
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "body"));
+
+        // line 6
+        yield "<div class=\"row\">
+    <div class=\"col-12\">
+        <h1 class=\"mb-4\">Doctors Management</h1>
+        <a href=\"";
+        // line 9
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("doctor_new");
+        yield "\" class=\"btn btn-primary mb-3\">Add New Doctor</a>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class=\"card mb-4\">
+    <div class=\"card-body\">
+        <h5 class=\"card-title\">Search Doctors</h5>
+        <form method=\"GET\" class=\"row g-3\">
+            <div class=\"col-md-5\">
+                <input type=\"text\" name=\"search_id\" class=\"form-control\" placeholder=\"Search by ID\" value=\"";
+        // line 19
+        yield (((array_key_exists("searchId", $context) &&  !(null === $context["searchId"]))) ? ($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["searchId"], "html", null, true)) : (""));
+        yield "\">
+            </div>
+            <div class=\"col-md-5\">
+                <input type=\"text\" name=\"search_name\" class=\"form-control\" placeholder=\"Search by Name\" value=\"";
+        // line 22
+        yield (((array_key_exists("searchName", $context) &&  !(null === $context["searchName"]))) ? ($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($context["searchName"], "html", null, true)) : (""));
+        yield "\">
+            </div>
+            <div class=\"col-md-2\">
+                <button type=\"submit\" class=\"btn btn-primary w-100\">Search</button>
+                <a href=\"";
+        // line 26
+        yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("doctor_index");
+        yield "\" class=\"btn btn-secondary w-100 mt-2\">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class=\"table-responsive\">
+    <table class=\"table table-striped table-hover\">
+        <thead class=\"table-dark\">
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Full Name</th>
+                <th>Speciality</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            ";
+        // line 45
+        $context['_parent'] = $context;
+        $context['_seq'] = CoreExtension::ensureTraversable((isset($context["doctors"]) || array_key_exists("doctors", $context) ? $context["doctors"] : (function () { throw new RuntimeError('Variable "doctors" does not exist.', 45, $this->source); })()));
+        $context['_iterated'] = false;
+        foreach ($context['_seq'] as $context["_key"] => $context["doctor"]) {
+            // line 46
+            yield "                <tr>
+                    <td>";
+            // line 47
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "id", [], "any", false, false, false, 47), "html", null, true);
+            yield "</td>
+                    <td>";
+            // line 48
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "email", [], "any", false, false, false, 48), "html", null, true);
+            yield "</td>
+                    <td>";
+            // line 49
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "fullName", [], "any", false, false, false, 49), "html", null, true);
+            yield "</td>
+                    <td>";
+            // line 50
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "speciality", [], "any", false, false, false, 50), "html", null, true);
+            yield "</td>
+                    <td>
+                        <span class=\"badge bg-";
+            // line 52
+            yield (((CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "status", [], "any", false, false, false, 52) == "active")) ? ("success") : ("danger"));
+            yield "\">
+                            ";
+            // line 53
+            yield (((($tmp = CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "status", [], "any", false, false, false, 53)) && $tmp instanceof Markup ? (string) $tmp : $tmp)) ? ($this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::capitalize($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "status", [], "any", false, false, false, 53)), "html", null, true)) : ("Active"));
+            yield "
+                        </span>
+                    </td>
+                    <td>
+                        <a href=\"";
+            // line 57
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("doctor_show", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "id", [], "any", false, false, false, 57)]), "html", null, true);
+            yield "\" class=\"btn btn-sm btn-info\">View</a>
+                        <a href=\"";
+            // line 58
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("doctor_edit", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "id", [], "any", false, false, false, 58)]), "html", null, true);
+            yield "\" class=\"btn btn-sm btn-warning\">Edit</a>
+                        ";
+            // line 59
+            if ((CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "status", [], "any", false, false, false, 59) == "active")) {
+                // line 60
+                yield "                            <form action=\"";
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("doctor_deactivate", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "id", [], "any", false, false, false, 60)]), "html", null, true);
+                yield "\" method=\"POST\" style=\"display:inline;\">
+                                <button type=\"submit\" class=\"btn btn-sm btn-warning\" onclick=\"return confirm('Deactivate this doctor?')\">Deactivate</button>
+                            </form>
+                        ";
+            } else {
+                // line 64
+                yield "                            <form action=\"";
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("doctor_activate", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "id", [], "any", false, false, false, 64)]), "html", null, true);
+                yield "\" method=\"POST\" style=\"display:inline;\">
+                                <button type=\"submit\" class=\"btn btn-sm btn-success\">Activate</button>
+                            </form>
+                        ";
+            }
+            // line 68
+            yield "                        <a href=\"";
+            yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("doctor_delete", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["doctor"], "id", [], "any", false, false, false, 68)]), "html", null, true);
+            yield "\" class=\"btn btn-sm btn-danger\" onclick=\"return confirm('Are you sure you want to permanently delete this doctor?')\">Delete</a>
+                    </td>
+                </tr>
+            ";
+            $context['_iterated'] = true;
+        }
+        // line 71
+        if (!$context['_iterated']) {
+            // line 72
+            yield "                <tr>
+                    <td colspan=\"6\" class=\"text-center\">No doctors found</td>
+                </tr>
+            ";
+        }
+        $_parent = $context['_parent'];
+        unset($context['_seq'], $context['_key'], $context['doctor'], $context['_parent'], $context['_iterated']);
+        $context = array_intersect_key($context, $_parent) + $_parent;
+        // line 76
+        yield "        </tbody>
+    </table>
+</div>
+";
+        
+        $__internal_6f47bbe9983af81f1e7450e9a3e3768f->leave($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof);
+
+        yield from [];
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getTemplateName(): string
+    {
+        return "doctor/index.html.twig";
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function isTraitable(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getDebugInfo(): array
+    {
+        return array (  220 => 76,  211 => 72,  209 => 71,  200 => 68,  192 => 64,  184 => 60,  182 => 59,  178 => 58,  174 => 57,  167 => 53,  163 => 52,  158 => 50,  154 => 49,  150 => 48,  146 => 47,  143 => 46,  138 => 45,  116 => 26,  109 => 22,  103 => 19,  90 => 9,  85 => 6,  75 => 5,  58 => 3,  41 => 1,);
+    }
+
+    public function getSourceContext(): Source
+    {
+        return new Source("{% extends \"base.html.twig\" %}
+
+{% block title %}Doctors - PinkShield{% endblock %}
+
+{% block body %}
+<div class=\"row\">
+    <div class=\"col-12\">
+        <h1 class=\"mb-4\">Doctors Management</h1>
+        <a href=\"{{ path('doctor_new') }}\" class=\"btn btn-primary mb-3\">Add New Doctor</a>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class=\"card mb-4\">
+    <div class=\"card-body\">
+        <h5 class=\"card-title\">Search Doctors</h5>
+        <form method=\"GET\" class=\"row g-3\">
+            <div class=\"col-md-5\">
+                <input type=\"text\" name=\"search_id\" class=\"form-control\" placeholder=\"Search by ID\" value=\"{{ searchId ?? '' }}\">
+            </div>
+            <div class=\"col-md-5\">
+                <input type=\"text\" name=\"search_name\" class=\"form-control\" placeholder=\"Search by Name\" value=\"{{ searchName ?? '' }}\">
+            </div>
+            <div class=\"col-md-2\">
+                <button type=\"submit\" class=\"btn btn-primary w-100\">Search</button>
+                <a href=\"{{ path('doctor_index') }}\" class=\"btn btn-secondary w-100 mt-2\">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class=\"table-responsive\">
+    <table class=\"table table-striped table-hover\">
+        <thead class=\"table-dark\">
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Full Name</th>
+                <th>Speciality</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doctor in doctors %}
+                <tr>
+                    <td>{{ doctor.id }}</td>
+                    <td>{{ doctor.email }}</td>
+                    <td>{{ doctor.fullName }}</td>
+                    <td>{{ doctor.speciality }}</td>
+                    <td>
+                        <span class=\"badge bg-{{ doctor.status == 'active' ? 'success' : 'danger' }}\">
+                            {{ doctor.status ? doctor.status|capitalize : 'Active' }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href=\"{{ path('doctor_show', {id: doctor.id}) }}\" class=\"btn btn-sm btn-info\">View</a>
+                        <a href=\"{{ path('doctor_edit', {id: doctor.id}) }}\" class=\"btn btn-sm btn-warning\">Edit</a>
+                        {% if doctor.status == 'active' %}
+                            <form action=\"{{ path('doctor_deactivate', {id: doctor.id}) }}\" method=\"POST\" style=\"display:inline;\">
+                                <button type=\"submit\" class=\"btn btn-sm btn-warning\" onclick=\"return confirm('Deactivate this doctor?')\">Deactivate</button>
+                            </form>
+                        {% else %}
+                            <form action=\"{{ path('doctor_activate', {id: doctor.id}) }}\" method=\"POST\" style=\"display:inline;\">
+                                <button type=\"submit\" class=\"btn btn-sm btn-success\">Activate</button>
+                            </form>
+                        {% endif %}
+                        <a href=\"{{ path('doctor_delete', {id: doctor.id}) }}\" class=\"btn btn-sm btn-danger\" onclick=\"return confirm('Are you sure you want to permanently delete this doctor?')\">Delete</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan=\"6\" class=\"text-center\">No doctors found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+", "doctor/index.html.twig", "C:\\Users\\driss\\Downloads\\PinkShield-main (1)\\PinkShield-main\\templates\\doctor\\index.html.twig");
+    }
+}
