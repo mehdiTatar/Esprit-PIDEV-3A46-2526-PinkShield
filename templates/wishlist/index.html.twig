@@ -305,14 +305,19 @@
         </table>
     </div>
 
-    <!-- Summary -->
+    {# Summary #}
     <div class="summary-card">
         <div class="summary-title">Wishlist Summary</div>
         <div class="summary-items">{{ wishlistItems|length }} {{ wishlistItems|length == 1 ? 'item' : 'items' }} in your wishlist</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 15px;">
+            <i class="fas fa-calculator me-2" style="opacity: 0.7;"></i>
+            Total: $<span id="wishlist-total">{{ totalPrice|number_format(2, '.', ',') }}</span>
+        </div>
         <a href="{{ path('parapharmacy_index') }}" class="btn-browse">
             <i class="fas fa-shopping-bag me-2"></i> Continue Shopping
         </a>
     </div>
+
 {% else %}
     <!-- Empty State -->
     <div class="empty-state">
@@ -344,6 +349,8 @@
                     row.style.textDecoration = 'line-through';
                     setTimeout(() => {
                         row.remove();
+                        // Refresh total via API
+                        refreshTotal();
                         // Refresh page if empty
                         if (document.querySelectorAll('tbody tr').length === 0) {
                             location.reload();
@@ -354,9 +361,23 @@
         }
     }
 
+    function refreshTotal() {
+        fetch('{{ path('wishlist_api_total') }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const totalEl = document.getElementById('wishlist-total');
+                    if (totalEl) {
+                        totalEl.textContent = parseFloat(data.totalPrice).toFixed(2);
+                    }
+                }
+            })
+            .catch(err => console.error('Failed to refresh total:', err));
+    }
+
     function buyProduct(productId, productName) {
         alert('Thank you for your interest in ' + productName + '! Purchase feature coming soon.');
-        // Future: implement actual purchase functionality
     }
 </script>
+
 {% endblock %}

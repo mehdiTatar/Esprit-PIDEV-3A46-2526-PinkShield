@@ -11,7 +11,6 @@ use App\Form\BlogPostFormType;
 use App\Repository\BlogPostRepository;
 use App\Service\CommentModerationService;
 use App\Service\EmailNotificationService;
-use App\Service\NotificationService;
 use App\Repository\CommentRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,38 +23,33 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/blog')]
 class BlogController extends AbstractController
 {
-    public function __construct(
-        private NotificationService $notificationService
-    ) {}
-
     #[Route('/', name: 'blog_index')]
     public function index(Request $request, BlogPostRepository $blogPostRepository, PaginatorInterface $paginator): Response
     {
         $q = $request->query->get('q');
-        $sortBy = $request->query->get('sortBy');
+        $sortBy = $request->query->get('sortBy'); // Changed from 'sort' to 'sortBy'
 
-        // Get query builder for paginator
+        // Get query builder instead of array
         $queryBuilder = $blogPostRepository->searchAndSortQueryBuilder($q, $sortBy);
 
         // Paginate the results
         $pagination = $paginator->paginate(
             $queryBuilder,
-            $request->query->getInt('page', 1),
+            $request->query->getInt('page', 1), // Current page number
             4 // Items per page
         );
 
         return $this->render('blog/index.html.twig', [
             'pagination' => $pagination,
             'q' => $q,
-            'sortBy' => $sortBy,
+            'sortBy' => $sortBy, // Changed from 'sort' to 'sortBy'
         ]);
     }
 
     #[Route('/new', name: 'blog_new')]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $post = new BlogPost();
         $form = $this->createForm(BlogPostFormType::class, $post);
         $form->handleRequest($request);
@@ -87,13 +81,6 @@ class BlogController extends AbstractController
             $entityManager->persist($post);
             $entityManager->flush();
 
-            $this->notificationService->notifyAdmins(
-                'New Blog Post Created',
-                $post->getAuthorName() . ' published a new blog post: "' . $post->getTitle() . '"',
-                'info',
-                'fas fa-newspaper'
-            );
-
             $this->addFlash('success', 'Post created successfully!');
             return $this->redirectToRoute('blog_index');
         }
@@ -107,10 +94,10 @@ class BlogController extends AbstractController
 
     #[Route('/{id}', name: 'blog_show', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function show(
-        int $id,
-        BlogPostRepository $blogPostRepository,
-        Request $request,
-        EntityManagerInterface $entityManager,
+        int $id, 
+        BlogPostRepository $blogPostRepository, 
+        Request $request, 
+        EntityManagerInterface $entityManager, 
         CommentModerationService $commentModerationService,
         EmailNotificationService $emailNotificationService,
         CommentRepository $commentRepository,
@@ -125,21 +112,21 @@ class BlogController extends AbstractController
         if ($request->isMethod('POST') && $this->getUser()) {
             $commentContent = $request->request->get('comment');
             $parentCommentId = $request->request->get('parent_comment_id');
-
+            
             if ($commentContent) {
                 // Check moderation
                 if (!$commentModerationService->isApproved($commentContent)) {
                     $this->addFlash('error', 'Your comment contains inappropriate content and was not posted.');
                     return $this->redirectToRoute('blog_show', ['id' => $post->getId()]);
                 }
-
+        
                 $comment = new Comment();
                 $comment->setContent($commentContent);
                 $comment->setBlogPost($post);
-
+        
                 $user = $this->getUser();
                 $comment->setAuthorEmail($user->getUserIdentifier());
-
+        
                 $name = 'Anonymous';
                 if ($user instanceof Admin) {
                     $name = 'Admin';
@@ -153,24 +140,18 @@ class BlogController extends AbstractController
                     $parentComment = $commentRepository->find($parentCommentId);
                     if ($parentComment) {
                         $comment->setParentComment($parentComment);
-
+                        
                         // Send email notification to the parent comment author
+                        // Don't send if replying to yourself
                         if ($parentComment->getAuthorEmail() !== $user->getUserIdentifier()) {
                             $emailNotificationService->notifyCommentReply($parentComment, $comment);
                         }
                     }
                 }
-
+        
                 $entityManager->persist($comment);
                 $entityManager->flush();
-
-                $this->notificationService->notifyAdmins(
-                    'New Blog Comment',
-                    $name . ' commented on "' . $post->getTitle() . '"',
-                    'info',
-                    'fas fa-comment'
-                );
-
+        
                 $this->addFlash('success', 'Comment added!');
                 return $this->redirectToRoute('blog_show', ['id' => $post->getId()]);
             }
@@ -203,10 +184,7 @@ class BlogController extends AbstractController
             throw $this->createNotFoundException('Post not found');
         }
 
-        $user = $this->getUser();
-        if (!$user || ($user->getUserIdentifier() !== $post->getAuthorEmail() && !$this->isGranted('ROLE_ADMIN'))) {
-            throw $this->createAccessDeniedException('You cannot edit this post.');
-        }
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $form = $this->createForm(BlogPostFormType::class, $post);
         $form->handleRequest($request);
@@ -231,13 +209,6 @@ class BlogController extends AbstractController
 
             $entityManager->flush();
 
-            $this->notificationService->notifyAdmins(
-                'Blog Post Edited',
-                $user->getUserIdentifier() . ' edited blog post: "' . $post->getTitle() . '"',
-                'info',
-                'fas fa-edit'
-            );
-
             $this->addFlash('success', 'Post updated successfully!');
             return $this->redirectToRoute('blog_show', ['id' => $post->getId()]);
         }
@@ -257,22 +228,11 @@ class BlogController extends AbstractController
             throw $this->createNotFoundException('Post not found');
         }
 
-        $user = $this->getUser();
-        if (!$user || ($user->getUserIdentifier() !== $post->getAuthorEmail() && !$this->isGranted('ROLE_ADMIN'))) {
-            throw $this->createAccessDeniedException('You cannot delete this post.');
-        }
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $title = $post->getTitle();
         $entityManager->remove($post);
         $entityManager->flush();
-
-        $this->notificationService->notifyAdmins(
-            'Blog Post Deleted',
-            $user->getUserIdentifier() . ' deleted blog post: "' . $title . '"',
-            'warning',
-            'fas fa-trash'
-        );
-
+        
         $this->addFlash('success', 'Post deleted!');
         return $this->redirectToRoute('blog_index');
     }
@@ -292,7 +252,7 @@ class BlogController extends AbstractController
             if ($content) {
                 $comment->setContent($content);
                 $entityManager->flush();
-
+                
                 $this->addFlash('success', 'Comment updated successfully!');
                 return $this->redirectToRoute('blog_show', ['id' => $comment->getBlogPost()->getId()]);
             }
@@ -316,7 +276,7 @@ class BlogController extends AbstractController
         $postId = $comment->getBlogPost()->getId();
         $entityManager->remove($comment);
         $entityManager->flush();
-
+        
         $this->addFlash('success', 'Comment deleted successfully!');
         return $this->redirectToRoute('blog_show', ['id' => $postId]);
     }

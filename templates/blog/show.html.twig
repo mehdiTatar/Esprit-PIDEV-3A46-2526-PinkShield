@@ -40,38 +40,75 @@
 
             <hr>
 
-            <h3 class="h4 text-danger mb-4">Comments ({{ post.comments|length }})</h3>
+            <h3 class="h4 text-danger mb-4">Comments ({{ pagination.totalItemCount }})</h3>
+            
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
             
             <div class="comments-list mt-4">
-                {% for comment in post.comments %}
-                    <div class="card mb-3 bg-light">
+                {% for comment in pagination %}
+                    <div class="card mb-3 bg-light" id="comment-{{ comment.id }}">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex justify-content-between align-start">
                                 <div>
-                                    <strong>{{ comment.authorName }}</strong>
+                                    <strong class="text-primary">{{ comment.authorName }}</strong>
                                     <small class="text-muted d-block">{{ comment.createdAt|date('M d, Y H:i') }}</small>
                                 </div>
-                                {% if is_granted('ROLE_ADMIN') %}
-                                    <div>
+                                <div class="btn-group">
+                                    {% if app.user %}
+                                        <button class="btn btn-sm btn-outline-primary" onclick="setReplyTo({{ comment.id }}, '{{ comment.authorName }}')">
+                                            <i class="fas fa-reply"></i> Reply
+                                        </button>
+                                    {% endif %}
+                                    {% if is_granted('ROLE_ADMIN') %}
                                         <a href="{{ path('comment_edit', {id: comment.id}) }}" class="btn btn-sm btn-outline-warning">Edit</a>
                                         <a href="{{ path('comment_delete', {id: comment.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this comment?')">Delete</a>
-                                    </div>
-                                {% endif %}
+                                    {% endif %}
+                                </div>
                             </div>
                             <p class="mb-0 mt-2">{{ comment.content }}</p>
+
+                            {# Replies #}
+                            {% if comment.replies|length > 0 %}
+                                <div class="replies-list mt-3 ms-4 border-start ps-3">
+                                    {% for reply in comment.replies %}
+                                        <div class="reply-item mb-2 p-2 rounded bg-white border">
+                                            <div class="d-flex justify-content-between">
+                                                <small><strong>{{ reply.authorName }}</strong> · {{ reply.createdAt|date('M d, Y H:i') }}</small>
+                                                {% if is_granted('ROLE_ADMIN') %}
+                                                    <a href="{{ path('comment_delete', {id: reply.id}) }}" class="text-danger small" onclick="return confirm('Delete?')"><i class="fas fa-trash"></i></a>
+                                                {% endif %}
+                                            </div>
+                                            <p class="mb-0 small">{{ reply.content }}</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 {% else %}
                     <p class="text-muted">No comments yet. Share your thoughts!</p>
                 {% endfor %}
+
+                <div class="d-flex justify-content-center mt-4">
+                    {{ knp_pagination_render(pagination) }}
+                </div>
             </div>
 
             {% if app.user %}
-                <div class="add-comment mt-5">
-                    <h4 class="text-danger">Add a Comment</h4>
+                <div class="add-comment mt-5" id="comment-form-section">
+                    <h4 class="text-danger" id="form-title">Add a Comment</h4>
+                    
+                    <div id="reply-info" class="alert alert-info d-none d-flex justify-content-between align-items-center">
+                        <span>Replying to <strong id="reply-to-name"></strong></span>
+                        <button class="btn btn-sm btn-close" onclick="cancelReply()"></button>
+                    </div>
+
                     <form method="post">
+                        <input type="hidden" name="parent_comment_id" id="parent_comment_id">
                         <div class="mb-3">
-                            <textarea name="comment" class="form-control" rows="3" placeholder="Write your comment here..."></textarea>
+                            <textarea name="comment" id="comment-textarea" class="form-control" rows="3" placeholder="Write your comment here..." required></textarea>
                         </div>
                         <button type="submit" class="btn btn-danger">Submit Comment</button>
                     </form>
@@ -81,6 +118,23 @@
                     Please <a href="{{ path('login') }}">login</a> to add a comment.
                 </div>
             {% endif %}
+
+            <script>
+                function setReplyTo(id, name) {
+                    document.getElementById('parent_comment_id').value = id;
+                    document.getElementById('reply-to-name').innerText = name;
+                    document.getElementById('reply-info').classList.remove('d-none');
+                    document.getElementById('form-title').innerText = 'Reply to ' + name;
+                    document.querySelector('#comment-form-section').scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('comment-textarea').focus();
+                }
+
+                function cancelReply() {
+                    document.getElementById('parent_comment_id').value = '';
+                    document.getElementById('reply-info').classList.add('d-none');
+                    document.getElementById('form-title').innerText = 'Add a Comment';
+                }
+            </script>
         </div>
     </div>
 </div>

@@ -28,8 +28,17 @@ class WishlistController extends AbstractController
         $user = $this->getUser();
         $wishlistItems = $wishlistRepository->findByUser($user);
 
+        // Calculate total price of all wishlist items
+        $totalPrice = 0.0;
+        foreach ($wishlistItems as $item) {
+            if ($item->getProduct() && $item->getProduct()->getPrice()) {
+                $totalPrice += (float) $item->getProduct()->getPrice();
+            }
+        }
+
         return $this->render('wishlist/index.html.twig', [
             'wishlistItems' => $wishlistItems,
+            'totalPrice' => round($totalPrice, 2),
         ]);
     }
 
@@ -139,5 +148,29 @@ class WishlistController extends AbstractController
         $exists = $wishlistRepository->findByUserAndProduct($user, $product) !== null;
 
         return new JsonResponse(['inWishlist' => $exists]);
+    }
+
+    #[Route('/api/total', name: 'wishlist_api_total', methods: ['GET'])]
+    public function apiTotal(WishlistRepository $wishlistRepository): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
+        $user = $this->getUser();
+        $wishlistItems = $wishlistRepository->findByUser($user);
+
+        $totalPrice = 0.0;
+        $itemCount = 0;
+        foreach ($wishlistItems as $item) {
+            if ($item->getProduct() && $item->getProduct()->getPrice()) {
+                $totalPrice += (float) $item->getProduct()->getPrice();
+                $itemCount++;
+            }
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'totalPrice' => round($totalPrice, 2),
+            'itemCount' => $itemCount,
+        ]);
     }
 }

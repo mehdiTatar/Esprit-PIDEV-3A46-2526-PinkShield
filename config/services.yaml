@@ -36,3 +36,8 @@ services:
             $apiKey: '%face_api_key%'
             $apiSecret: '%face_api_secret%'
             $projectDir: '%kernel.project_dir%'
+
+    App\Service\CommentModerationService:
+        arguments:
+            $aiApiKey: '%env(AI_API_KEY)%'
+            $aiModel: '%env(AI_MODEL)%'

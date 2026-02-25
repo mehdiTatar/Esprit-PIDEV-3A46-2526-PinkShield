@@ -301,53 +301,6 @@ class AppointmentController extends AbstractController
         return $this->redirectToRoute('appointment_index');
     }
 
-    #[Route('/{id}', name: 'appointment_show')]
-    public function show(Appointment $appointment, Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
-        // Access: patient who owns, doctor assigned, or admin
-        $userEmail = $this->getUser()->getUserIdentifier();
-        if ($appointment->getPatientEmail() !== $userEmail && $appointment->getDoctorEmail() !== $userEmail && !$this->isGranted('ROLE_ADMIN')) {
-            throw $this->createAccessDeniedException();
-        }
-
-        // Analyze appointment notes for AI suggestions
-        $aiSuggestions = null;
-        $aiError = null;
-        if ($appointment->getNotes() && trim($appointment->getNotes()) !== '') {
-            try {
-                $aiResult = $this->aiSymptomAnalyzer->analyzeNotes($appointment->getNotes());
-                if ($aiResult['success'] && isset($aiResult['suggestions'])) {
-                    $aiSuggestions = $aiResult['suggestions'];
-                } else {
-                    $aiError = $aiResult['error'] ?? 'Failed to get AI suggestions';
-                }
-            } catch (\Exception $e) {
-                $aiError = 'AI analysis error: ' . $e->getMessage();
-                error_log("Appointment AI analysis error: " . $e->getMessage());
-            }
-        }
-
-        // Handle Parapharmacie add form (doctors/admin)
-        $paraph = new Parapharmacie();
-        $form = $this->createForm(ParapharmacieType::class, $paraph);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $paraph->setAppointment($appointment);
-            $entityManager->persist($paraph);
-            $entityManager->flush();
-            $this->addFlash('success', 'Parapharmacie item added.');
-            return $this->redirectToRoute('appointment_show', ['id' => $appointment->getId()]);
-        }
-
-        return $this->render('appointment/show.html.twig', [
-            'appointment' => $appointment,
-            'paraphForm' => $form->createView(),
-            'aiSuggestions' => $aiSuggestions,
-            'aiError' => $aiError,
-        ]);
-    }
 
     #[Route('/{id}/edit', name: 'appointment_edit')]
     public function edit(Appointment $appointment, Request $request, EntityManagerInterface $entityManager, UserRepository $userRepository): Response
@@ -630,6 +583,54 @@ class AppointmentController extends AbstractController
 
         return $this->render('appointment/suggestion.html.twig', [
             'doctor' => null,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'appointment_show')]
+    public function show(Appointment $appointment, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        // Access: patient who owns, doctor assigned, or admin
+        $userEmail = $this->getUser()->getUserIdentifier();
+        if ($appointment->getPatientEmail() !== $userEmail && $appointment->getDoctorEmail() !== $userEmail && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        // Analyze appointment notes for AI suggestions
+        $aiSuggestions = null;
+        $aiError = null;
+        if ($appointment->getNotes() && trim($appointment->getNotes()) !== '') {
+            try {
+                $aiResult = $this->aiSymptomAnalyzer->analyzeNotes($appointment->getNotes());
+                if ($aiResult['success'] && isset($aiResult['suggestions'])) {
+                    $aiSuggestions = $aiResult['suggestions'];
+                } else {
+                    $aiError = $aiResult['error'] ?? 'Failed to get AI suggestions';
+                }
+            } catch (\Exception $e) {
+                $aiError = 'AI analysis error: ' . $e->getMessage();
+                error_log("Appointment AI analysis error: " . $e->getMessage());
+            }
+        }
+
+        // Handle Parapharmacie add form (doctors/admin)
+        $paraph = new Parapharmacie();
+        $form = $this->createForm(ParapharmacieType::class, $paraph);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $paraph->setAppointment($appointment);
+            $entityManager->persist($paraph);
+            $entityManager->flush();
+            $this->addFlash('success', 'Parapharmacie item added.');
+            return $this->redirectToRoute('appointment_show', ['id' => $appointment->getId()]);
+        }
+
+        return $this->render('appointment/show.html.twig', [
+            'appointment' => $appointment,
+            'paraphForm' => $form->createView(),
+            'aiSuggestions' => $aiSuggestions,
+            'aiError' => $aiError,
         ]);
     }
 

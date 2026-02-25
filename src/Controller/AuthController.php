@@ -128,6 +128,22 @@ class AuthController extends AbstractController
         ]);
     }
 
+    #[Route('/2fa_skip', name: '2fa_skip')]
+    public function skip2fa(
+        \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface $tokenStorage
+    ): Response
+    {
+        $token = $tokenStorage->getToken();
+
+        // The scheb bundle wraps the real token inside a TwoFactorToken.
+        // Extract the original authenticated token and put it back.
+        if ($token instanceof \Scheb\TwoFactorBundle\Security\Authentication\Token\TwoFactorToken) {
+            $tokenStorage->setToken($token->getAuthenticatedToken());
+        }
+
+        return $this->redirectToRoute('home');
+    }
+
     #[Route('/logout', name: 'logout')]
     public function logout(): void
     {

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CommentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -38,9 +40,17 @@ class Comment
     #[ORM\JoinColumn(nullable: false)]
     private ?BlogPost $blogPost = null;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'replies')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?self $parentComment = null;
+
+    #[ORM\OneToMany(mappedBy: 'parentComment', targetEntity: self::class, orphanRemoval: true)]
+    private Collection $replies;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->replies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -102,4 +112,43 @@ class Comment
         $this->blogPost = $blogPost;
         return $this;
     }
+
+    public function getParentComment(): ?self
+    {
+        return $this->parentComment;
+    }
+
+    public function setParentComment(?self $parentComment): static
+    {
+        $this->parentComment = $parentComment;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getReplies(): Collection
+    {
+        return $this->replies;
+    }
+
+    public function addReply(self $reply): static
+    {
+        if (!$this->replies->contains($reply)) {
+            $this->replies->add($reply);
+            $reply->setParentComment($this);
+        }
+        return $this;
+    }
+
+    public function removeReply(self $reply): static
+    {
+        if ($this->replies->removeElement($reply)) {
+            if ($reply->getParentComment() === $this) {
+                $reply->setParentComment(null);
+            }
+        }
+        return $this;
+    }
 }
+

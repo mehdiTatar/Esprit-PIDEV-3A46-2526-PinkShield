@@ -210,21 +210,19 @@
 
     {# Toolbar #}
     <div class="blog-toolbar">
-        <div class="search-wrap">
             <form method="GET" class="d-flex gap-2 w-100" id="searchForm">
-                <input type="text" name="search" class="form-control"
-                       placeholder="Search posts, topics, authors…" value="{{ search }}">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Search posts, topics, authors…" value="{{ q }}">
                 <input type="hidden" name="sortBy" value="{{ sortBy }}">
                 <button type="submit" class="btn btn-primary px-3">
                     <i class="fas fa-search"></i>
                 </button>
-                {% if search %}
+                {% if q %}
                     <a href="{{ path('blog_index', {'sortBy': sortBy}) }}" class="btn btn-secondary px-3">
                         <i class="fas fa-times"></i>
                     </a>
                 {% endif %}
             </form>
-        </div>
 
         <div class="sort-wrap">
             <form method="GET" class="w-100">
@@ -235,7 +233,7 @@
                     <option value="title_desc"  {% if sortBy == 'title_desc'  %}selected{% endif %}>🔤 Title Z–A</option>
                     <option value="author"      {% if sortBy == 'author'      %}selected{% endif %}>👤 Author</option>
                 </select>
-                <input type="hidden" name="search" value="{{ search }}">
+                <input type="hidden" name="q" value="{{ q }}">
             </form>
         </div>
     </div>
@@ -243,17 +241,17 @@
     {# Results bar #}
     <div class="results-bar">
         <span style="background:var(--primary-light);color:var(--primary);padding:3px 12px;border-radius:20px;font-weight:700;">
-            {{ posts|length }} post{{ posts|length != 1 ? 's' : '' }}
+            {{ pagination.totalItemCount }} post{{ pagination.totalItemCount != 1 ? 's' : '' }}
         </span>
-        {% if search %}
-            <span>matching "<strong>{{ search }}</strong>"</span>
+        {% if q %}
+            <span>matching "<strong>{{ q }}</strong>"</span>
         {% endif %}
     </div>
 
     {# Post Grid #}
-    {% if posts|length > 0 %}
+    {% if pagination|length > 0 %}
         <div class="blog-grid">
-            {% for post in posts %}
+            {% for post in pagination %}
                 <div class="post-card">
                     <div class="post-thumb">
                         {% if post.imagePath %}
@@ -287,12 +285,14 @@
                     </div>
                 </div>
             {% endfor %}
+        <div class="d-flex justify-content-center mt-5">
+            {{ knp_pagination_render(pagination) }}
         </div>
     {% else %}
         <div class="blog-empty">
             <i class="fas fa-newspaper d-block"></i>
-            {% if search %}
-                <h5>No posts found for "{{ search }}"</h5>
+            {% if q %}
+                <h5>No posts found for "{{ q }}"</h5>
                 <p>Try a different search term or <a href="{{ path('blog_index') }}" style="color:var(--primary);">browse all posts</a>.</p>
             {% else %}
                 <h5>No posts yet</h5>

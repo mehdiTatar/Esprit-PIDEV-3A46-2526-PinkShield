@@ -51,6 +51,7 @@ security:
     # Note: Only the *first* matching rule is applied
     access_control:
         - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+        - { path: ^/2fa_skip, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         # Allow doctors, admins and regular users to access /doctor area per request
         - { path: ^/doctor, roles: [ROLE_DOCTOR, ROLE_ADMIN, ROLE_USER] }

@@ -10,6 +10,7 @@
         "doctrine/doctrine-bundle": "*",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^2.17",
+        "knplabs/knp-paginator-bundle": "^6.10",
         "scheb/2fa-bundle": "^6.13.1",
         "scheb/2fa-email": "^6.13.1",
         "symfony/asset": "6.4.*",
