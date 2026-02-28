@@ -101,7 +101,10 @@ class DashboardController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_DOCTOR');
         
+<<<<<<< HEAD
         /** @var \App\Entity\Doctor $doctor */
+=======
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
         $doctor = $this->getUser();
         $doctorEmail = $doctor->getEmail();
         
@@ -127,7 +130,10 @@ class DashboardController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
         
+<<<<<<< HEAD
         /** @var \App\Entity\User $user */
+=======
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
         $user = $this->getUser();
         $appointments = $appointmentRepository->findByPatient($user->getUserIdentifier());
         

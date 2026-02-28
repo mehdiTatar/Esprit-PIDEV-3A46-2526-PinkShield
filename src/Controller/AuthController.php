@@ -27,6 +27,10 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class AuthController extends AbstractController
 {
     private string $recaptchaSiteKey;
+<<<<<<< HEAD
+=======
+    private string $recaptchaSecretKey;
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
 
     public function __construct(
         ParameterBagInterface $params,
@@ -34,6 +38,10 @@ class AuthController extends AbstractController
         private FaceRecognitionService $faceRecognitionService
     ) {
         $this->recaptchaSiteKey  = $params->get('recaptcha_site_key');
+<<<<<<< HEAD
+=======
+        $this->recaptchaSecretKey = $params->get('recaptcha_secret_key');
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
     }
 
     #[Route('/login', name: 'login')]
@@ -358,7 +366,11 @@ class AuthController extends AbstractController
                 );
 
                 $email = (new Email())
+<<<<<<< HEAD
                     ->from($this->getParameter('mailer_from'))
+=======
+                    ->from('mehditatarpidev7@gmail.com')
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
                     ->to($user->getEmail())
                     ->subject('PinkShield — Réinitialisation de votre mot de passe')
                     ->html($this->renderView('emails/reset_password.html.twig', [

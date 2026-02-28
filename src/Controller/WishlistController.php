@@ -25,7 +25,10 @@ class WishlistController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
         
+<<<<<<< HEAD
         /** @var \App\Entity\User $user */
+=======
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
         $user = $this->getUser();
         $wishlistItems = $wishlistRepository->findByUser($user);
 
@@ -52,7 +55,10 @@ class WishlistController extends AbstractController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
         
+<<<<<<< HEAD
         /** @var \App\Entity\User $user */
+=======
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
         $user = $this->getUser();
         $product = $productRepository->find($productId);
 
@@ -91,7 +97,10 @@ class WishlistController extends AbstractController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
         
+<<<<<<< HEAD
         /** @var \App\Entity\User $user */
+=======
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
         $user = $this->getUser();
         $wishlistItem = $wishlistRepository->find($wishlistId);
 
@@ -114,7 +123,10 @@ class WishlistController extends AbstractController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
         
+<<<<<<< HEAD
         /** @var \App\Entity\User $user */
+=======
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
         $user = $this->getUser();
         $product = $productRepository->find($productId);
 
@@ -142,7 +154,10 @@ class WishlistController extends AbstractController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
         
+<<<<<<< HEAD
         /** @var \App\Entity\User $user */
+=======
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
         $user = $this->getUser();
         $product = $productRepository->find($productId);
 
@@ -160,7 +175,10 @@ class WishlistController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
+<<<<<<< HEAD
         /** @var \App\Entity\User $user */
+=======
+>>>>>>> 10f9f68c6c7b8cd667f9d1988e26b0b3f7d255f2
         $user = $this->getUser();
         $wishlistItems = $wishlistRepository->findByUser($user);
 
