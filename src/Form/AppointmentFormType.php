@@ -16,9 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AppointmentFormType extends AbstractType
 {
-    public function __construct(private DoctorRepository $doctorRepository)
-    {
-    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -81,7 +78,7 @@ class AppointmentFormType extends AbstractType
 
         // Add a model transformer to convert Doctor object to email string
         $builder->get('doctorEmail')->addModelTransformer(
-            new DoctorToEmailTransformer($this->doctorRepository)
+            new DoctorToEmailTransformer()
         );
     }
 

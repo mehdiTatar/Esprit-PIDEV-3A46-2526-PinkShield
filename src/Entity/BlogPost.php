@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
+#[ORM\Index(name: 'idx_blogpost_author_email', columns: ['author_email'])]
+#[ORM\Index(name: 'idx_blogpost_created_at', columns: ['created_at'])]
 class BlogPost
 {
     #[ORM\Id]

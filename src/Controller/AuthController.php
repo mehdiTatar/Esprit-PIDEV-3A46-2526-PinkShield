@@ -38,6 +38,11 @@ class AuthController extends AbstractController
         $this->recaptchaSecretKey = $params->get('recaptcha_secret_key');
     }
 
+    public function getRecaptchaSecretKey(): string
+    {
+        return $this->recaptchaSecretKey;
+    }
+
     #[Route('/login', name: 'login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {

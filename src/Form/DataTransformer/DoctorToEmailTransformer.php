@@ -9,7 +9,7 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class DoctorToEmailTransformer implements DataTransformerInterface
 {
-    public function __construct(private DoctorRepository $doctorRepository)
+    public function __construct()
     {
     }
 

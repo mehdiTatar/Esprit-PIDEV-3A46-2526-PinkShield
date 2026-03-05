@@ -62,7 +62,7 @@ class AppointmentController extends AbstractController
                 if ($appointment->getNotes() && trim($appointment->getNotes()) !== '') {
                     try {
                         $result = $this->aiPharmacistService->suggestProducts($appointment->getNotes());
-                        if (is_array($result) && count($result) > 0) {
+                        if (count($result) > 0) {
                             $aiSuggestions[$appointment->getId()] = $result;
                         }
                     } catch (\Exception $e) {
@@ -488,7 +488,7 @@ class AppointmentController extends AbstractController
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFillColor(255, 255, 255);
 
-        if ($appointment->getParapharmacies() && count($appointment->getParapharmacies()) > 0) {
+        if (count($appointment->getParapharmacies()) > 0) {
             foreach ($appointment->getParapharmacies() as $item) {
                 $pdf->Cell(80, 7, substr($item->getName(), 0, 50), 1, 0, 'L');
                 $pdf->Cell(50, 7, substr($item->getDescription() ?? '', 0, 30), 1, 0, 'L');

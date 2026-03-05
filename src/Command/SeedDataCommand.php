@@ -80,7 +80,8 @@ class SeedDataCommand extends Command
             for ($i = 1; $i <= 10; $i++) {
                 $doctor = new Doctor();
                 $doctor->setEmail("doctor{$i}@pinkshield.com");
-                $doctor->setFullName("Dr. Doctor {$i}");
+                $doctor->setFirstName("Dr. Doctor");
+                $doctor->setLastName((string) $i);
                 $doctor->setSpeciality($specialties[$i - 1]);
                 $doctor->setRoles(['ROLE_DOCTOR']);
                 $doctor->setStatus('active');

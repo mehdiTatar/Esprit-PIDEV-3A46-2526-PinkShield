@@ -87,14 +87,19 @@ class AdminController extends AbstractController
     }
 
     #[Route('/manage-blog', name: 'admin_manage_blog')]
-    public function manageBlog(Request $request, BlogPostRepository $blogPostRepository, EntityManagerInterface $entityManager): Response
+    public function manageBlog(Request $request, BlogPostRepository $blogPostRepository, EntityManagerInterface $entityManager, PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $search = $request->query->get('search', '');
         $sortBy = $request->query->get('sortBy', 'date_newest');
         
-        $posts = $blogPostRepository->searchAndFilter($search ?: null, $sortBy);
+        $qb = $blogPostRepository->searchAndSortQueryBuilder($search ?: null, $sortBy);
+        $posts = $paginator->paginate(
+            $qb,
+            $request->query->getInt('page', 1),
+            10
+        );
 
         // Handle delete requests
         if ($request->isMethod('POST') && $request->request->get('deleteId')) {

@@ -10,6 +10,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: AppointmentRepository::class)]
+#[ORM\Index(name: 'idx_appointment_patient_email', columns: ['patient_email'])]
+#[ORM\Index(name: 'idx_appointment_doctor_email', columns: ['doctor_email'])]
+#[ORM\Index(name: 'idx_appointment_status', columns: ['status'])]
+#[ORM\Index(name: 'idx_appointment_date', columns: ['appointment_date'])]
 class Appointment
 {
     #[ORM\Id]

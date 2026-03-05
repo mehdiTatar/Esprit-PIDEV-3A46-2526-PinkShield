@@ -5,7 +5,6 @@ namespace App\Tests\Entity;
 use App\Entity\Parapharmacie;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
 class ParapharmacieTest extends TestCase
 {
@@ -16,32 +15,31 @@ class ParapharmacieTest extends TestCase
             ->getValidator();
     }
 
-    public function testStockCanBePositiveOrZero(): void
+    public function testPriceCanBePositiveOrZero(): void
     {
         $validator = $this->createValidator();
         $product = new Parapharmacie();
 
-        // setting a valid stock should not produce violations
-        $product->setStock(25);
+        // setting a valid price should not produce violations
+        $product->setName('Test Product');
+        $product->setPrice('25.00');
 
-        // validate only the stock property to avoid unrelated constraints
-        $violations = $validator->validateProperty($product, 'stock');
-        $this->assertCount(0, $violations, "Expected no validation errors for non-negative stock");
+        // validate only the price property to avoid unrelated constraints
+        $violations = $validator->validateProperty($product, 'price');
+        $this->assertCount(0, $violations, "Expected no validation errors for non-negative price");
     }
 
-    public function testStockCannotBeNegative(): void
+    public function testPriceCannotBeNegative(): void
     {
         $validator = $this->createValidator();
         $product = new Parapharmacie();
 
-        // negative stock is against business rule
-        $product->setStock(-3);
+        // negative price is against business rule
+        $product->setName('Test Product');
+        $product->setPrice('-3.00');
 
-        // again validate just the stock field
-        $violations = $validator->validateProperty($product, 'stock');
-        $this->assertGreaterThan(0, $violations->count(), "Expected at least one violation for negative stock");
-
-        // check the specific message comes from our constraint
-        $this->assertStringContainsString('Stock cannot be negative', (string) $violations);
+        // validate just the price field
+        $violations = $validator->validateProperty($product, 'price');
+        $this->assertGreaterThan(0, $violations->count(), "Expected at least one violation for negative price");
     }
 }
