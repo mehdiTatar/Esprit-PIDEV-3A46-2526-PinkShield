@@ -1,0 +1,128 @@
+src\main\java\org\example\MainApp.java:3: error: package javafx.application does not exist
+import javafx.application.Application;
+                         ^
+src\main\java\org\example\MainApp.java:4: error: package javafx.fxml does not exist
+import javafx.fxml.FXMLLoader;
+                  ^
+src\main\java\org\example\MainApp.java:5: error: package javafx.scene does not exist
+import javafx.scene.Scene;
+                   ^
+src\main\java\org\example\MainApp.java:6: error: package javafx.stage does not exist
+import javafx.stage.Stage;
+                   ^
+src\main\java\org\example\MainApp.java:11: error: cannot find symbol
+public class MainApp extends Application {
+                             ^
+  symbol: class Application
+src\main\java\org\example\MainApp.java:13: error: cannot find symbol
+    public void start(Stage primaryStage) throws IOException {
+                      ^
+  symbol:   class Stage
+  location: class MainApp
+src\main\java\org\example\DashboardController.java:3: error: package javafx.fxml does not exist
+import javafx.fxml.FXML;
+                  ^
+src\main\java\org\example\DashboardController.java:4: error: package javafx.fxml does not exist
+import javafx.fxml.FXMLLoader;
+                  ^
+src\main\java\org\example\DashboardController.java:5: error: package javafx.scene does not exist
+import javafx.scene.Parent;
+                   ^
+src\main\java\org\example\DashboardController.java:6: error: package javafx.scene.layout does not exist
+import javafx.scene.layout.StackPane;
+                          ^
+src\main\java\org\example\DashboardController.java:7: error: package javafx.application does not exist
+import javafx.application.Platform;
+                         ^
+src\main\java\org\example\DashboardController.java:15: error: cannot find symbol
+    private StackPane contentArea;
+            ^
+  symbol:   class StackPane
+  location: class DashboardController
+src\main\java\org\example\DashboardController.java:14: error: cannot find symbol
+    @FXML
+     ^
+  symbol:   class FXML
+  location: class DashboardController
+src\main\java\org\example\DashboardController.java:17: error: cannot find symbol
+    @FXML
+     ^
+  symbol:   class FXML
+  location: class DashboardController
+src\main\java\org\example\DashboardController.java:22: error: cannot find symbol
+    @FXML
+     ^
+  symbol:   class FXML
+  location: class DashboardController
+src\main\java\org\example\DashboardController.java:27: error: cannot find symbol
+    @FXML
+     ^
+  symbol:   class FXML
+  location: class DashboardController
+src\main\java\org\example\DashboardController.java:32: error: cannot find symbol
+    @FXML
+     ^
+  symbol:   class FXML
+  location: class DashboardController
+src\main\java\org\example\DashboardController.java:37: error: cannot find symbol
+    @FXML
+     ^
+  symbol:   class FXML
+  location: class DashboardController
+src\main\java\org\example\MainApp.java:12: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+src\main\java\org\example\MainApp.java:15: error: cannot find symbol
+            URL fxmlResource = getClass().getResource("/Dashboard.fxml");
+                               ^
+  symbol:   method getClass()
+  location: class MainApp
+src\main\java\org\example\MainApp.java:21: error: cannot find symbol
+            FXMLLoader loader = new FXMLLoader(fxmlResource);
+            ^
+  symbol:   class FXMLLoader
+  location: class MainApp
+src\main\java\org\example\MainApp.java:21: error: cannot find symbol
+            FXMLLoader loader = new FXMLLoader(fxmlResource);
+                                    ^
+  symbol:   class FXMLLoader
+  location: class MainApp
+src\main\java\org\example\MainApp.java:22: error: package javafx.scene does not exist
+            javafx.scene.Parent root = loader.load();
+                        ^
+src\main\java\org\example\MainApp.java:24: error: cannot find symbol
+            Scene scene = new Scene(root, 1400, 800);
+            ^
+  symbol:   class Scene
+  location: class MainApp
+src\main\java\org\example\MainApp.java:24: error: cannot find symbol
+            Scene scene = new Scene(root, 1400, 800);
+                              ^
+  symbol:   class Scene
+  location: class MainApp
+src\main\java\org\example\MainApp.java:37: error: cannot find symbol
+        launch();
+        ^
+  symbol:   method launch()
+  location: class MainApp
+src\main\java\org\example\DashboardController.java:39: error: cannot find symbol
+        Platform.exit();
+        ^
+  symbol:   variable Platform
+  location: class DashboardController
+src\main\java\org\example\DashboardController.java:49: error: cannot find symbol
+            FXMLLoader loader = new FXMLLoader(resource);
+            ^
+  symbol:   class FXMLLoader
+  location: class DashboardController
+src\main\java\org\example\DashboardController.java:49: error: cannot find symbol
+            FXMLLoader loader = new FXMLLoader(resource);
+                                    ^
+  symbol:   class FXMLLoader
+  location: class DashboardController
+src\main\java\org\example\DashboardController.java:50: error: cannot find symbol
+            Parent content = loader.load();
+            ^
+  symbol:   class Parent
+  location: class DashboardController
+30 errors
