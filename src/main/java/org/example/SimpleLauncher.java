@@ -3,8 +3,6 @@ package org.example;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -14,22 +12,15 @@ public class SimpleLauncher extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         try {
-            TabPane tabPane = new TabPane();
-            tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+            // Load the main dashboard
+            javafx.scene.Parent root = loadFXML("Dashboard.fxml");
 
-            // Load FXML files directly from resources
-            Tab appointmentTab = new Tab("Appointments", loadFXML("appointment.fxml"));
-            Tab parapharmacieTab = new Tab("Parapharmacie", loadFXML("parapharmacie.fxml"));
-            Tab wishlistTab = new Tab("Wishlist", loadFXML("wishlist.fxml"));
-
-            tabPane.getTabs().addAll(appointmentTab, parapharmacieTab, wishlistTab);
-
-            Scene scene = new Scene(tabPane, 1200, 700);
-            primaryStage.setTitle("Healthcare & Commerce Management System");
+            Scene scene = new Scene(root, 1400, 800);
+            primaryStage.setTitle("💊 PinkShield - Healthcare & Commerce Management System");
             primaryStage.setScene(scene);
             primaryStage.show();
 
-            System.out.println("Application started successfully!");
+            System.out.println("PinkShield Dashboard started successfully!");
         } catch (Exception e) {
             System.err.println("Error starting application: " + e.getMessage());
             e.printStackTrace();

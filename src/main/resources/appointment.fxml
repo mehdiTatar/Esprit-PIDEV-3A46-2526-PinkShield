@@ -47,7 +47,7 @@
         <TableView fx:id="table" VBox.vgrow="ALWAYS" styleClass="table-view" prefHeight="250">
             <columns>
                 <TableColumn fx:id="colDate" text="📅 Date & Time" prefWidth="200"/>
-                <TableColumn fx:id="colDoctor" text="👨‍⚕️ Doctor" prefWidth="150"/>
+                <TableColumn fx:id="colDoctor" text="👨 Doctor" prefWidth="150"/>
                 <TableColumn fx:id="colStatus" text="📍 Status" prefWidth="120"/>
                 <TableColumn fx:id="colNotes" text="📝 Notes" prefWidth="250"/>
             </columns>

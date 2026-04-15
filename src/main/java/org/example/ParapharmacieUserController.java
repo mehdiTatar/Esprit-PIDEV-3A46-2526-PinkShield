@@ -122,7 +122,7 @@ public class ParapharmacieUserController implements Initializable {
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
         // Add to Wishlist Button
-        Button wishlistBtn = new Button("❤️ Add to Wishlist");
+        Button wishlistBtn = new Button("Add to Wishlist");
         wishlistBtn.setStyle("-fx-background-color: #e84393; -fx-text-fill: white; -fx-font-size: 12; -fx-padding: 8 16; -fx-border-radius: 20; -fx-background-radius: 20; -fx-cursor: hand;");
         wishlistBtn.setOnAction(e -> addToWishlist(product));
 
@@ -139,11 +139,16 @@ public class ParapharmacieUserController implements Initializable {
 
             showAlert("Success", product.getNom() + " added to your wishlist!");
         } catch (SQLException e) {
+            // Check if it's a duplicate entry error
             if (e.getMessage().contains("Duplicate entry")) {
                 showAlert("Info", "This item is already in your wishlist!");
+            } else if (e.getMessage().contains("Unknown column")) {
+                showAlert("Database Issue", "Database needs to be reset. Please restart the application.");
             } else {
                 showAlert("Error", "Failed to add to wishlist: " + e.getMessage());
             }
+        } catch (Exception e) {
+            showAlert("Error", "Failed to add to wishlist: " + e.getMessage());
         }
     }
 

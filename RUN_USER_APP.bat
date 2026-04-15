@@ -14,7 +14,7 @@ echo.
 
 REM Setup Database
 echo Setting up database...
-mysql -u root < INSTANT_FIX.sql >nul 2>&1
+mysql -u root < EMERGENCY_DB_FIX.sql >nul 2>&1
 
 echo Recompiling application...
 setlocal enabledelayedexpansion

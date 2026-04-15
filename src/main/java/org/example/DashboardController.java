@@ -69,6 +69,21 @@ public class DashboardController {
         descLabel.setStyle("-fx-font-size: 12; -fx-text-fill: #666; -fx-wrap-text: true;");
 
         card.getChildren().addAll(iconLabel, titleLabel, descLabel);
+        
+        // Add click handler to card
+        card.setOnMouseClicked(e -> {
+            if (title.contains("Appointments")) {
+                handleAppointments();
+            } else if (title.contains("Parapharmacie")) {
+                handleParapharmacie();
+            } else if (title.contains("Wishlist")) {
+                handleWishlist();
+            }
+        });
+        
+        // Add hover effect
+        card.setOnMouseEntered(e -> card.setStyle(card.getStyle() + "; -fx-effect: dropshadow(gaussian, rgba(232, 67, 147, 0.25), 15, 0, 0, 8);"));
+        card.setOnMouseExited(e -> card.setStyle("-fx-background-color: white; -fx-border-radius: 15; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(232, 67, 147, 0.15), 10, 0, 0, 5); -fx-cursor: hand;"));
 
         return card;
     }
