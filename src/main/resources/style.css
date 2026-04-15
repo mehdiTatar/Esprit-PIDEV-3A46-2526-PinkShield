@@ -361,3 +361,80 @@
     -fx-border-color: #e8e9f3;
 }
 
+/* ===== PINKSHIELD BEAUTIFUL DASHBOARD THEME ===== */
+
+/* Dashboard Cards */
+.dashboard-card {
+    -fx-background-color: white;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(232, 67, 147, 0.15), 10, 0, 0, 5);
+}
+
+.dashboard-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(232, 67, 147, 0.25), 15, 0, 0, 8);
+}
+
+.dashboard-title {
+    -fx-font-size: 28;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e84393;
+}
+
+.dashboard-subtitle {
+    -fx-font-size: 14;
+    -fx-text-fill: #666;
+    -fx-wrap-text: true;
+}
+
+/* Feature Cards */
+.feature-card {
+    -fx-background-color: white;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(232, 67, 147, 0.12), 8, 0, 0, 4);
+}
+
+.feature-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(232, 67, 147, 0.2), 12, 0, 0, 6);
+    -fx-background-color: #fff5f9;
+}
+
+.feature-icon {
+    -fx-font-size: 24;
+}
+
+.feature-title {
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e84393;
+}
+
+/* Pink Gradient Header */
+.pink-header {
+    -fx-background-color: #e84393;
+    -fx-text-fill: white;
+    -fx-padding: 30;
+}
+
+/* Stats Section */
+.stat-box {
+    -fx-background-color: #ffe0ed;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 25;
+    -fx-effect: dropshadow(gaussian, rgba(255, 105, 180, 0.1), 5, 0, 0, 2);
+}
+
+.stat-number {
+    -fx-font-size: 32;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e84393;
+}
+
+.stat-label {
+    -fx-font-size: 12;
+    -fx-text-fill: #666;
+}

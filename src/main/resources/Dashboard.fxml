@@ -25,13 +25,14 @@
 
     <!-- ===== LEFT: Sidebar ===== -->
     <left>
-        <VBox styleClass="sidebar">
+        <VBox styleClass="sidebar" minWidth="220" prefWidth="220">
             <!-- Sidebar Title -->
-            <Label text="Menu" styleClass="sidebar-title"/>
+            <Label text="Navigation" styleClass="sidebar-title"/>
 
             <Separator/>
 
             <!-- Navigation Buttons -->
+            <Button text="🏠 Dashboard" styleClass="sidebar-button" onAction="#handleDashboard" wrapText="true"/>
             <Button text="📅 Appointments" styleClass="sidebar-button" onAction="#handleAppointments" wrapText="true"/>
             <Button text="💊 Parapharmacie" styleClass="sidebar-button" onAction="#handleParapharmacie" wrapText="true"/>
             <Button text="❤️ Wishlist" styleClass="sidebar-button" onAction="#handleWishlist" wrapText="true"/>
@@ -57,4 +58,3 @@
     </center>
 
 </BorderPane>
-

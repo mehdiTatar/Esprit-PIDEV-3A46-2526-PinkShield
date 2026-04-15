@@ -72,19 +72,31 @@ public class ServiceParapharmacie {
     public ArrayList<Parapharmacie> afficherAll() throws SQLException {
         ArrayList<Parapharmacie> list = new ArrayList<>();
         String req = "SELECT * FROM parapharmacie";
-        PreparedStatement pst = cnx.prepareStatement(req);
-
-        ResultSet rs = pst.executeQuery();
-
-        while (rs.next()) {
-            Parapharmacie parapharmacie = new Parapharmacie(
-                    rs.getInt("id"),
-                    rs.getString("nom"),
-                    rs.getDouble("prix"),
-                    rs.getInt("stock"),
-                    rs.getString("description")
-            );
-            list.add(parapharmacie);
+        
+        if (cnx == null) {
+            System.out.println("ERROR: Database connection is null!");
+            throw new SQLException("Database connection is null");
+        }
+        
+        try {
+            PreparedStatement pst = cnx.prepareStatement(req);
+            ResultSet rs = pst.executeQuery();
+            
+            while (rs.next()) {
+                Parapharmacie parapharmacie = new Parapharmacie(
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getDouble("prix"),
+                        rs.getInt("stock"),
+                        rs.getString("description")
+                );
+                list.add(parapharmacie);
+                System.out.println("Loaded product: " + parapharmacie.getNom());
+            }
+            System.out.println("Total products loaded: " + list.size());
+        } catch (SQLException e) {
+            System.out.println("SQL Error in afficherAll: " + e.getMessage());
+            throw e;
         }
         return list;
     }

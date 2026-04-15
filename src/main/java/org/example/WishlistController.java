@@ -134,6 +134,11 @@ public class WishlistController {
         }
     }
 
+    @FXML
+    public void handleRefresh() {
+        loadWishlists();
+        showInfoAlert("Refreshed", "Wishlist reloaded from database!");
+    }
 
     private boolean validateInput() {
         String userId = txtUserId.getText();
