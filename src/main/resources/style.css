@@ -61,9 +61,20 @@
     -fx-alignment: CENTER_LEFT;
 }
 
+.sidebar-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 16;
+}
+
 .sidebar-button:hover {
     -fx-background-color: #3d4551;
     -fx-text-fill: #e84393;
+}
+
+.sidebar-button:hover .sidebar-icon,
+.sidebar-button:pressed .sidebar-icon,
+.sidebar-button:armed .sidebar-icon {
+    -fx-icon-color: #e84393;
 }
 
 .sidebar-button:pressed {
