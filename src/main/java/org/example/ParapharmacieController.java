@@ -8,8 +8,8 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -23,14 +23,13 @@ public class ParapharmacieController {
     @FXML private FlowPane productFlowPane;
 
     private ServiceParapharmacie service;
-    private ServiceWishlist wishlistService;
     private ObservableList<Parapharmacie> productList;
     private FilteredList<Parapharmacie> filteredList;
+    private Parapharmacie selectedProduct;
 
     @FXML
     public void initialize() {
         service = new ServiceParapharmacie();
-        wishlistService = new ServiceWishlist();
 
         // Initialisation des options de tri
         if (sortComboBox != null) {
@@ -54,7 +53,6 @@ public class ParapharmacieController {
             updateFilterAndSort(); // Première passe d'affichage
         } catch (Exception e) {
             System.out.println("Error loading products: " + e.getMessage());
-            e.printStackTrace();
             productList = FXCollections.observableArrayList();
             filteredList = new FilteredList<>(productList, p -> true);
             displayProducts(productList);
@@ -123,42 +121,63 @@ public class ParapharmacieController {
         card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
         card.setPrefWidth(280);
 
+        if (selectedProduct != null && selectedProduct.getId() == product.getId()) {
+            card.setStyle("-fx-background-color: #eef7ff; -fx-border-color: #0984e3; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(9,132,227,0.2), 6, 0, 0, 2);");
+        }
+
         Label nameLabel = new Label("📦 " + product.getNom());
         nameLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #333;");
         nameLabel.setWrapText(true);
 
         Label priceLabel = new Label("💰 Price: $" + String.format("%.2f", product.getPrix()));
         Label stockLabel = new Label("📊 Stock: " + product.getStock());
+        Label descLabel = new Label("📝 " + (product.getDescription() == null || product.getDescription().isBlank() ? "No description" : product.getDescription()));
+        descLabel.setWrapText(true);
 
-        Button wishlistButton = new Button("❤️ Add to Wishlist");
-        wishlistButton.setStyle("-fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-font-size: 12; -fx-background-radius: 5; -fx-padding: 8 15;");
-        wishlistButton.setOnAction(e -> addToWishlist(product));
-        wishlistButton.setMaxWidth(Double.MAX_VALUE);
+        HBox cardActions = new HBox(8);
+        Button editButton = new Button("Edit");
+        editButton.setStyle("-fx-background-color: #ff9800; -fx-text-fill: white; -fx-font-size: 12;");
+        editButton.setOnAction(e -> selectProduct(product));
 
-        card.getChildren().addAll(nameLabel, priceLabel, stockLabel, wishlistButton);
-        VBox.setMargin(wishlistButton, new Insets(10, 0, 0, 0));
+        Button deleteButton = new Button("Delete");
+        deleteButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 12;");
+        deleteButton.setOnAction(e -> deleteProduct(product));
+
+        cardActions.getChildren().addAll(editButton, deleteButton);
+
+        card.getChildren().addAll(nameLabel, priceLabel, stockLabel, descLabel, cardActions);
+        VBox.setMargin(cardActions, new Insets(10, 0, 0, 0));
+        card.setOnMouseClicked(e -> selectProduct(product));
         return card;
-    }
-
-    private void addToWishlist(Parapharmacie product) {
-        try {
-            if (wishlistService.wishlistItemExists(1, product.getId())) {
-                showWarningAlert("Already in Wishlist", "This product is already in your wishlist.");
-                return;
-            }
-            wishlistService.ajouter(new Wishlist(1, product.getId()));
-            showInfoAlert("Success", "Product added to wishlist!");
-        } catch (SQLException e) {
-            showErrorAlert("Database Error", e.getMessage());
-        }
     }
 
     @FXML
     public void handleAjouter() {
         if (!validateInput()) return;
         try {
-            service.ajouter(new Parapharmacie(txtNom.getText(), Double.parseDouble(txtPrix.getText()), Integer.parseInt(txtStock.getText()), ""));
-            showInfoAlert("Success", "Product added to wishlist!");
+            if (selectedProduct == null && service.productExists(txtNom.getText().trim())) {
+                showWarningAlert("Duplicate", "This product already exists.");
+                return;
+            }
+
+            if (selectedProduct == null) {
+                Parapharmacie product = new Parapharmacie(
+                        txtNom.getText().trim(),
+                        Double.parseDouble(txtPrix.getText().trim()),
+                        Integer.parseInt(txtStock.getText().trim()),
+                        ""
+                );
+                service.ajouter(product);
+                showInfoAlert("Success", "Product added successfully.");
+            } else {
+                selectedProduct.setNom(txtNom.getText().trim());
+                selectedProduct.setPrix(Double.parseDouble(txtPrix.getText().trim()));
+                selectedProduct.setStock(Integer.parseInt(txtStock.getText().trim()));
+                service.modifier(selectedProduct);
+                showInfoAlert("Success", "Product updated successfully.");
+            }
+
+            selectedProduct = null;
             clearFields();
             loadProducts();
         } catch (Exception e) {
@@ -166,14 +185,67 @@ public class ParapharmacieController {
         }
     }
 
-    @FXML public void handleRefresh() { loadProducts(); }
+    private void selectProduct(Parapharmacie product) {
+        selectedProduct = product;
+        txtNom.setText(product.getNom());
+        txtPrix.setText(String.valueOf(product.getPrix()));
+        txtStock.setText(String.valueOf(product.getStock()));
+        displayProducts(FXCollections.observableArrayList(filteredList));
+        showInfoAlert("Edit Mode", "You are editing '" + product.getNom() + "'. Click Ajouter / Sauver to apply changes.");
+    }
+
+    private void deleteProduct(Parapharmacie product) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm Delete");
+        confirm.setHeaderText("Delete product");
+        confirm.setContentText("Delete '" + product.getNom() + "' from parapharmacie?");
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
+        }
+
+        try {
+            service.supprimer(product.getId());
+            if (selectedProduct != null && selectedProduct.getId() == product.getId()) {
+                selectedProduct = null;
+                clearFields();
+            }
+            loadProducts();
+            showInfoAlert("Deleted", "Product deleted successfully.");
+        } catch (Exception e) {
+            showErrorAlert("Error", e.getMessage());
+        }
+    }
+
+    @FXML
+    public void handleRefresh() {
+        selectedProduct = null;
+        clearFields();
+        loadProducts();
+    }
 
     private boolean validateInput() {
-        return !txtNom.getText().isEmpty() && !txtPrix.getText().isEmpty() && !txtStock.getText().isEmpty();
+        if (txtNom.getText().trim().isEmpty() || txtPrix.getText().trim().isEmpty() || txtStock.getText().trim().isEmpty()) {
+            showWarningAlert("Validation", "Name, price and stock are required.");
+            return false;
+        }
+        try {
+            double price = Double.parseDouble(txtPrix.getText().trim());
+            int stock = Integer.parseInt(txtStock.getText().trim());
+            if (price < 0 || stock < 0) {
+                showWarningAlert("Validation", "Price and stock must be non-negative.");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            showWarningAlert("Validation", "Price and stock must be numeric.");
+            return false;
+        }
+        return true;
     }
 
     private void clearFields() {
-        txtNom.clear(); txtPrix.clear(); txtStock.clear();
+        txtNom.clear();
+        txtPrix.clear();
+        txtStock.clear();
     }
 
     private void showWarningAlert(String t, String c) { Alert a = new Alert(Alert.AlertType.WARNING); a.setTitle(t); a.setContentText(c); a.showAndWait(); }

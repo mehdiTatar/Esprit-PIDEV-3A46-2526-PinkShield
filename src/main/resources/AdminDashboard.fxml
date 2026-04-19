@@ -37,11 +37,6 @@
                     <FontIcon iconLiteral="fas-pills" iconSize="16" styleClass="sidebar-icon"/>
                 </graphic>
             </Button>
-            <Button text="Wishlist" styleClass="sidebar-button" onAction="#handleWishlist" wrapText="true" graphicTextGap="15">
-                <graphic>
-                    <FontIcon iconLiteral="fas-heart" iconSize="16" styleClass="sidebar-icon"/>
-                </graphic>
-            </Button>
             <Button text="Risk Analyser" styleClass="sidebar-button" onAction="#handleRiskAnalyser" wrapText="true" graphicTextGap="15">
                 <graphic>
                     <FontIcon iconLiteral="fas-shield-virus" iconSize="16" styleClass="sidebar-icon"/>

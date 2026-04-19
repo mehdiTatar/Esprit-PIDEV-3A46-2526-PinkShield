@@ -6,11 +6,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -55,17 +52,30 @@ public class AdminDashboardController {
 
     @FXML
     public void handleAppointments() {
-        showEmptyPlaceholder("Appointments");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AdminAppointment.fxml"));
+            Parent appointmentView = loader.load();
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(appointmentView);
+            applyThemeClass(appointmentView);
+        } catch (IOException e) {
+            System.err.println("Error loading appointments: " + e.getMessage());
+            showEmptyPlaceholder("Appointments");
+        }
     }
 
     @FXML
     public void handleParapharmacie() {
-        showEmptyPlaceholder("Parapharmacie");
-    }
-
-    @FXML
-    public void handleWishlist() {
-        showEmptyPlaceholder("Wishlist");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/parapharmacie.fxml"));
+            Parent parapharmacieView = loader.load();
+            contentArea.getChildren().clear();
+            contentArea.getChildren().add(parapharmacieView);
+            applyThemeClass(parapharmacieView);
+        } catch (IOException e) {
+            System.err.println("Error loading parapharmacie: " + e.getMessage());
+            showEmptyPlaceholder("Parapharmacie");
+        }
     }
 
     @FXML
@@ -89,7 +99,7 @@ public class AdminDashboardController {
             stage.setTitle("PinkShield - Sign In");
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error loading login page: " + e.getMessage());
         }
     }
 
@@ -111,6 +121,7 @@ public class AdminDashboardController {
         if (contentArea == null) {
             return;
         }
+        System.err.println("Section unavailable: " + sectionName);
         contentArea.getChildren().clear();
     }
 }

@@ -1,28 +1,52 @@
 package org.example;
 
+import javafx.application.Platform;
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.animation.Interpolator;
 
 import java.io.IOException;
+import java.util.Set;
 
 public class AuthController {
+
+    private static final Color PATIENT_COLOR = Color.web("#e84393");
+    private static final Color DOCTOR_COLOR = Color.web("#0984e3");
+    private static final Duration THEME_ANIMATION_DURATION = Duration.millis(500);
+
+    @FXML private StackPane authRoot;
+    @FXML private StackPane logoContainer;
+    @FXML private SVGPath shieldPath;
+    @FXML private SVGPath pulsePath;
 
     @FXML private VBox loginBox;
     @FXML private VBox registerBox;
@@ -41,7 +65,7 @@ public class AuthController {
     @FXML private VBox doctorFieldsBox;
     @FXML private ToggleButton btnPatientMode;
     @FXML private ToggleButton btnDoctorMode;
-    @FXML private HBox roleHeader;
+    @FXML private Button btnSignIn;
 
     private final ToggleGroup roleGroup = new ToggleGroup();
 
@@ -52,6 +76,10 @@ public class AuthController {
 
     private final ServiceUser userService = new ServiceUser();
     private boolean showPassword;
+    private final DoubleProperty themeProgress = new SimpleDoubleProperty(0);
+    private Set<Node> inputRows;
+    private Set<Node> fieldIcons;
+    private ParallelTransition logoHeartbeat;
 
     private static final java.util.List<String> SPECIALTIES = java.util.Arrays.asList(
             "Cardiology",
@@ -77,7 +105,17 @@ public class AuthController {
         txtLoginPasswordVisible.setVisible(false);
         txtLoginPasswordVisible.setManaged(false);
         applyRoleMode();
-        applyTheme(false);
+
+        themeProgress.addListener((obs, oldValue, newValue) ->
+                applyThemeColors(PATIENT_COLOR.interpolate(DOCTOR_COLOR, newValue.doubleValue())));
+
+        Platform.runLater(() -> {
+            inputRows = authRoot.lookupAll(".auth-input-row");
+            fieldIcons = authRoot.lookupAll(".auth-field-icon");
+            bindLogoScale();
+            applyThemeColors(PATIENT_COLOR);
+            startLogoHeartbeatAnimation();
+        });
     }
 
     @FXML
@@ -166,6 +204,18 @@ public class AuthController {
         } else {
             openScreen("/Dashboard.fxml", "PinkShield - Dashboard");
         }
+    }
+
+    @FXML
+    private void handleSkipPatientLogin() {
+        clearMessages();
+        openScreen("/Dashboard.fxml", "PinkShield - Dashboard");
+    }
+
+    @FXML
+    private void handleSkipDoctorLogin() {
+        clearMessages();
+        openScreen("/AdminDashboard.fxml", "PinkShield - Admin Dashboard");
     }
 
     @FXML
@@ -271,13 +321,13 @@ public class AuthController {
     @FXML
     private void handlePatientMode() {
         applyRoleMode();
-        applyTheme(false);
+        animateThemeTransition(false);
     }
 
     @FXML
     private void handleDoctorMode() {
         applyRoleMode();
-        applyTheme(true);
+        animateThemeTransition(true);
     }
 
     private void applyRoleMode() {
@@ -288,25 +338,134 @@ public class AuthController {
         }
     }
 
-    private void applyTheme(boolean isDoctor) {
-        if (loginBox != null) {
-            if (isDoctor) {
-                loginBox.getStyleClass().remove("auth-patient-theme");
-                loginBox.getStyleClass().add("auth-doctor-theme");
-            } else {
-                loginBox.getStyleClass().remove("auth-doctor-theme");
-                loginBox.getStyleClass().add("auth-patient-theme");
+    private void animateThemeTransition(boolean doctorMode) {
+        double target = doctorMode ? 1.0 : 0.0;
+        Timeline timeline = new Timeline(
+                new KeyFrame(THEME_ANIMATION_DURATION, new KeyValue(themeProgress, target, Interpolator.EASE_BOTH))
+        );
+        timeline.play();
+    }
+
+    private void applyThemeColors(Color accent) {
+        if (accent == null) {
+            return;
+        }
+
+        String accentHex = toHex(accent);
+        String softAccentHex = toHex(accent.interpolate(Color.WHITE, 0.62));
+        String subtleAccentHex = toHex(accent.interpolate(Color.WHITE, 0.80));
+
+        if (shieldPath != null) {
+            shieldPath.setStroke(accent);
+            shieldPath.setFill(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 0.12));
+        }
+        if (pulsePath != null) {
+            pulsePath.setStroke(accent);
+            pulsePath.setFill(Color.TRANSPARENT);
+        }
+
+        if (btnSignIn != null) {
+            btnSignIn.setStyle("-fx-background-color: " + accentHex + "; -fx-text-fill: #ffffff;");
+        }
+
+        if (inputRows != null) {
+            for (Node row : inputRows) {
+                row.setStyle("-fx-padding: 4 0 0 0; -fx-alignment: center-left; -fx-border-color: transparent transparent " + softAccentHex + " transparent; -fx-border-width: 0 0 1 0;");
             }
         }
-        if (registerBox != null) {
-            if (isDoctor) {
-                registerBox.getStyleClass().remove("auth-patient-theme");
-                registerBox.getStyleClass().add("auth-doctor-theme");
-            } else {
-                registerBox.getStyleClass().remove("auth-doctor-theme");
-                registerBox.getStyleClass().add("auth-patient-theme");
+
+        if (fieldIcons != null) {
+            for (Node icon : fieldIcons) {
+                icon.setStyle("-fx-icon-color: " + accentHex + ";");
             }
         }
+
+        setAccentBorder(txtLoginEmail, subtleAccentHex);
+        setAccentBorder(txtLoginPassword, subtleAccentHex);
+        setAccentBorder(txtLoginPasswordVisible, subtleAccentHex);
+        setAccentBorder(txtRegisterFullName, subtleAccentHex);
+        setAccentBorder(txtRegisterEmail, subtleAccentHex);
+        setAccentBorder(txtRegisterPassword, subtleAccentHex);
+        setAccentBorder(txtRegisterConfirmPassword, subtleAccentHex);
+        setAccentBorder(txtRegisterLicenseId, subtleAccentHex);
+        if (cmbRegisterSpecialty != null) {
+            cmbRegisterSpecialty.setStyle("-fx-background-color: transparent; -fx-border-color: transparent transparent " + subtleAccentHex + " transparent; -fx-border-width: 0 0 1.3 0; -fx-border-radius: 0; -fx-background-radius: 0; -fx-padding: 6 0 6 0;");
+        }
+
+        applyRoleToggleAccent(accentHex);
+    }
+
+    private void applyRoleToggleAccent(String accentHex) {
+        if (btnPatientMode == null || btnDoctorMode == null) {
+            return;
+        }
+
+        String passive = "-fx-background-color: #eef0f6; -fx-text-fill: #2d3436; -fx-border-color: #d7dbe6;";
+        String active = "-fx-background-color: " + accentHex + "; -fx-text-fill: #ffffff; -fx-border-color: " + accentHex + ";";
+
+        btnPatientMode.setStyle((btnPatientMode.isSelected() ? active : passive) + " -fx-background-radius: 999; -fx-border-radius: 999; -fx-padding: 8 16;");
+        btnDoctorMode.setStyle((btnDoctorMode.isSelected() ? active : passive) + " -fx-background-radius: 999; -fx-border-radius: 999; -fx-padding: 8 16;");
+    }
+
+    private void setAccentBorder(TextInputControl field, String borderHex) {
+        if (field == null) {
+            return;
+        }
+        field.setStyle("-fx-background-color: transparent; -fx-border-color: transparent transparent " + borderHex + " transparent; -fx-border-width: 0 0 1.3 0; -fx-border-radius: 0; -fx-background-radius: 0; -fx-padding: 10 6 10 6;");
+    }
+
+    private void bindLogoScale() {
+        if (logoContainer == null || shieldPath == null || pulsePath == null) {
+            return;
+        }
+
+        Runnable scaler = () -> {
+            Bounds bounds = logoContainer.getLayoutBounds();
+            double size = Math.min(bounds.getWidth(), bounds.getHeight());
+            double scale = Math.max(1.6, size / 120.0);
+            shieldPath.setScaleX(scale);
+            shieldPath.setScaleY(scale);
+            pulsePath.setScaleX(scale);
+            pulsePath.setScaleY(scale);
+        };
+
+        logoContainer.widthProperty().addListener((obs, oldValue, newValue) -> scaler.run());
+        logoContainer.heightProperty().addListener((obs, oldValue, newValue) -> scaler.run());
+        scaler.run();
+    }
+
+    private void startLogoHeartbeatAnimation() {
+        if (logoContainer == null) {
+            return;
+        }
+        if (logoHeartbeat != null) {
+            logoHeartbeat.stop();
+        }
+
+        ScaleTransition scalePulse = new ScaleTransition(Duration.millis(950), logoContainer);
+        scalePulse.setFromX(1.0);
+        scalePulse.setFromY(1.0);
+        scalePulse.setToX(1.05);
+        scalePulse.setToY(1.05);
+        scalePulse.setAutoReverse(true);
+        scalePulse.setCycleCount(Timeline.INDEFINITE);
+
+        FadeTransition fadePulse = new FadeTransition(Duration.millis(950), logoContainer);
+        fadePulse.setFromValue(1.0);
+        fadePulse.setToValue(0.88);
+        fadePulse.setAutoReverse(true);
+        fadePulse.setCycleCount(Timeline.INDEFINITE);
+
+        logoHeartbeat = new ParallelTransition(scalePulse, fadePulse);
+        logoHeartbeat.setCycleCount(Timeline.INDEFINITE);
+        logoHeartbeat.play();
+    }
+
+    private String toHex(Color color) {
+        int red = (int) Math.round(color.getRed() * 255);
+        int green = (int) Math.round(color.getGreen() * 255);
+        int blue = (int) Math.round(color.getBlue() * 255);
+        return String.format("#%02x%02x%02x", red, green, blue);
     }
 
     private String getSelectedRole() {

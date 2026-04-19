@@ -673,12 +673,50 @@
 
 .dark-mode .header {
     -fx-background-color: #1f2330;
-    -fx-border-color: #2a3040;
+    -fx-border-color: #0984e3;
+    -fx-border-width: 0 0 2 0;
+    -fx-text-fill: #e7eaf3;
+}
+
+.dark-mode .header-logo {
+    -fx-text-fill: #0984e3;
+}
+
+.dark-mode .header-title {
+    -fx-text-fill: #e7eaf3;
 }
 
 .dark-mode .sidebar {
-    -fx-background-color: #151924;
-    -fx-border-color: #242b3a;
+    -fx-background-color: #0d1219;
+    -fx-border-color: #0984e3;
+    -fx-border-width: 0 2 0 0;
+}
+
+.dark-mode .sidebar-title {
+    -fx-text-fill: #0984e3;
+}
+
+.dark-mode .sidebar-button {
+    -fx-text-fill: #a0a8b8;
+}
+
+.dark-mode .sidebar-button:hover {
+    -fx-background-color: #1a2332;
+    -fx-text-fill: #0984e3;
+}
+
+.dark-mode .sidebar-button:hover .sidebar-icon,
+.dark-mode .sidebar-button:pressed .sidebar-icon {
+    -fx-icon-color: #0984e3;
+}
+
+.dark-mode .sidebar-button:pressed {
+    -fx-background-color: #0a0f18;
+    -fx-text-fill: #0984e3;
+}
+
+.dark-mode .sidebar-icon {
+    -fx-icon-color: #7f8c8d;
 }
 
 .dark-mode .module-root,
@@ -686,7 +724,31 @@
 .dark-mode .scroll-pane,
 .dark-mode .scroll-pane .viewport,
 .dark-mode .root {
-    -fx-background-color: #171a22;
+    -fx-background-color: #0f1419;
+}
+
+.dark-mode .btn-primary,
+.dark-mode .btn-secondary {
+    -fx-text-fill: #ffffff;
+}
+
+.dark-mode .btn-primary {
+    -fx-background-color: #0984e3;
+}
+
+.dark-mode .btn-primary:hover {
+    -fx-background-color: #0670c2;
+}
+
+.dark-mode .btn-secondary {
+    -fx-background-color: #1a2332;
+    -fx-border-color: #0984e3;
+    -fx-border-width: 1;
+}
+
+.dark-mode .btn-secondary:hover {
+    -fx-background-color: #253548;
+    -fx-text-fill: #0984e3;
 }
 
 .dark-mode .label,
@@ -928,8 +990,54 @@
     -fx-alignment: center;
 }
 
+.auth-split-root {
+    -fx-min-width: 1200;
+    -fx-min-height: 760;
+}
+
 .auth-gradient-background {
     -fx-background-color: linear-gradient(to bottom right, #e84393, #fdcb6e);
+}
+
+.auth-brand-pane {
+    -fx-padding: 40;
+    -fx-alignment: center;
+}
+
+.auth-brand-content {
+    -fx-max-width: 520;
+    -fx-alignment: center;
+}
+
+.auth-logo-shell {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(255, 255, 255, 0.35);
+    -fx-border-radius: 999;
+    -fx-border-width: 1.3;
+}
+
+.auth-logo-shield,
+.auth-logo-pulse {
+    -fx-stroke: #e84393;
+}
+
+.auth-brand-title {
+    -fx-font-size: 44;
+    -fx-font-weight: 800;
+    -fx-text-fill: #ffffff;
+}
+
+.auth-brand-subtitle {
+    -fx-font-size: 15;
+    -fx-text-fill: rgba(255, 255, 255, 0.92);
+    -fx-max-width: 420;
+    -fx-alignment: center;
+}
+
+.auth-form-pane {
+    -fx-padding: 34 52 34 24;
+    -fx-alignment: center-right;
 }
 
 .auth-glass-card {
@@ -971,6 +1079,8 @@
 .auth-input-row {
     -fx-padding: 4 0 0 0;
     -fx-alignment: center-left;
+    -fx-border-color: transparent transparent #d9deea transparent;
+    -fx-border-width: 0 0 1 0;
 }
 
 .auth-field-icon {
@@ -1113,6 +1223,28 @@
     -fx-scale-y: 1.03;
 }
 
+.auth-skip-row {
+    -fx-padding: 2 0 0 0;
+}
+
+.auth-skip-button {
+    -fx-background-color: rgba(255, 255, 255, 0.7);
+    -fx-text-fill: #5f6572;
+    -fx-font-size: 11;
+    -fx-font-weight: 600;
+    -fx-padding: 6 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #d7dbe6;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.auth-skip-button:hover {
+    -fx-text-fill: #2d3436;
+    -fx-border-color: #b9bfcc;
+}
+
 .auth-link {
     -fx-text-fill: #e84393;
     -fx-font-size: 12;
@@ -1242,5 +1374,739 @@
     -fx-background-color: #d63080;
     -fx-scale-x: 1.02;
     -fx-scale-y: 1.02;
+}
+
+/* ===== Admin Appointment Module ===== */
+.admin-toolbar {
+    -fx-background-color: #0984e3;
+    -fx-padding: 10 15;
+}
+
+.admin-toolbar-title {
+    -fx-font-size: 18;
+    -fx-font-weight: 700;
+    -fx-text-fill: #ffffff;
+}
+
+.admin-tab-button {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: #ffffff;
+    -fx-border-color: transparent;
+    -fx-padding: 8 15;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.admin-tab-button:selected {
+    -fx-background-color: #0984e3;
+    -fx-text-fill: #ffffff;
+}
+
+.admin-tab-button:hover {
+    -fx-background-color: rgba(9, 132, 227, 0.25);
+}
+
+.admin-content {
+    -fx-background-color: #0f1419;
+}
+
+.admin-table {
+    -fx-background-color: #1a2332;
+    -fx-border-color: #0984e3;
+}
+
+.admin-table .table-row-cell {
+    -fx-background-color: #1a2332;
+    -fx-text-fill: #e7eaf3;
+}
+
+.admin-table .table-row-cell:selected {
+    -fx-background-color: #0a3d66;
+}
+
+.admin-table .table-row-cell:hover {
+    -fx-background-color: #253548;
+}
+
+.admin-table .column-header {
+    -fx-background-color: #0984e3;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 600;
+}
+
+.admin-combo {
+    -fx-background-color: #1a2332;
+    -fx-border-color: #0984e3;
+    -fx-text-fill: #e7eaf3;
+}
+
+.admin-search-field {
+    -fx-background-color: #1a2332;
+    -fx-border-color: #0984e3;
+    -fx-text-fill: #e7eaf3;
+}
+
+.admin-search-field:focused {
+    -fx-border-color: #0984e3;
+    -fx-border-width: 2;
+}
+
+.admin-button-secondary {
+    -fx-background-color: #1a2332;
+    -fx-text-fill: #0984e3;
+    -fx-border-color: #0984e3;
+}
+
+.admin-button-secondary:hover {
+    -fx-background-color: #0984e3;
+    -fx-text-fill: #ffffff;
+}
+
+.btn-confirm {
+    -fx-background-color: #4caf50;
+    -fx-text-fill: white;
+    -fx-padding: 5 10;
+    -fx-background-radius: 4;
+    -fx-font-size: 11;
+    -fx-cursor: hand;
+}
+
+.btn-confirm:hover {
+    -fx-background-color: #45a049;
+}
+
+.btn-postpone {
+    -fx-background-color: #ff9800;
+    -fx-text-fill: white;
+    -fx-padding: 5 10;
+    -fx-background-radius: 4;
+    -fx-font-size: 11;
+    -fx-cursor: hand;
+}
+
+.btn-postpone:hover {
+    -fx-background-color: #e68900;
+}
+
+.btn-cancel {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+    -fx-padding: 5 10;
+    -fx-background-radius: 4;
+    -fx-font-size: 11;
+    -fx-cursor: hand;
+}
+
+.btn-cancel:hover {
+    -fx-background-color: #da190b;
+}
+
+.admin-calendar-title {
+    -fx-font-size: 16;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0984e3;
+}
+
+.admin-calendar-grid {
+     -fx-background-color: #1a2332;
+     -fx-border-color: #0984e3;
+     -fx-border-width: 1;
+ }
+
+ /* ===== Day Mode for Doctor Appointment Segment ===== */
+ .day-mode {
+     -fx-background-color: #f5f6fa;
+ }
+
+ .day-mode-toolbar {
+     -fx-background-color: #0984e3;
+     -fx-padding: 10 15;
+ }
+
+ .day-mode-toolbar-title {
+     -fx-font-size: 18;
+     -fx-font-weight: 700;
+     -fx-text-fill: #ffffff;
+ }
+
+ .day-mode-tab-button {
+     -fx-background-color: rgba(255, 255, 255, 0.2);
+     -fx-text-fill: #ffffff;
+     -fx-border-color: transparent;
+     -fx-padding: 8 15;
+     -fx-background-radius: 5;
+     -fx-cursor: hand;
+ }
+
+ .day-mode-tab-button:selected {
+     -fx-background-color: #0984e3;
+     -fx-text-fill: #ffffff;
+ }
+
+ .day-mode-tab-button:hover {
+     -fx-background-color: rgba(9, 132, 227, 0.25);
+ }
+
+ .day-mode-content {
+     -fx-background-color: #f5f6fa;
+ }
+
+ .day-mode-management {
+     -fx-background-color: #f5f6fa;
+ }
+
+ .day-mode-calendar {
+     -fx-background-color: #f5f6fa;
+ }
+
+ .day-mode-table {
+     -fx-background-color: #ffffff;
+     -fx-border-color: #e8e9f3;
+ }
+
+ .day-mode-table .table-row-cell {
+     -fx-background-color: #ffffff;
+     -fx-text-fill: #2d3436;
+ }
+
+ .day-mode-table .table-row-cell:selected {
+     -fx-background-color: #ffe8f5;
+ }
+
+ .day-mode-table .table-row-cell:hover {
+     -fx-background-color: #f5f6fa;
+ }
+
+ .day-mode-table .column-header {
+     -fx-background-color: #f5f6fa;
+     -fx-text-fill: #2d3436;
+     -fx-font-weight: 600;
+     -fx-border-color: #e8e9f3;
+ }
+
+ .day-mode-combo {
+     -fx-background-color: #ffffff;
+     -fx-border-color: #e8e9f3;
+     -fx-text-fill: #2d3436;
+ }
+
+ .day-mode-search-field {
+     -fx-background-color: #ffffff;
+     -fx-border-color: #e8e9f3;
+     -fx-text-fill: #2d3436;
+ }
+
+ .day-mode-search-field:focused {
+     -fx-border-color: #0984e3;
+     -fx-border-width: 2;
+ }
+
+ .day-mode-button-secondary {
+     -fx-background-color: #ffffff;
+     -fx-text-fill: #0984e3;
+     -fx-border-color: #e8e9f3;
+ }
+
+ .day-mode-button-secondary:hover {
+     -fx-background-color: #0984e3;
+     -fx-text-fill: #ffffff;
+ }
+
+ .day-mode-calendar-title {
+     -fx-font-size: 16;
+     -fx-font-weight: 700;
+     -fx-text-fill: #0984e3;
+ }
+
+ .day-mode-calendar-grid {
+     -fx-background-color: #ffffff;
+     -fx-border-color: #e8e9f3;
+     -fx-border-width: 1;
+ }
+
+ /* Parapharmacie Day Mode Styles */
+ .day-mode-para {
+     -fx-background-color: #f4f4f9;
+ }
+
+ .day-mode-input {
+     -fx-background-color: #ffffff;
+     -fx-border-color: #e8e9f3;
+     -fx-text-fill: #2d3436;
+     -fx-padding: 10;
+     -fx-font-size: 13;
+     -fx-border-width: 1;
+     -fx-border-radius: 6;
+     -fx-background-radius: 6;
+ }
+
+ .day-mode-input:focused {
+     -fx-border-color: #0984e3;
+     -fx-border-width: 2;
+     -fx-effect: dropshadow(gaussian, rgba(9, 132, 227, 0.2), 4, 0, 0, 0);
+ }
+
+ .day-mode-combo {
+     -fx-background-color: #ffffff;
+     -fx-border-color: #e8e9f3;
+     -fx-text-fill: #2d3436;
+     -fx-padding: 10;
+     -fx-font-size: 13;
+     -fx-border-width: 1;
+     -fx-border-radius: 6;
+     -fx-background-radius: 6;
+ }
+
+ .day-mode-combo:focused {
+     -fx-border-color: #0984e3;
+     -fx-border-width: 2;
+     -fx-effect: dropshadow(gaussian, rgba(9, 132, 227, 0.2), 4, 0, 0, 0);
+ }
+
+ .day-mode-primary-button {
+     -fx-background-color: #0984e3;
+     -fx-text-fill: #ffffff;
+     -fx-padding: 10 20;
+     -fx-font-size: 13;
+     -fx-font-weight: 600;
+     -fx-border-radius: 6;
+     -fx-background-radius: 6;
+     -fx-cursor: hand;
+ }
+
+ .day-mode-primary-button:hover {
+     -fx-background-color: #0670c2;
+ }
+
+ .day-mode-secondary-button {
+     -fx-background-color: #e8e9f3;
+     -fx-text-fill: #2d3436;
+     -fx-padding: 10 20;
+     -fx-font-size: 13;
+     -fx-font-weight: 600;
+     -fx-border-radius: 6;
+     -fx-background-radius: 6;
+     -fx-cursor: hand;
+ }
+
+ .day-mode-secondary-button:hover {
+     -fx-background-color: #d0d1de;
+ }
+
+ /* User Parapharmacie Styles */
+ .user-para > Label {
+     -fx-text-fill: #e84393;
+ }
+
+ /* Dark Mode Enhancements for Parapharmacie */
+ .dark-mode .day-mode-para {
+     -fx-background-color: #0f1419;
+ }
+
+ .dark-mode .day-mode-input {
+     -fx-background-color: #1f2533;
+     -fx-border-color: #3a4258;
+     -fx-text-fill: #e7eaf3;
+ }
+
+ .dark-mode .day-mode-input:focused {
+     -fx-border-color: #0984e3;
+ }
+
+ .dark-mode .day-mode-combo {
+     -fx-background-color: #1f2533;
+     -fx-border-color: #3a4258;
+     -fx-text-fill: #e7eaf3;
+ }
+
+ .dark-mode .day-mode-combo:focused {
+     -fx-border-color: #0984e3;
+ }
+
+ .dark-mode .day-mode-primary-button {
+     -fx-background-color: #0984e3;
+     -fx-text-fill: #ffffff;
+ }
+
+ .dark-mode .day-mode-primary-button:hover {
+     -fx-background-color: #0670c2;
+ }
+
+ .dark-mode .day-mode-secondary-button {
+     -fx-background-color: #2a3145;
+     -fx-text-fill: #e7eaf3;
+     -fx-border-color: transparent;
+ }
+
+ .dark-mode .day-mode-secondary-button:hover {
+     -fx-background-color: #323b54;
+ }
+
+  .dark-mode .user-para > Label {
+      -fx-text-fill: #ff7fc5;
+  }
+
+ /* ===== CRITICAL: Dark Mode Override for Day-Mode Classes (Appointments & Parapharmacie) ===== */
+ .dark-mode .day-mode {
+     -fx-background-color: #0f1419;
+ }
+
+ .dark-mode .day-mode-toolbar {
+     -fx-background-color: #0984e3;
+     -fx-padding: 10 15;
+ }
+
+ .dark-mode .day-mode-management,
+ .dark-mode .day-mode-calendar {
+     -fx-background-color: #0f1419;
+ }
+
+ .dark-mode .day-mode-table {
+     -fx-background-color: #1a2332;
+     -fx-border-color: #0984e3;
+ }
+
+ .dark-mode .day-mode-table .table-row-cell {
+     -fx-background-color: #1a2332;
+     -fx-text-fill: #e7eaf3;
+ }
+
+ .dark-mode .day-mode-table .table-row-cell:selected {
+     -fx-background-color: #0a3d66;
+ }
+
+ .dark-mode .day-mode-table .table-row-cell:hover {
+     -fx-background-color: #253548;
+ }
+
+ .dark-mode .day-mode-table .column-header {
+     -fx-background-color: #0984e3;
+     -fx-text-fill: #ffffff;
+     -fx-font-weight: 600;
+ }
+
+ .dark-mode .day-mode-combo {
+     -fx-background-color: #1a2332;
+     -fx-border-color: #0984e3;
+     -fx-text-fill: #e7eaf3;
+ }
+
+ .dark-mode .day-mode-combo:focused {
+     -fx-border-color: #0984e3;
+     -fx-border-width: 2;
+ }
+
+ .dark-mode .day-mode-search-field {
+     -fx-background-color: #1a2332;
+     -fx-border-color: #0984e3;
+     -fx-text-fill: #e7eaf3;
+ }
+
+ .dark-mode .day-mode-search-field:focused {
+     -fx-border-color: #0984e3;
+     -fx-border-width: 2;
+ }
+
+ .dark-mode .day-mode-button-secondary {
+     -fx-background-color: #1a2332;
+     -fx-text-fill: #0984e3;
+     -fx-border-color: #0984e3;
+ }
+
+ .dark-mode .day-mode-button-secondary:hover {
+     -fx-background-color: #0984e3;
+     -fx-text-fill: #ffffff;
+ }
+
+ .dark-mode .day-mode-calendar-title {
+     -fx-font-size: 16;
+     -fx-font-weight: 700;
+     -fx-text-fill: #0984e3;
+ }
+
+ .dark-mode .day-mode-calendar-grid {
+     -fx-background-color: #1a2332;
+     -fx-border-color: #0984e3;
+     -fx-border-width: 1;
+ }
+
+ .dark-mode .day-mode-content {
+     -fx-background-color: #0f1419;
+ }
+
+ /* ===== Dark Mode for FlowPane & Product Cards ===== */
+.dark-mode .flow-pane {
+    -fx-background-color: #0f1419;
+}
+
+.dark-mode .para-product-card {
+    -fx-background-color: #1a2332;
+    -fx-border-color: #2a3f5f;
+}
+
+.dark-mode .para-product-name {
+    -fx-text-fill: #f3f6ff;
+}
+
+.dark-mode .para-product-meta {
+    -fx-text-fill: #b8c4d6;
+}
+
+.dark-mode .para-wishlist-button {
+    -fx-text-fill: #ffffff;
+}
+
+.dark-mode .scroll-pane:not(.admin-content) .viewport {
+    -fx-background-color: #0f1419;
+}
+
+/* Make sure all text in dark mode parapharmacie is readable */
+.dark-mode .para-product-card Label {
+     -fx-text-fill: #e7eaf3;
+ }
+
+ .dark-mode .para-product-card .button {
+     -fx-text-fill: #ffffff;
+ }
+
+ .dark-mode .para-product-card {
+     -fx-background-color: #242b3a;
+     -fx-border-color: #313a4d;
+ }
+
+ .dark-mode VBox[style*="parapharmacie"] > Label:first-child {
+     -fx-text-fill: #ff7fc5;
+ }
+
+ .dark-mode .para-product-name {
+     -fx-text-fill: #f3f6ff;
+ }
+
+ .dark-mode .para-product-meta {
+     -fx-text-fill: #b8c4d6;
+ }
+
+ .dark-mode .para-product-card .button {
+     -fx-background-color: #0984e3;
+     -fx-text-fill: #ffffff;
+ }
+
+  .dark-mode .para-product-card .button:hover {
+      -fx-background-color: #0670c2;
+  }
+
+ /* ===== COMPREHENSIVE Dark Mode for Parapharmacie Cards ===== */
+ .dark-mode .para-product-card {
+     -fx-background-color: #1a2332 !important;
+     -fx-border-color: #0984e3 !important;
+     -fx-border-width: 1 !important;
+ }
+
+ .dark-mode .para-product-card Label {
+     -fx-text-fill: #e7eaf3 !important;
+ }
+
+ .dark-mode .para-product-name {
+     -fx-text-fill: #f3f6ff !important;
+ }
+
+ .dark-mode .para-product-meta {
+     -fx-text-fill: #b8c4d6 !important;
+ }
+
+ .dark-mode .para-product-card .button {
+     -fx-background-color: #0984e3 !important;
+     -fx-text-fill: #ffffff !important;
+ }
+
+ .dark-mode .para-product-card .button:hover {
+     -fx-background-color: #0670c2 !important;
+ }
+
+ .dark-mode .para-product-card .button:pressed {
+     -fx-background-color: #034b8a !important;
+ }
+
+ .dark-mode .para-flowpane {
+     -fx-background-color: #0f1419 !important;
+     -fx-padding: 10;
+ }
+
+ /* ===== Parapharmacie title in dark mode ===== */
+ .dark-mode VBox.day-mode-para > Label:first-child {
+     -fx-text-fill: #ff7fc5 !important;
+ }
+
+ .dark-mode VBox.user-para > Label:first-child {
+     -fx-text-fill: #ff7fc5 !important;
+ }
+
+ /* ===== Appointment User Mode Dark Mode Support ===== */
+ .dark-mode .appointment-user-root {
+     -fx-background-color: #0f1419;
+ }
+
+ .dark-mode .appointment-user-container {
+     -fx-background-color: #0f1419;
+ }
+
+ .dark-mode .appointment-user-container > Label {
+     -fx-text-fill: #ff7fc5 !important;
+ }
+
+ .dark-mode .appointment-user-container .tab-pane {
+     -fx-background-color: #0f1419;
+ }
+
+ .dark-mode .appointment-user-container .tab-pane .tab-header-background {
+     -fx-background-color: #1a2332;
+ }
+
+ .dark-mode .appointment-user-container .tab-pane .tab {
+     -fx-background-color: #1a2332;
+     -fx-text-fill: #b8c4d6;
+     -fx-border-color: #2a3f5f;
+ }
+
+ .dark-mode .appointment-user-container .tab-pane .tab:selected {
+     -fx-background-color: #242b3a;
+     -fx-text-fill: #ff7fc5;
+ }
+
+ .dark-mode .appointment-user-container .tab-pane .tab:hover {
+     -fx-background-color: #1f2533;
+ }
+
+ .dark-mode .appointment-user-container .tab-content-area {
+     -fx-background-color: #0f1419;
+ }
+
+ .dark-mode .appointment-user-container .card-pane {
+     -fx-background-color: #242b3a;
+     -fx-border-color: #313a4d;
+ }
+
+ .dark-mode .appointment-user-container .card-pane > Label {
+     -fx-text-fill: #f3f6ff;
+ }
+
+ .dark-mode .appointment-user-container .text-field,
+ .dark-mode .appointment-user-container .text-area,
+ .dark-mode .appointment-user-container .combo-box,
+ .dark-mode .appointment-user-container .date-picker {
+     -fx-background-color: #1f2533;
+     -fx-border-color: #3a4258;
+     -fx-text-fill: #e7eaf3;
+ }
+
+ .dark-mode .appointment-user-container .text-area .content {
+     -fx-control-inner-background: #1f2533;
+ }
+
+ .dark-mode .appointment-user-container .table-view {
+     -fx-background-color: #1a2332;
+     -fx-border-color: #0984e3;
+ }
+
+ .dark-mode .appointment-user-container .table-view .table-row-cell {
+     -fx-background-color: #1a2332;
+     -fx-text-fill: #e7eaf3;
+ }
+
+ .dark-mode .appointment-user-container .table-view .table-row-cell:selected {
+     -fx-background-color: #0a3d66;
+ }
+
+ .dark-mode .appointment-user-container .table-view .table-row-cell:hover {
+     -fx-background-color: #253548;
+ }
+
+ .dark-mode .appointment-user-container .table-view .column-header {
+     -fx-background-color: #0984e3;
+     -fx-text-fill: #ffffff;
+     -fx-font-weight: 600;
+ }
+
+ .dark-mode .appointment-user-container .label {
+     -fx-text-fill: #d6d9e3;
+ }
+
+ .dark-mode .appointment-user-container .btn-primary {
+     -fx-background-color: #e84393;
+     -fx-text-fill: #ffffff;
+ }
+
+ .dark-mode .appointment-user-container .btn-primary:hover {
+     -fx-background-color: #d63080;
+ }
+
+ .dark-mode .appointment-user-container .btn-secondary {
+     -fx-background-color: #2a3145;
+     -fx-text-fill: #e7eaf3;
+     -fx-border-color: transparent;
+ }
+
+ .dark-mode .appointment-user-container .btn-secondary:hover {
+     -fx-background-color: #323b54;
+     -fx-text-fill: #0984e3;
+ }
+
+/* Dark mode scrollbar in parapharmacie */
+.dark-mode .scroll-bar {
+    -fx-background-color: #0f1419;
+}
+
+.dark-mode .scroll-bar:vertical .increment-button,
+.dark-mode .scroll-bar:vertical .decrement-button,
+.dark-mode .scroll-bar:horizontal .increment-button,
+.dark-mode .scroll-bar:horizontal .decrement-button {
+    -fx-background-color: #0f1419;
+}
+
+/* Para FlowPane Styling */
+.para-flowpane {
+    -fx-background-color: #f5f6fa;
+    -fx-padding: 10;
+}
+
+.dark-mode .para-flowpane {
+    -fx-background-color: #0f1419;
+    -fx-padding: 10;
+}
+
+/* ===== Dark Mode for TabPane ===== */
+.dark-mode .tab-pane {
+    -fx-background-color: #0f1419;
+}
+
+.dark-mode .tab-pane .tab-header-background {
+    -fx-background-color: #1a2332;
+}
+
+.dark-mode .tab-pane .tab {
+    -fx-background-color: #1a2332;
+    -fx-text-fill: #b8c4d6;
+    -fx-border-color: #2a3f5f;
+}
+
+.dark-mode .tab-pane .tab:selected {
+    -fx-background-color: #242b3a;
+    -fx-text-fill: #ff7fc5;
+}
+
+.dark-mode .tab-pane .tab:hover {
+    -fx-background-color: #1f2533;
+}
+
+.dark-mode .tab-pane .tab-content-area {
+    -fx-background-color: #0f1419;
+}
+
+.dark-mode .tab-pane *.tab-label {
+    -fx-text-fill: #b8c4d6;
+}
+
+.dark-mode .tab-pane:focused .tab:selected *.tab-label {
+    -fx-text-fill: #ff7fc5;
 }
 
