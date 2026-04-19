@@ -49,26 +49,22 @@ public class ParapharmacieController {
             productList = FXCollections.observableArrayList(products);
             System.out.println("Loaded " + products.size() + " products");
 
-            // On initialise la liste filtrée ici pour éviter les NullPointerException
-            if (filteredList == null) {
-                filteredList = new FilteredList<>(productList, p -> true);
-            } else {
-                // Si on refresh, on remet à jour la source
-                setupSearchAndSort();
-            }
+            filteredList = new FilteredList<>(productList, p -> true);
 
             updateFilterAndSort(); // Première passe d'affichage
         } catch (Exception e) {
             System.out.println("Error loading products: " + e.getMessage());
             e.printStackTrace();
             productList = FXCollections.observableArrayList();
+            filteredList = new FilteredList<>(productList, p -> true);
             displayProducts(productList);
         }
     }
 
     private void setupSearchAndSort() {
-        if (productList == null) return;
-        filteredList = new FilteredList<>(productList, p -> true);
+        if (filteredList == null && productList != null) {
+            filteredList = new FilteredList<>(productList, p -> true);
+        }
 
         // Recherche en temps réel
         searchBar.textProperty().addListener((obs, oldVal, newVal) -> updateFilterAndSort());
@@ -80,7 +76,7 @@ public class ParapharmacieController {
     }
 
     private void updateFilterAndSort() {
-        if (productList == null) return;
+        if (productList == null || filteredList == null) return;
 
         // 1. Filtrage par recherche
         String searchText = searchBar.getText() != null ? searchBar.getText().toLowerCase() : "";

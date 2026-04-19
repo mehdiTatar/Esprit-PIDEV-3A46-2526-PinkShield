@@ -4,7 +4,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -45,27 +44,31 @@ public class ParapharmacieUserController {
         try {
             ArrayList<Parapharmacie> products = service.afficherAll();
             productList = FXCollections.observableArrayList(products);
+            filteredList = new FilteredList<>(productList, p -> true);
             updateFilterAndSort();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error loading parapharmacie products: " + e.getMessage());
             productList = FXCollections.observableArrayList();
+            filteredList = new FilteredList<>(productList, p -> true);
             displayProducts(productList);
         }
     }
 
     private void setupSearchAndSort() {
-        filteredList = new FilteredList<>(productList, p -> true);
+        if (filteredList == null && productList != null) {
+            filteredList = new FilteredList<>(productList, p -> true);
+        }
 
         searchBar.textProperty().addListener((obs, oldVal, newVal) -> updateFilterAndSort());
         sortComboBox.valueProperty().addListener((obs, oldVal, newVal) -> updateFilterAndSort());
     }
 
     private void updateFilterAndSort() {
-        if (productList == null) return;
+        if (productList == null || filteredList == null) return;
 
-        String searchText = searchBar.getText().toLowerCase();
+        String searchText = searchBar != null && searchBar.getText() != null ? searchBar.getText().toLowerCase() : "";
         filteredList.setPredicate(product -> {
-            if (searchText == null || searchText.isEmpty()) return true;
+            if (searchText.isEmpty()) return true;
             return product.getNom().toLowerCase().contains(searchText);
         });
 

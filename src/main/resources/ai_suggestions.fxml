@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AiSuggestionsController" stylesheets="@style.css" styleClass="module-root">
+    <top>
+        <ToolBar>
+            <Button text="← Back to Appointment" onAction="#handleBackToAppointment" styleClass="btn-secondary"/>
+            <Label text="AI Suggestions" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <VBox spacing="15" style="-fx-padding: 25;">
+            <Label text="Recommendations generated from your notes" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+            <Label fx:id="notesLabel" wrapText="true" styleClass="label-subtitle"/>
+            <VBox fx:id="riskVBox" spacing="8" style="-fx-padding: 0 0 8 0;"/>
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                <VBox fx:id="recommendationsVBox" spacing="10" style="-fx-padding: 5;"/>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>
+

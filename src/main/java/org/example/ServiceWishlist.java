@@ -2,6 +2,7 @@ package org.example;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ServiceWishlist {
 
@@ -42,6 +43,65 @@ public class ServiceWishlist {
 
         pst.executeUpdate();
         System.out.println("Wishlist item ajoute avec succes !");
+    }
+
+    public boolean add(Product product) throws SQLException {
+        if (product == null || product.getName() == null || product.getName().isBlank()) {
+            return false;
+        }
+
+        ServiceParapharmacie parapharmacieService = new ServiceParapharmacie();
+        Parapharmacie dbProduct = findMatchingParapharmacie(parapharmacieService, product.getName());
+        if (dbProduct == null) {
+            dbProduct = createParapharmacieFromAiProduct(parapharmacieService, product);
+        }
+        if (dbProduct == null) {
+            System.out.println("Product not found in Parapharmacie inventory: " + product.getName());
+            return false;
+        }
+
+        int demoUserId = 1;
+        if (!wishlistItemExists(demoUserId, dbProduct.getId())) {
+            ajouter(new Wishlist(demoUserId, dbProduct.getId()));
+        }
+
+        return true;
+    }
+
+    private Parapharmacie findMatchingParapharmacie(ServiceParapharmacie parapharmacieService, String productName) throws SQLException {
+        Parapharmacie exactMatch = parapharmacieService.findByName(productName);
+        if (exactMatch != null) {
+            return exactMatch;
+        }
+
+        String normalizedTarget = normalizeName(productName);
+        for (Parapharmacie candidate : parapharmacieService.afficherAll()) {
+            if (normalizeName(candidate.getNom()).equals(normalizedTarget)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private Parapharmacie createParapharmacieFromAiProduct(ServiceParapharmacie parapharmacieService, Product product) throws SQLException {
+        Parapharmacie newProduct = new Parapharmacie();
+        newProduct.setNom(product.getName().trim());
+        newProduct.setDescription(product.getCategory() == null ? "AI recommended product" : product.getCategory());
+        newProduct.setPrix(product.getPrice());
+        newProduct.setStock(1);
+
+        parapharmacieService.ajouter(newProduct);
+        return findMatchingParapharmacie(parapharmacieService, product.getName());
+    }
+
+    private String normalizeName(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "")
+                .trim();
     }
 
     public void modifier(Wishlist wishlist) throws SQLException {

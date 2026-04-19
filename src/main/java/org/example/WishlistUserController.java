@@ -9,26 +9,35 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class WishlistUserController {
+
+    private static final int DEMO_USER_ID = 1;
 
     @FXML
     private TextField searchBar;
     @FXML
-    private TableView<Wishlist> table;
+    private TableView<WishlistDisplayItem> table;
     @FXML
-    private TableColumn<Wishlist, Integer> colId;
+    private TableColumn<WishlistDisplayItem, Integer> colId;
     @FXML
-    private TableColumn<Wishlist, String> colParapharmacieId;
+    private TableColumn<WishlistDisplayItem, String> colParapharmacieId;
     @FXML
-    private TableColumn<Wishlist, String> colAddedAt;
+    private TableColumn<WishlistDisplayItem, String> colPrice;
     @FXML
-    private TableColumn<Wishlist, String> colAction;
+    private TableColumn<WishlistDisplayItem, String> colAddedAt;
+    @FXML
+    private TableColumn<WishlistDisplayItem, String> colAction;
+    @FXML
+    private Label totalPriceLabel;
 
     private ServiceWishlist serviceWishlist;
     private ServiceParapharmacie serviceParapharmacie;
-    private ObservableList<Wishlist> wishlistList;
-    private FilteredList<Wishlist> filteredList;
+    private ObservableList<WishlistDisplayItem> wishlistList;
+    private FilteredList<WishlistDisplayItem> filteredList;
 
     @FXML
     public void initialize() {
@@ -42,29 +51,24 @@ public class WishlistUserController {
 
     private void initializeTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-
-        // Show product name instead of ID
-        colParapharmacieId.setCellValueFactory(cellData -> {
-            int productId = cellData.getValue().getParapharmacie_id();
-            String productName = getProductName(productId);
-            return new javafx.beans.property.SimpleStringProperty(productName);
-        });
+        colParapharmacieId.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        colPrice.setCellValueFactory(cellData ->
+                new javafx.beans.property.SimpleStringProperty(formatPrice(cellData.getValue().getPrice())));
 
         colAddedAt.setCellValueFactory(cellData -> {
-            java.sql.Timestamp timestamp = cellData.getValue().getAdded_at();
+            java.sql.Timestamp timestamp = cellData.getValue().getAddedAt();
             String formatted = timestamp != null ?
                 timestamp.toLocalDateTime().toLocalDate().toString() : "N/A";
             return new javafx.beans.property.SimpleStringProperty(formatted);
         });
 
-        // Action column with delete button
-        colAction.setCellFactory(column -> new TableCell<Wishlist, String>() {
-            private final Button deleteButton = new Button("🗑️");
+        colAction.setCellFactory(column -> new TableCell<WishlistDisplayItem, String>() {
+            private final Button deleteButton = new Button("Delete");
 
             {
                 deleteButton.setStyle("-fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-font-size: 12; -fx-padding: 5 10;");
                 deleteButton.setOnAction(event -> {
-                    Wishlist item = getTableView().getItems().get(getIndex());
+                    WishlistDisplayItem item = getTableView().getItems().get(getIndex());
                     handleDelete(item);
                 });
             }
@@ -81,60 +85,84 @@ public class WishlistUserController {
         });
     }
 
-    private String getProductName(int productId) {
-        try {
-            // This is a simplified approach - in a real app you'd have a product cache
-            // For now, return the ID as string since we don't have product lookup
-            return "Product #" + productId;
-        } catch (Exception e) {
-            return "Product #" + productId;
-        }
-    }
-
     private void loadWishlist() {
         try {
-            // For demo purposes, load wishlist for user_id = 1
             ArrayList<Wishlist> wishlists = serviceWishlist.afficherAll();
-            // Filter for user_id = 1 (demo user)
-            wishlists.removeIf(w -> w.getUser_id() != 1);
+            wishlists.removeIf(w -> w.getUser_id() != DEMO_USER_ID);
 
-            wishlistList = FXCollections.observableArrayList(wishlists);
-            table.setItems(wishlistList);
+            Map<Integer, Parapharmacie> productById = loadProductMap();
+            ArrayList<WishlistDisplayItem> displayItems = new ArrayList<>();
+            for (Wishlist wishlist : wishlists) {
+                Parapharmacie product = productById.get(wishlist.getParapharmacie_id());
+                String productName = product != null ? product.getNom() : "Product #" + wishlist.getParapharmacie_id();
+                double price = product != null ? product.getPrix() : 0.0;
+
+                displayItems.add(new WishlistDisplayItem(
+                        wishlist.getId(),
+                        wishlist.getUser_id(),
+                        wishlist.getParapharmacie_id(),
+                        productName,
+                        price,
+                        wishlist.getAdded_at()
+                ));
+            }
+
+            wishlistList = FXCollections.observableArrayList(displayItems);
+            filteredList = new FilteredList<>(wishlistList, p -> true);
+            table.setItems(filteredList);
+            updateTotalPrice();
         } catch (SQLException e) {
             System.out.println("Database connection error - showing empty wishlist: " + e.getMessage());
             wishlistList = FXCollections.observableArrayList();
-            table.setItems(wishlistList);
+            filteredList = new FilteredList<>(wishlistList, p -> true);
+            table.setItems(filteredList);
+            updateTotalPrice();
         } catch (NullPointerException e) {
             System.out.println("Database not ready - showing empty wishlist: " + e.getMessage());
             wishlistList = FXCollections.observableArrayList();
-            table.setItems(wishlistList);
+            filteredList = new FilteredList<>(wishlistList, p -> true);
+            table.setItems(filteredList);
+            updateTotalPrice();
         }
     }
 
-    private void setupRealTimeSearch() {
-        filteredList = new FilteredList<>(wishlistList, p -> true);
+    private Map<Integer, Parapharmacie> loadProductMap() throws SQLException {
+        ArrayList<Parapharmacie> products = serviceParapharmacie.afficherAll();
+        Map<Integer, Parapharmacie> productById = new HashMap<>();
+        for (Parapharmacie product : products) {
+            productById.put(product.getId(), product);
+        }
+        return productById;
+    }
 
+    private void setupRealTimeSearch() {
         searchBar.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredList.setPredicate(wishlist -> {
+            if (filteredList == null) {
+                return;
+            }
+
+            filteredList.setPredicate(item -> {
                 if (newValue == null || newValue.isEmpty()) {
                     return true;
                 }
 
                 String lowerCaseFilter = newValue.toLowerCase();
-                String productName = getProductName(wishlist.getParapharmacie_id());
-                String id = String.valueOf(wishlist.getId());
+                String productName = item.getProductName() != null ? item.getProductName().toLowerCase() : "";
+                String id = String.valueOf(item.getId());
+                String price = formatPrice(item.getPrice()).toLowerCase();
 
                 return productName.toLowerCase().contains(lowerCaseFilter) ||
-                       id.contains(lowerCaseFilter);
+                       id.contains(lowerCaseFilter) ||
+                       price.contains(lowerCaseFilter);
             });
-        });
 
-        table.setItems(filteredList);
+            updateTotalPrice();
+        });
     }
 
     @FXML
     public void handleSupprimer() {
-        Wishlist selected = table.getSelectionModel().getSelectedItem();
+        WishlistDisplayItem selected = table.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showWarningAlert("No Selection", "Please select a wishlist item to remove.");
             return;
@@ -143,7 +171,7 @@ public class WishlistUserController {
         handleDelete(selected);
     }
 
-    private void handleDelete(Wishlist item) {
+    private void handleDelete(WishlistDisplayItem item) {
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
         confirmation.setTitle("Remove Item");
         confirmation.setHeaderText("Remove from Wishlist");
@@ -168,6 +196,23 @@ public class WishlistUserController {
     public void handleRefresh() {
         loadWishlist();
         showInfoAlert("Refreshed", "Wishlist reloaded!");
+    }
+
+    private void updateTotalPrice() {
+        if (totalPriceLabel == null || filteredList == null) {
+            return;
+        }
+
+        double total = 0.0;
+        for (WishlistDisplayItem item : filteredList) {
+            total += item.getPrice();
+        }
+
+        totalPriceLabel.setText("Total: " + formatPrice(total));
+    }
+
+    private String formatPrice(double price) {
+        return String.format(Locale.US, "%.2f TND", price);
     }
 
     private void showWarningAlert(String title, String content) {

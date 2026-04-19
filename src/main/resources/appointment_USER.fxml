@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AppointmentUserController" spacing="20" style="-fx-padding: 30; -fx-background-color: #f5f6fa;">
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AppointmentUserController" fitToWidth="true" hbarPolicy="NEVER" stylesheets="@style.css" styleClass="module-root">
+<content>
+<VBox spacing="20" styleClass="module-root" style="-fx-padding: 30;">
 
     <Label text="📅 Book Your Appointment" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
 
-    <VBox spacing="20" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15;">
+    <ToolBar>
+        <Button text="Book Appointment" onAction="#handleAjouter" styleClass="btn-primary"/>
+        <Button text="Calendar" onAction="#handleOpenCalendar" styleClass="btn-secondary"/>
+        <Button text="AI Assistant" onAction="#handleAiAssistant" styleClass="btn-secondary"/>
+    </ToolBar>
+
+    <VBox spacing="20" styleClass="card-pane" style="-fx-padding: 20; -fx-background-radius: 15;">
         <Label text="Your Information" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
 
         <GridPane hgap="20" vgap="15">
@@ -24,23 +31,28 @@
             <Label text="Your Email:" GridPane.columnIndex="2"/>
             <TextField fx:id="txtPatientEmail" promptText="email@example.com" GridPane.columnIndex="3"/>
 
-            <Label text="Doctor:" GridPane.rowIndex="1"/>
-            <TextField fx:id="txtDoctorName" promptText="Dr. Name" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <Label text="Select Specialty:" GridPane.rowIndex="1"/>
+            <ComboBox fx:id="specialtyComboBox" prefWidth="210" onAction="#onSpecialtySelected" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-            <Label text="Select Date:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-            <DatePicker fx:id="datePicker" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+            <Label text="Select Doctor:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+            <ComboBox fx:id="doctorComboBox" prefWidth="210" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
 
-            <Label text="Select Time (HH:mm):" GridPane.rowIndex="2"/>
-            <TextField fx:id="txtHeure" promptText="Ex: 14:30" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            <Label text="Select Date:" GridPane.rowIndex="2"/>
+            <DatePicker fx:id="bookingDatePicker" prefWidth="210" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <Label text="Select Time (HH:mm):" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+            <TextField fx:id="txtHeure" promptText="Ex: 14:30" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
 
             <Label text="Notes:" GridPane.rowIndex="3"/>
-            <TextArea fx:id="txtNotes" prefHeight="80" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3"/>
+            <TextArea fx:id="notesArea" prefHeight="80" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3"/>
         </GridPane>
+
 
         <HBox spacing="10">
             <Button text="✅ Book Appointment" onAction="#handleAjouter" style="-fx-background-color: #e84393; -fx-text-fill: white; -fx-padding: 10 20;"/>
             <Button text="✏️ Modifier" onAction="#handleModifier" style="-fx-background-color: #fdcb6e; -fx-text-fill: white; -fx-padding: 10 20;"/>
             <Button text="🗑️ Supprimer" onAction="#handleSupprimer" style="-fx-background-color: #d63031; -fx-text-fill: white; -fx-padding: 10 20;"/>
+            <Button text="📄 Download PDF Proof" onAction="#handleDownloadPdf" styleClass="btn-secondary"/>
         </HBox>
     </VBox>
 
@@ -53,3 +65,5 @@
         </columns>
     </TableView>
 </VBox>
+</content>
+</ScrollPane>

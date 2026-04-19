@@ -115,6 +115,160 @@
     -fx-background-color: #b8b9cc;
 }
 
+/* ===== Calendar Grid ===== */
+.calendar-month-controls {
+    -fx-padding: 0 0 8 0;
+}
+
+.appointment-calendar-grid {
+    -fx-padding: 4;
+}
+
+.calendar-day-header {
+    -fx-font-weight: bold;
+    -fx-text-fill: #7f8c8d;
+    -fx-padding: 8 0;
+}
+
+.calendar-day-cell {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-color: #e8e9f3;
+    -fx-border-radius: 10;
+    -fx-padding: 8;
+}
+
+.calendar-day-number {
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3436;
+}
+
+.calendar-day-marker {
+    -fx-font-size: 11;
+    -fx-text-fill: #e84393;
+    -fx-font-weight: bold;
+}
+
+.calendar-day-cell.today {
+    -fx-border-color: #e84393;
+    -fx-border-width: 2;
+}
+
+.calendar-day-cell.booked {
+    -fx-background-color: #fff0f7;
+    -fx-border-color: #f5b1d1;
+}
+
+/* ===== AI Recommendation Rows ===== */
+.ai-recommendation-row {
+    -fx-padding: 12;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-color: #e8e9f3;
+    -fx-border-radius: 10;
+}
+
+.ai-recommendation-title {
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3436;
+}
+
+/* ===== Risk Analysis ===== */
+.risk-analysis-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #e8e9f3;
+    -fx-padding: 12 14;
+}
+
+.risk-analysis-title {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3436;
+}
+
+.risk-analysis-summary,
+.risk-analysis-signals {
+    -fx-font-size: 12;
+    -fx-text-fill: #6c757d;
+    -fx-wrap-text: true;
+}
+
+.risk-level-extreme {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d63031;
+}
+
+.risk-level-moderate {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e67e22;
+}
+
+.risk-level-low {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2ecc71;
+}
+
+.risk-report-title {
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e84393;
+}
+
+.risk-report-scanning {
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e84393;
+}
+
+.risk-level-high {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #d63031;
+}
+
+.risk-level-medium {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e67e22;
+}
+
+.risk-level-low,
+.risk-level-info {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2ecc71;
+}
+
+.risk-high {
+    -fx-border-color: #ff6b6b;
+    -fx-background-color: #fff0f0;
+}
+
+.risk-medium {
+    -fx-border-color: #f0ad4e;
+    -fx-background-color: #fff7e6;
+}
+
+.risk-low {
+    -fx-border-color: #2ecc71;
+    -fx-background-color: #eefaf2;
+}
+
+.risk-extreme {
+    -fx-border-color: #d63031;
+    -fx-background-color: #fff0f0;
+}
+
+.risk-moderate {
+    -fx-border-color: #e67e22;
+    -fx-background-color: #fff5e8;
+}
+
 /* ===== Danger Button (Delete) ===== */
 .btn-danger {
     -fx-padding: 10 20;
@@ -438,3 +592,284 @@
     -fx-font-size: 12;
     -fx-text-fill: #666;
 }
+
+/* ===== Shared Module Containers ===== */
+.module-root {
+    -fx-background-color: #f5f6fa;
+}
+
+.welcome-dashboard {
+    -fx-background-color: linear-gradient(to bottom, #ffe8f5, #f5f6fa);
+}
+
+.feature-description {
+    -fx-font-size: 12;
+    -fx-text-fill: #666;
+}
+
+.total-price-label {
+    -fx-font-size: 15;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2d3436;
+}
+
+/* ===== Appointment Calendar Markers ===== */
+.calendar-marked-day {
+    -fx-background-color: #ffd8ec;
+    -fx-text-fill: #8a0b5e;
+    -fx-font-weight: 700;
+    -fx-background-radius: 8;
+    -fx-border-color: #e84393;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-alignment: center;
+}
+
+.calendar-marked-day:hover {
+    -fx-background-color: #ffc1e1;
+}
+
+/* ===== Night Mode ===== */
+.dark-mode {
+    -fx-background-color: #171a22;
+}
+
+.dark-mode .header {
+    -fx-background-color: #1f2330;
+    -fx-border-color: #2a3040;
+}
+
+.dark-mode .sidebar {
+    -fx-background-color: #151924;
+    -fx-border-color: #242b3a;
+}
+
+.dark-mode .module-root,
+.dark-mode .welcome-dashboard,
+.dark-mode .scroll-pane,
+.dark-mode .scroll-pane .viewport,
+.dark-mode .root {
+    -fx-background-color: #171a22;
+}
+
+.dark-mode .label,
+.dark-mode .label-title,
+.dark-mode .dashboard-subtitle,
+.dark-mode .feature-description {
+    -fx-text-fill: #d6d9e3;
+}
+
+.dark-mode .total-price-label {
+    -fx-text-fill: #f3f6ff;
+}
+
+.dark-mode .header-logo,
+.dark-mode .feature-title,
+.dark-mode .dashboard-title {
+    -fx-text-fill: #ff7fc5;
+}
+
+.dark-mode .card-pane,
+.dark-mode .feature-card,
+.dark-mode .dashboard-card,
+.dark-mode .stat-box {
+    -fx-background-color: #242b3a;
+    -fx-border-color: #313a4d;
+}
+
+.dark-mode .table-view,
+.dark-mode .table-view .column-header,
+.dark-mode .table-view .table-row-cell {
+    -fx-background-color: #242b3a;
+    -fx-text-fill: #e7eaf3;
+    -fx-table-cell-border-color: #313a4d;
+    -fx-border-color: #313a4d;
+}
+
+.dark-mode .table-view .table-row-cell:hover {
+    -fx-background-color: #2c3550;
+}
+
+.dark-mode .table-view .table-row-cell:filled:selected {
+    -fx-background-color: #3a2d47;
+}
+
+.dark-mode .text-field,
+.dark-mode .text-area,
+.dark-mode .combo-box,
+.dark-mode .date-picker {
+    -fx-background-color: #1f2533;
+    -fx-border-color: #3a4258;
+    -fx-text-fill: #e7eaf3;
+}
+
+.dark-mode .text-area,
+.dark-mode .text-area .content {
+    -fx-control-inner-background: #1f2533;
+}
+
+.dark-mode .btn-secondary {
+    -fx-background-color: #2a3145;
+    -fx-text-fill: #e7eaf3;
+}
+
+.dark-mode .btn-secondary:hover {
+    -fx-background-color: #323b54;
+}
+
+.dark-mode .calendar-day-header {
+    -fx-text-fill: #c6cbda;
+}
+
+.dark-mode .calendar-day-cell {
+    -fx-background-color: #242b3a;
+    -fx-border-color: #313a4d;
+}
+
+.dark-mode .calendar-day-number {
+    -fx-text-fill: #f3f6ff;
+}
+
+.dark-mode .calendar-day-marker {
+    -fx-text-fill: #ff9fd0;
+}
+
+.dark-mode .calendar-day-cell.today {
+    -fx-border-color: #ff7fc5;
+}
+
+.dark-mode .calendar-day-cell.booked {
+    -fx-background-color: #30213d;
+    -fx-border-color: #5b3f6f;
+}
+
+.dark-mode .ai-recommendation-row {
+    -fx-background-color: #242b3a;
+    -fx-border-color: #313a4d;
+}
+
+.dark-mode .ai-recommendation-title {
+    -fx-text-fill: #f3f6ff;
+}
+
+.dark-mode .ai-recommendation-row .button,
+.dark-mode .risk-analysis-card .button {
+    -fx-text-fill: #f3f6ff;
+}
+
+.dark-mode .risk-analysis-card {
+    -fx-background-color: #242b3a;
+    -fx-border-color: #313a4d;
+}
+
+.dark-mode .risk-analysis-title {
+    -fx-text-fill: #f3f6ff;
+}
+
+.dark-mode .risk-analysis-summary,
+.dark-mode .risk-analysis-signals {
+    -fx-text-fill: #c6cbda;
+}
+
+.dark-mode .risk-report-title,
+.dark-mode .risk-report-scanning {
+    -fx-text-fill: #ff7fc5;
+}
+
+.dark-mode .risk-level-high {
+    -fx-text-fill: #ff8a8a;
+}
+
+.dark-mode .risk-level-medium {
+    -fx-text-fill: #ffc27a;
+}
+
+.dark-mode .risk-level-low,
+.dark-mode .risk-level-info {
+    -fx-text-fill: #7de7a0;
+}
+
+.dark-mode .risk-high {
+    -fx-background-color: #3c2227;
+    -fx-border-color: #ff6b6b;
+}
+
+.dark-mode .risk-medium {
+    -fx-background-color: #3a2f21;
+    -fx-border-color: #f0ad4e;
+}
+
+.dark-mode .risk-low {
+    -fx-background-color: #21362a;
+    -fx-border-color: #2ecc71;
+}
+
+.dark-mode .risk-extreme {
+    -fx-background-color: #3c2227;
+    -fx-border-color: #ff6b6b;
+}
+
+.dark-mode .risk-moderate {
+    -fx-background-color: #3a2f21;
+    -fx-border-color: #f0ad4e;
+}
+
+.dark-mode .risk-level-extreme {
+    -fx-text-fill: #ff8a8a;
+}
+
+.dark-mode .risk-level-moderate {
+    -fx-text-fill: #ffc27a;
+}
+
+.dark-mode .risk-level-low {
+    -fx-text-fill: #7de7a0;
+}
+
+.dark-mode .calendar-marked-day {
+    -fx-background-color: #523a67;
+    -fx-text-fill: #ffd6ef;
+    -fx-border-color: #ff7fc5;
+}
+
+.dark-mode .button {
+    -fx-text-fill: #e7eaf3;
+}
+
+.dark-mode .ai-recommendation-row .button {
+    -fx-text-fill: #f3f6ff;
+}
+
+.dark-mode .table-view .table-cell {
+    -fx-text-fill: #e7eaf3;
+}
+
+.dark-mode .table-view .column-header .label {
+    -fx-text-fill: #d6d9e3;
+}
+
+.dark-mode .date-picker-popup,
+.dark-mode .date-picker-popup .month-year-pane,
+.dark-mode .date-picker-popup .calendar-grid {
+    -fx-background-color: #1f2533;
+}
+
+.dark-mode .date-picker-popup .day-cell {
+    -fx-background-color: #1f2533;
+    -fx-text-fill: #e7eaf3;
+}
+
+.dark-mode .date-picker-popup .day-cell:hover {
+    -fx-background-color: #2c3550;
+}
+
+.dark-mode .date-picker-popup .day-name-cell,
+.dark-mode .date-picker-popup .week-number-cell {
+    -fx-text-fill: #c6cbda;
+}
+
+.dark-mode .tooltip {
+    -fx-background-color: #2a3145;
+    -fx-text-fill: #f3f6ff;
+}
+

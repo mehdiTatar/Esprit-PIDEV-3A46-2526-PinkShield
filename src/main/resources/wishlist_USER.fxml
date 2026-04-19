@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.WishlistUserController" spacing="20" stylesheets="@style.css" style="-fx-padding: 30; -fx-background-color: #f5f6fa;">
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.WishlistUserController" spacing="20" stylesheets="@style.css" styleClass="module-root" style="-fx-padding: 30;">
 
     <Label text="Your Wishlist" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #ff69b4;"/>
-    <Label text="Your saved products and items for future purchase" style="-fx-font-size: 14; -fx-text-fill: #666;"/>
+    <Label text="Your saved products and items for future purchase" styleClass="label-subtitle"/>
 
     <!-- Search -->
     <TextField fx:id="searchBar" promptText="Search your wishlist..." prefHeight="35" styleClass="text-field"/>
@@ -19,11 +18,16 @@
         <TableView fx:id="table" VBox.vgrow="ALWAYS" styleClass="table-view" prefHeight="350">
             <columns>
                 <TableColumn fx:id="colId" text="Item ID" prefWidth="80"/>
-                <TableColumn fx:id="colParapharmacieId" text="Product" prefWidth="200"/>
+                <TableColumn fx:id="colParapharmacieId" text="Product" prefWidth="210"/>
+                <TableColumn fx:id="colPrice" text="Price" prefWidth="120"/>
                 <TableColumn fx:id="colAddedAt" text="Added On" prefWidth="150"/>
                 <TableColumn fx:id="colAction" text="Action" prefWidth="100"/>
             </columns>
         </TableView>
+
+        <HBox alignment="CENTER_RIGHT">
+            <Label fx:id="totalPriceLabel" text="Total: 0.00 TND" styleClass="total-price-label"/>
+        </HBox>
     </VBox>
 
     <!-- Action Button -->
@@ -31,7 +35,7 @@
         <Button text="Remove Selected Item" onAction="#handleSupprimer" styleClass="btn-danger"/>
         <Button text="Refresh" onAction="#handleRefresh" styleClass="btn-secondary"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Label text="Tip: Save items from the Parapharmacie section to add to your wishlist!" style="-fx-text-fill: #666; -fx-font-size: 12;"/>
+        <Label text="Tip: Save items from the Parapharmacie section to add to your wishlist!" styleClass="label-subtitle"/>
     </HBox>
 
 </VBox>

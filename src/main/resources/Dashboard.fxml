@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.DashboardController" stylesheets="@style.css">
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.DashboardController" stylesheets="@style.css">
 
     <!-- ===== TOP: Header ===== -->
     <top>
@@ -17,6 +17,8 @@
 
             <!-- Header Search Bar (Optional) -->
             <TextField promptText="🔍 Quick search..." prefWidth="250" styleClass="text-field"/>
+
+            <ToggleButton fx:id="nightModeToggle" text="Night Mode" styleClass="btn-secondary" onAction="#handleToggleNightMode"/>
 
             <!-- User Menu (Optional) -->
             <Button text="👤" style="-fx-font-size: 18; -fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;"/>
@@ -36,6 +38,7 @@
             <Button text="📅 Appointments" styleClass="sidebar-button" onAction="#handleAppointments" wrapText="true"/>
             <Button text="💊 Parapharmacie" styleClass="sidebar-button" onAction="#handleParapharmacie" wrapText="true"/>
             <Button text="❤️ Wishlist" styleClass="sidebar-button" onAction="#handleWishlist" wrapText="true"/>
+            <Button text="⚠ Risk Analyser" styleClass="sidebar-button" onAction="#handleRiskAnalyser" wrapText="true"/>
 
             <!-- Spacer -->
             <Region VBox.vgrow="ALWAYS"/>
@@ -48,9 +51,9 @@
 
     <!-- ===== CENTER: Main Content Area ===== -->
     <center>
-        <StackPane fx:id="contentArea" style="-fx-background-color: #f5f6fa;">
+        <StackPane fx:id="contentArea" styleClass="module-root">
             <!-- This will be where sub-windows are dynamically loaded -->
-            <VBox alignment="CENTER" spacing="20" style="-fx-padding: 40;">
+            <VBox alignment="CENTER" spacing="20" styleClass="module-root" style="-fx-padding: 40;">
                 <Label text="Welcome to PinkShield" styleClass="label-title" alignment="CENTER"/>
                 <Label text="Select an option from the sidebar to get started" styleClass="label-subtitle" alignment="CENTER"/>
             </VBox>
