@@ -3,14 +3,15 @@ package org.example;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.Node;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.application.Platform;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -134,7 +135,16 @@ public class DashboardController {
 
     @FXML
     public void handleLogout() {
-        Platform.exit();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Auth.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) rootPane.getScene().getWindow();
+            stage.setScene(new Scene(root, 1400, 800));
+            stage.setTitle("PinkShield - Sign In");
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Error loading login page: " + e.getMessage());
+        }
     }
 
     @FXML

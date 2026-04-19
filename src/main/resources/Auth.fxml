@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<StackPane fx:id="authRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.example.AuthController" stylesheets="@style.css" styleClass="auth-root">
+
+    <Region styleClass="auth-gradient-background" />
+
+    <VBox maxWidth="520" prefWidth="520" spacing="18" styleClass="auth-glass-card" alignment="CENTER">
+        <padding>
+            <Insets top="32" right="36" bottom="32" left="36" />
+        </padding>
+
+        <HBox alignment="CENTER" spacing="10" styleClass="auth-role-header">
+            <Label text="Choose your portal" styleClass="auth-role-title" />
+            <ToggleButton fx:id="btnPatientMode" text="Patient" onAction="#handlePatientMode" styleClass="auth-role-toggle" selected="true" />
+            <ToggleButton fx:id="btnDoctorMode" text="Doctor" onAction="#handleDoctorMode" styleClass="auth-role-toggle" />
+        </HBox>
+
+        <StackPane prefWidth="420">
+            <VBox fx:id="loginBox" alignment="TOP_CENTER" spacing="14">
+                <StackPane prefWidth="72" prefHeight="72" styleClass="auth-logo-circle">
+                    <FontIcon iconLiteral="fas-shield-alt" iconSize="30" styleClass="auth-logo-icon" />
+                </StackPane>
+
+                <Label text="Welcome Back" styleClass="auth-title" />
+                <Label text="Sign in to continue your PinkShield experience" styleClass="auth-subtitle" />
+
+                <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-envelope" iconSize="14" styleClass="auth-field-icon" />
+                    <TextField fx:id="txtLoginEmail" promptText="Email address" styleClass="auth-field" HBox.hgrow="ALWAYS" />
+                </HBox>
+
+                <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-lock" iconSize="14" styleClass="auth-field-icon" />
+                    <StackPane HBox.hgrow="ALWAYS">
+                        <PasswordField fx:id="txtLoginPassword" promptText="Password" styleClass="auth-field" maxWidth="1.7976931348623157E308" />
+                        <TextField fx:id="txtLoginPasswordVisible" promptText="Password" styleClass="auth-field" maxWidth="1.7976931348623157E308" />
+                    </StackPane>
+                    <Button fx:id="btnTogglePassword" text="👁" onAction="#toggleLoginPasswordVisibility" styleClass="auth-eye-button" />
+                </HBox>
+
+                <HBox alignment="CENTER_RIGHT" prefWidth="420">
+                    <Hyperlink text="Forgot Password?" styleClass="auth-link" />
+                </HBox>
+
+                <Button text="Sign In" onAction="#handleSignIn" styleClass="auth-primary-button" maxWidth="1.7976931348623157E308" />
+                <Label fx:id="loginErrorLabel" text="" styleClass="auth-error-label" />
+
+                <HBox alignment="CENTER" spacing="4">
+                    <Label text="Don't have an account?" styleClass="auth-footnote" />
+                    <Hyperlink text="Sign Up" onAction="#switchToRegister" styleClass="auth-link" />
+                </HBox>
+            </VBox>
+
+            <VBox fx:id="registerBox" alignment="TOP_CENTER" spacing="12">
+                <Label text="Create Account" styleClass="auth-title" />
+                <Label text="Join PinkShield and manage your health smarter" styleClass="auth-subtitle" />
+
+                <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-user" iconSize="14" styleClass="auth-field-icon" />
+                    <TextField fx:id="txtRegisterFullName" promptText="Full Name" styleClass="auth-field" HBox.hgrow="ALWAYS" />
+                </HBox>
+
+                <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-envelope" iconSize="14" styleClass="auth-field-icon" />
+                    <TextField fx:id="txtRegisterEmail" promptText="Email address" styleClass="auth-field" HBox.hgrow="ALWAYS" />
+                </HBox>
+
+                <VBox fx:id="doctorFieldsBox" spacing="12" managed="false" visible="false">
+                    <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
+                        <FontIcon iconLiteral="fas-stethoscope" iconSize="14" styleClass="auth-field-icon" />
+                        <ComboBox fx:id="cmbRegisterSpecialty" promptText="Specialty" styleClass="auth-field auth-combo" HBox.hgrow="ALWAYS" />
+                    </HBox>
+
+                    <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
+                        <FontIcon iconLiteral="fas-id-badge" iconSize="14" styleClass="auth-field-icon" />
+                        <TextField fx:id="txtRegisterLicenseId" promptText="Medical License ID" styleClass="auth-field" HBox.hgrow="ALWAYS" />
+                    </HBox>
+                </VBox>
+
+                <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-lock" iconSize="14" styleClass="auth-field-icon" />
+                    <PasswordField fx:id="txtRegisterPassword" promptText="Password" styleClass="auth-field" HBox.hgrow="ALWAYS" />
+                </HBox>
+
+                <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-key" iconSize="14" styleClass="auth-field-icon" />
+                    <PasswordField fx:id="txtRegisterConfirmPassword" promptText="Confirm Password" styleClass="auth-field" HBox.hgrow="ALWAYS" />
+                </HBox>
+
+                <Button text="Create Account" onAction="#handleSignUp" styleClass="auth-primary-button" maxWidth="1.7976931348623157E308" />
+                <Label fx:id="registerErrorLabel" text="" styleClass="auth-error-label" />
+
+                <HBox alignment="CENTER" spacing="4">
+                    <Label text="Already have an account?" styleClass="auth-footnote" />
+                    <Hyperlink text="Log In" onAction="#switchToLogin" styleClass="auth-link" />
+                </HBox>
+            </VBox>
+        </StackPane>
+
+        <Region VBox.vgrow="ALWAYS" />
+    </VBox>
+</StackPane>
+

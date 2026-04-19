@@ -12,17 +12,17 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         try {
-            URL fxmlResource = getClass().getResource("/Dashboard.fxml");
+            URL fxmlResource = getClass().getResource("/Auth.fxml");
             if (fxmlResource == null) {
-                System.err.println("Dashboard.fxml not found in resources!");
-                throw new IOException("Dashboard.fxml not found");
+                System.err.println("Auth.fxml not found in resources!");
+                throw new IOException("Auth.fxml not found");
             }
             
             FXMLLoader loader = new FXMLLoader(fxmlResource);
             javafx.scene.Parent root = loader.load();
             
             Scene scene = new Scene(root, 1400, 800);
-            primaryStage.setTitle("💊 PinkShield - Healthcare & Commerce Management System");
+            primaryStage.setTitle("PinkShield - Sign In");
             primaryStage.setScene(scene);
             primaryStage.setOnCloseRequest(e -> System.exit(0));
             primaryStage.show();

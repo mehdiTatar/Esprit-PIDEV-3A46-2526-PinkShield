@@ -104,17 +104,19 @@ public class ParapharmacieUserController {
 
     private VBox createProductCard(Parapharmacie product) {
         VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
+        card.getStyleClass().add("para-product-card");
         card.setPrefWidth(280);
 
         Label nameLabel = new Label("📦 " + product.getNom());
-        nameLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+        nameLabel.getStyleClass().add("para-product-name");
 
         Label priceLabel = new Label("💰 Price: $" + String.format("%.2f", product.getPrix()));
+        priceLabel.getStyleClass().add("para-product-meta");
         Label stockLabel = new Label("📊 Stock: " + product.getStock());
+        stockLabel.getStyleClass().add("para-product-meta");
 
         Button wishlistButton = new Button("❤️ Add to Wishlist");
-        wishlistButton.setStyle("-fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-background-radius: 5;");
+        wishlistButton.getStyleClass().addAll("btn-primary", "para-wishlist-button");
         wishlistButton.setOnAction(e -> addToWishlist(product));
         wishlistButton.setMaxWidth(Double.MAX_VALUE);
 

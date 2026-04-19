@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.AdminDashboardController" stylesheets="@style.css">
+
+    <top>
+        <HBox styleClass="header" alignment="CENTER_LEFT">
+            <Label text="💊 PinkShield Admin" styleClass="header-logo"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <TextField promptText="🔍 Quick search..." prefWidth="250" styleClass="text-field"/>
+            <ToggleButton fx:id="nightModeToggle" text="Night Mode" styleClass="btn-secondary" onAction="#handleToggleNightMode"/>
+            <Button text="👤" style="-fx-font-size: 18; -fx-background-color: transparent; -fx-border-color: transparent; -fx-cursor: hand;"/>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox styleClass="sidebar" minWidth="220" prefWidth="220">
+            <Label text="Navigation" styleClass="sidebar-title"/>
+            <Separator/>
+
+            <Button text="Dashboard" styleClass="sidebar-button" onAction="#handleDashboard" wrapText="true" graphicTextGap="15">
+                <graphic>
+                    <FontIcon iconLiteral="fas-th-large" iconSize="16" styleClass="sidebar-icon"/>
+                </graphic>
+            </Button>
+            <Button text="Appointments" styleClass="sidebar-button" onAction="#handleAppointments" wrapText="true" graphicTextGap="15">
+                <graphic>
+                    <FontIcon iconLiteral="fas-calendar-check" iconSize="16" styleClass="sidebar-icon"/>
+                </graphic>
+            </Button>
+            <Button text="Parapharmacie" styleClass="sidebar-button" onAction="#handleParapharmacie" wrapText="true" graphicTextGap="15">
+                <graphic>
+                    <FontIcon iconLiteral="fas-pills" iconSize="16" styleClass="sidebar-icon"/>
+                </graphic>
+            </Button>
+            <Button text="Wishlist" styleClass="sidebar-button" onAction="#handleWishlist" wrapText="true" graphicTextGap="15">
+                <graphic>
+                    <FontIcon iconLiteral="fas-heart" iconSize="16" styleClass="sidebar-icon"/>
+                </graphic>
+            </Button>
+            <Button text="Risk Analyser" styleClass="sidebar-button" onAction="#handleRiskAnalyser" wrapText="true" graphicTextGap="15">
+                <graphic>
+                    <FontIcon iconLiteral="fas-shield-virus" iconSize="16" styleClass="sidebar-icon"/>
+                </graphic>
+            </Button>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            <Separator/>
+            <Button text="Logout" styleClass="sidebar-button" onAction="#handleLogout" wrapText="true" graphicTextGap="15">
+                <graphic>
+                    <FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" styleClass="sidebar-icon"/>
+                </graphic>
+            </Button>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane fx:id="contentArea" styleClass="module-root"/>
+    </center>
+
+</BorderPane>
+
