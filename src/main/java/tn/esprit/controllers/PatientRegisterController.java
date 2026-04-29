@@ -1,5 +1,6 @@
 package tn.esprit.controllers;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -12,8 +13,10 @@ import javafx.stage.Stage;
 import tn.esprit.services.AuthService;
 import tn.esprit.utils.AppNavigator;
 import tn.esprit.utils.FormValidator;
+import tn.esprit.utils.WebcamCaptureDialog;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class PatientRegisterController {
     @FXML private Label feedbackLabel;
@@ -24,9 +27,13 @@ public class PatientRegisterController {
     @FXML private TextField addressField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
+    @FXML private Label faceImageNameLabel;
+    @FXML private Label faceImageHelperLabel;
     @FXML private Button registerButton;
+    @FXML private Button chooseFaceImageButton;
 
     private final AuthService authService = new AuthService();
+    private Path selectedFaceImagePath;
 
     @FXML
     public void initialize() {
@@ -90,14 +97,75 @@ public class PatientRegisterController {
         }
 
         String fullName = (firstName + " " + lastName).trim();
-        boolean success = authService.registerPatient(fullName, email, password, phone, address);
-        if (!success) {
-            FormValidator.setMessage(feedbackLabel, "Registration failed. Check the entered details and try again.", true);
+        registerButton.setDisable(true);
+        registerButton.setText("Creating account...");
+        chooseFaceImageButton.setDisable(true);
+
+        Path faceImagePath = selectedFaceImagePath;
+        Task<AuthService.PatientRegistrationResult> registrationTask = new Task<>() {
+            @Override
+            protected AuthService.PatientRegistrationResult call() {
+                return authService.registerPatientWithFace(fullName, email, password, phone, address, faceImagePath);
+            }
+        };
+
+        registrationTask.setOnSucceeded(event -> {
+            registerButton.setDisable(false);
+            registerButton.setText("Register as Patient");
+            chooseFaceImageButton.setDisable(false);
+
+            AuthService.PatientRegistrationResult result = registrationTask.getValue();
+            if (!result.success()) {
+                FormValidator.setMessage(
+                        feedbackLabel,
+                        result.message() == null || result.message().isBlank()
+                                ? "Registration failed. Check the entered details and try again."
+                                : result.message(),
+                        true
+                );
+                return;
+            }
+
+            String dialogMessage = result.message() == null || result.message().isBlank()
+                    ? "Registration successful. Please sign in."
+                    : result.message();
+            showAlert("Success", dialogMessage, Alert.AlertType.INFORMATION);
+            loadScene("/fxml/login.fxml", "PinkShield Login");
+        });
+
+        registrationTask.setOnFailed(event -> {
+            registerButton.setDisable(false);
+            registerButton.setText("Register as Patient");
+            chooseFaceImageButton.setDisable(false);
+            Throwable error = registrationTask.getException();
+            FormValidator.setMessage(
+                    feedbackLabel,
+                    error == null ? "Registration failed. Please try again." : error.getMessage(),
+                    true
+            );
+        });
+
+        Thread backgroundThread = new Thread(registrationTask, "patient-register-face");
+        backgroundThread.setDaemon(true);
+        backgroundThread.start();
+    }
+
+    @FXML
+    public void handleCaptureFaceImage() {
+        Stage stage = (Stage) chooseFaceImageButton.getScene().getWindow();
+        Path capturedImagePath = WebcamCaptureDialog.captureFaceImage(
+                stage,
+                getClass(),
+                "Patient Face Enrollment",
+                "Align your face in the frame and capture a clear front-facing photo."
+        );
+        if (capturedImagePath == null) {
             return;
         }
 
-        showAlert("Success", "Registration successful. Please sign in.", Alert.AlertType.INFORMATION);
-        loadScene("/fxml/login.fxml", "PinkShield Login");
+        selectedFaceImagePath = capturedImagePath;
+        faceImageNameLabel.setText(capturedImagePath.getFileName().toString());
+        faceImageHelperLabel.setText("Face captured successfully. Registration will use this front-camera photo.");
     }
 
     @FXML
@@ -120,7 +188,9 @@ public class PatientRegisterController {
                 passwordField,
                 confirmPasswordField
         );
-        FormValidator.setMessage(feedbackLabel, "", true);
+        feedbackLabel.setText("");
+        feedbackLabel.setManaged(false);
+        feedbackLabel.setVisible(false);
     }
 
     private void showFieldError(TextField field, String message) {

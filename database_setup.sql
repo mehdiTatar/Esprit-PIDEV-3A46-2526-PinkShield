@@ -39,6 +39,8 @@ CREATE TABLE user (
     password VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
     address VARCHAR(255),
+    face_image_path VARCHAR(500),
+    face_token VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

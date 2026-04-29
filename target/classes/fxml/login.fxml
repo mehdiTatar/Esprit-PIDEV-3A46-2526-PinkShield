@@ -135,6 +135,17 @@
                         <Button text="Authenticate and Enter" onAction="#handleLogin"
                                 maxWidth="Infinity" styleClass="login-primary-button" />
 
+                        <VBox spacing="12" styleClass="login-biometric-panel">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Face++ Login" styleClass="login-bio-title" />
+                                <Label text="PATIENT" styleClass="login-bio-badge" />
+                            </HBox>
+                            <Label text="Open the front camera and capture a fresh face image for biometric authentication."
+                                   styleClass="login-card-subtitle" wrapText="true" />
+                            <Button text="Open Face Login" onAction="#handleShowFaceLogin"
+                                    maxWidth="Infinity" styleClass="login-secondary-button" />
+                        </VBox>
+
                         <HBox alignment="CENTER" spacing="6" styleClass="login-register-row">
                             <Label text="Don't have an account?" styleClass="login-register-text" />
                             <Hyperlink text="Create one now" onAction="#handleRegister"
@@ -198,6 +209,53 @@
 
                         <Button fx:id="forgotPasswordSubmitButton" text="Verify Code and Reset Password" onAction="#handleResetPassword"
                                 disable="true"
+                                maxWidth="Infinity" styleClass="login-primary-button" />
+
+                        <HBox alignment="CENTER_LEFT">
+                            <Hyperlink text="Return to login" onAction="#handleBackToLogin"
+                                       styleClass="login-inline-link" />
+                        </HBox>
+                    </VBox>
+
+                    <VBox fx:id="faceLoginContentPane" spacing="18" visible="false" managed="false">
+                        <HBox alignment="CENTER_LEFT" spacing="14">
+                            <StackPane prefWidth="46" prefHeight="46" styleClass="login-card-icon">
+                                <Label text="F" styleClass="login-card-icon-text" />
+                            </StackPane>
+                            <VBox spacing="4">
+                                <Label text="Face Sign-In" styleClass="login-card-title" />
+                                <Label text="Patient biometric access powered by Face++ image comparison."
+                                       styleClass="login-card-subtitle" wrapText="true" />
+                            </VBox>
+                        </HBox>
+
+                        <Label fx:id="faceLoginFeedbackLabel" text="" visible="false" managed="false"
+                               styleClass="login-alert-label" wrapText="true" />
+
+                        <VBox spacing="7" styleClass="login-reset-info-card">
+                            <Label text="Biometric steps" styleClass="login-reset-info-title" />
+                            <Label text="1. Enter the patient email linked to the enrolled face image." styleClass="login-reset-info-text" wrapText="true" />
+                            <Label text="2. Capture a clear live photo from the front camera for this sign-in attempt." styleClass="login-reset-info-text" wrapText="true" />
+                            <Label text="3. Face++ compares both images and opens the patient dashboard on a strong match." styleClass="login-reset-info-text" wrapText="true" />
+                        </VBox>
+
+                        <VBox spacing="7">
+                            <Label text="PATIENT EMAIL" styleClass="login-field-label" />
+                            <TextField fx:id="faceLoginEmailField" promptText="patient@example.com"
+                                       styleClass="login-field-input" />
+                        </VBox>
+
+                        <VBox spacing="12" styleClass="login-bio-preview">
+                            <Label fx:id="faceLoginImageNameLabel" text="No live front-camera image captured"
+                                   styleClass="login-bio-preview-name" wrapText="true" />
+                            <Label fx:id="faceLoginImageHelperLabel" text="Open the front camera to capture a live image for comparison."
+                                   styleClass="login-bio-preview-text" wrapText="true" />
+                            <Button fx:id="faceLoginChooseImageButton" text="Open Front Camera"
+                                    onAction="#handleCaptureFaceLoginImage"
+                                    maxWidth="Infinity" styleClass="login-secondary-button" />
+                        </VBox>
+
+                        <Button fx:id="faceLoginSubmitButton" text="Verify Face and Enter" onAction="#handleFaceLogin"
                                 maxWidth="Infinity" styleClass="login-primary-button" />
 
                         <HBox alignment="CENTER_LEFT">

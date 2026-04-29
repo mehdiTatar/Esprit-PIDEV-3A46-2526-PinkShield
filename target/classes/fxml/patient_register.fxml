@@ -103,6 +103,29 @@
                                            style="-fx-background-color: #121a28; -fx-text-fill: #ffffff; -fx-border-color: #263243; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 14 16;" />
                         </VBox>
 
+                        <Separator style="-fx-opacity: 0.14;" />
+
+                        <VBox spacing="12" styleClass="login-biometric-panel">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Face Login Enrollment" styleClass="login-bio-title" />
+                                <Label text="OPTIONAL" styleClass="login-bio-badge" />
+                            </HBox>
+
+                            <Label text="Use the front camera to capture a clear face photo for Face++ patient sign-in."
+                                   wrapText="true" styleClass="login-card-subtitle" />
+
+                            <VBox spacing="8" styleClass="login-bio-preview">
+                                <Label fx:id="faceImageNameLabel" text="No front-camera image captured"
+                                       styleClass="login-bio-preview-name" wrapText="true" />
+                                <Label fx:id="faceImageHelperLabel" text="This step is optional and does not block account creation."
+                                       styleClass="login-bio-preview-text" wrapText="true" />
+                            </VBox>
+
+                            <Button fx:id="chooseFaceImageButton" text="Open Front Camera"
+                                    onAction="#handleCaptureFaceImage"
+                                    maxWidth="Infinity" styleClass="login-secondary-button" />
+                        </VBox>
+
                         <Button fx:id="registerButton" text="Register as Patient" onAction="#handleRegister"
                                 style="-fx-background-color: linear-gradient(to right, #d54480, #ec5d99); -fx-text-fill: white; -fx-font-size: 15; -fx-font-weight: bold; -fx-background-radius: 14; -fx-padding: 14 24; -fx-effect: dropshadow(gaussian, rgba(213,68,128,0.35), 16, 0.2, 0, 3);" />
 

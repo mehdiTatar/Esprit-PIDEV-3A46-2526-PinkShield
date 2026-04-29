@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -41,35 +42,37 @@ public class UserService {
         try {
             if (ROLE_ADMIN.equals(role)) {
                 String query = "INSERT INTO admin (first_name, last_name, email, password) VALUES (?, ?, ?, ?)";
-                try (PreparedStatement stmt = connection.prepareStatement(query)) {
+                try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                     stmt.setString(1, user.getFirstName());
                     stmt.setString(2, user.getLastName());
                     stmt.setString(3, user.getEmail());
                     stmt.setString(4, user.getPassword());
-                    return stmt.executeUpdate() > 0;
+                    return executeCreateStatement(user, stmt);
                 }
             }
 
             if (ROLE_DOCTOR.equals(role)) {
                 String query = "INSERT INTO doctor (first_name, last_name, email, password, speciality) VALUES (?, ?, ?, ?, ?)";
-                try (PreparedStatement stmt = connection.prepareStatement(query)) {
+                try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                     stmt.setString(1, user.getFirstName());
                     stmt.setString(2, user.getLastName());
                     stmt.setString(3, user.getEmail());
                     stmt.setString(4, user.getPassword());
                     stmt.setString(5, defaultString(user.getSpeciality()));
-                    return stmt.executeUpdate() > 0;
+                    return executeCreateStatement(user, stmt);
                 }
             }
 
-            String query = "INSERT INTO user (full_name, email, password, phone, address) VALUES (?, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            String query = "INSERT INTO user (full_name, email, password, phone, address, face_image_path, face_token) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, user.getFullName());
                 stmt.setString(2, user.getEmail());
                 stmt.setString(3, user.getPassword());
                 stmt.setString(4, defaultString(user.getPhone()));
                 stmt.setString(5, defaultString(user.getAddress()));
-                return stmt.executeUpdate() > 0;
+                stmt.setString(6, blankToNull(user.getFaceImagePath()));
+                stmt.setString(7, blankToNull(user.getFaceToken()));
+                return executeCreateStatement(user, stmt);
             }
         } catch (SQLException e) {
             System.err.println("Error adding user: " + e.getMessage());
@@ -116,14 +119,18 @@ public class UserService {
                 }
             }
 
-            String query = "UPDATE user SET full_name = ?, email = ?, password = ?, phone = ?, address = ? WHERE id = ?";
+            preserveFaceDataIfMissing(user);
+
+            String query = "UPDATE user SET full_name = ?, email = ?, password = ?, phone = ?, address = ?, face_image_path = ?, face_token = ? WHERE id = ?";
             try (PreparedStatement stmt = connection.prepareStatement(query)) {
                 stmt.setString(1, user.getFullName());
                 stmt.setString(2, user.getEmail());
                 stmt.setString(3, user.getPassword());
                 stmt.setString(4, defaultString(user.getPhone()));
                 stmt.setString(5, defaultString(user.getAddress()));
-                stmt.setInt(6, user.getId());
+                stmt.setString(6, blankToNull(user.getFaceImagePath()));
+                stmt.setString(7, blankToNull(user.getFaceToken()));
+                stmt.setInt(8, user.getId());
                 return stmt.executeUpdate() > 0;
             }
         } catch (SQLException e) {
@@ -204,6 +211,30 @@ public class UserService {
             }
         } catch (SQLException e) {
             System.err.println("Error getting user by id: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    public User getUserByEmail(String email, String role) {
+        String table = getTableNameForRole(role);
+        Connection connection = MyDB.getInstance().getConnection();
+        String normalizedEmail = normalizeText(email);
+
+        if (table == null || connection == null || normalizedEmail.isEmpty()) {
+            return null;
+        }
+
+        String query = "SELECT * FROM " + table + " WHERE LOWER(email) = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, normalizedEmail);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapUser(rs, normalizeRole(role));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting user by email: " + e.getMessage());
         }
 
         return null;
@@ -329,6 +360,24 @@ public class UserService {
         return new UserDashboardStats(admins, doctors, patients);
     }
 
+    public boolean updateUserFaceData(int userId, String faceImagePath, String faceToken) {
+        Connection connection = MyDB.getInstance().getConnection();
+        if (connection == null || userId <= 0) {
+            return false;
+        }
+
+        String query = "UPDATE user SET face_image_path = ?, face_token = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, blankToNull(faceImagePath));
+            stmt.setString(2, blankToNull(faceToken));
+            stmt.setInt(3, userId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating face data for user: " + e.getMessage());
+            return false;
+        }
+    }
+
     private int countRows(Connection connection, String tableName) {
         String query = "SELECT COUNT(*) FROM " + tableName;
         try (PreparedStatement stmt = connection.prepareStatement(query);
@@ -376,9 +425,57 @@ public class UserService {
             user.setFullName(rs.getString("full_name"));
             user.setPhone(rs.getString("phone"));
             user.setAddress(rs.getString("address"));
+            user.setFaceImagePath(readOptionalColumn(rs, "face_image_path"));
+            user.setFaceToken(readOptionalColumn(rs, "face_token"));
         }
 
         return user;
+    }
+
+    private boolean executeCreateStatement(User user, PreparedStatement stmt) throws SQLException {
+        boolean created = stmt.executeUpdate() > 0;
+        if (!created) {
+            return false;
+        }
+
+        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                user.setId(generatedKeys.getInt(1));
+            }
+        }
+        return true;
+    }
+
+    private void preserveFaceDataIfMissing(User user) {
+        if (user == null || user.getId() <= 0 || !ROLE_USER.equals(normalizeRole(user.getRole()))) {
+            return;
+        }
+
+        boolean missingFaceImage = isBlank(user.getFaceImagePath());
+        boolean missingFaceToken = isBlank(user.getFaceToken());
+        if (!missingFaceImage && !missingFaceToken) {
+            return;
+        }
+
+        User persistedUser = getUserById(user.getId(), ROLE_USER);
+        if (persistedUser == null) {
+            return;
+        }
+
+        if (missingFaceImage) {
+            user.setFaceImagePath(persistedUser.getFaceImagePath());
+        }
+        if (missingFaceToken) {
+            user.setFaceToken(persistedUser.getFaceToken());
+        }
+    }
+
+    private String readOptionalColumn(ResultSet rs, String columnName) {
+        try {
+            return rs.getString(columnName);
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     private boolean matchesSearch(User user, String searchTerm) {
@@ -446,5 +543,14 @@ public class UserService {
 
     private String defaultString(String value) {
         return value == null ? "" : value;
+    }
+
+    private String blankToNull(String value) {
+        String normalized = defaultString(value).trim();
+        return normalized.isEmpty() ? null : normalized;
+    }
+
+    private boolean isBlank(String value) {
+        return defaultString(value).trim().isEmpty();
     }
 }

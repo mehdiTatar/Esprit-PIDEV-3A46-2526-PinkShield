@@ -3,6 +3,7 @@ package tn.esprit.services;
 import tn.esprit.entities.User;
 import tn.esprit.utils.MyDB;
 
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,6 +22,7 @@ public class AuthService {
 
     private final UserService userService = new UserService();
     private final EmailService emailService = new EmailService();
+    private final FaceRecognitionService faceRecognitionService = new FaceRecognitionService();
 
     public User authenticate(String email, String password) {
         Connection connection = MyDB.getInstance().getConnection();
@@ -141,7 +143,67 @@ public class AuthService {
     }
 
     public boolean registerPatient(String fullName, String email, String password, String phone, String address) {
-        return register(fullName, email, password, phone, address);
+        return registerPatientWithFace(fullName, email, password, phone, address, null).success();
+    }
+
+    public PatientRegistrationResult registerPatientWithFace(
+            String fullName,
+            String email,
+            String password,
+            String phone,
+            String address,
+            Path facePhotoPath
+    ) {
+        User user = new User();
+        user.setRole(UserService.ROLE_USER);
+        user.setFullName(fullName);
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setPhone(phone);
+        user.setAddress(address);
+
+        String validationMessage = userService.validateUser(user, password, false);
+        if (validationMessage != null) {
+            return PatientRegistrationResult.failure(validationMessage);
+        }
+
+        if (!userService.createUser(user)) {
+            return PatientRegistrationResult.failure("Registration failed. Please try again.");
+        }
+
+        if (facePhotoPath == null) {
+            return PatientRegistrationResult.success(false, "Registration successful. You can add face login later.");
+        }
+
+        FaceRecognitionService.FaceEnrollmentResult faceResult =
+                faceRecognitionService.processUploadedFace(facePhotoPath, Integer.toString(user.getId()));
+
+        if (faceResult.imagePath() == null || faceResult.imagePath().isBlank()) {
+            String message = faceResult.message() == null || faceResult.message().isBlank()
+                    ? "Registration successful, but the face image could not be stored."
+                    : faceResult.message();
+            return PatientRegistrationResult.success(false, message);
+        }
+
+        boolean linked = userService.updateUserFaceData(user.getId(), faceResult.imagePath(), faceResult.faceToken());
+        if (!linked) {
+            return PatientRegistrationResult.success(
+                    false,
+                    "Registration successful, but the face image could not be linked to the patient account."
+            );
+        }
+
+        if (faceResult.faceToken() == null || faceResult.faceToken().isBlank()) {
+            String message = faceResult.message() == null || faceResult.message().isBlank()
+                    ? "Registration successful. Face image saved, but no face token was detected."
+                    : faceResult.message();
+            return PatientRegistrationResult.success(false, message);
+        }
+
+        String successMessage = faceResult.message() == null || faceResult.message().isBlank()
+                ? "Registration successful. Face login is enabled for this patient account."
+                : "Registration successful. " + faceResult.message();
+        return PatientRegistrationResult.success(true, successMessage);
     }
 
     public boolean registerDoctor(String firstName, String lastName, String email, String password, String speciality) {
@@ -156,6 +218,51 @@ public class AuthService {
 
         String validationMessage = userService.validateUser(user, password, false);
         return validationMessage == null && userService.createUser(user);
+    }
+
+    public FaceAuthenticationResult authenticateWithFace(String email, Path livePhotoPath) {
+        String normalizedEmail = normalizeEmail(email);
+        if (normalizedEmail.isEmpty()) {
+            return FaceAuthenticationResult.failure("Email is required.");
+        }
+        if (livePhotoPath == null) {
+            return FaceAuthenticationResult.failure("Select a face image to continue.");
+        }
+        if (!faceRecognitionService.isConfigured()) {
+            return FaceAuthenticationResult.failure("Face recognition is not configured. Update facepp.properties first.");
+        }
+
+        User user = userService.getUserByEmail(normalizedEmail, UserService.ROLE_USER);
+        if (user == null) {
+            return FaceAuthenticationResult.failure("Face sign-in is available only for patient accounts with face enrollment.");
+        }
+        if (user.getFaceImagePath() == null || user.getFaceImagePath().isBlank()) {
+            return FaceAuthenticationResult.failure("This patient account does not have an enrolled face image yet.");
+        }
+
+        FaceRecognitionService.FaceComparisonResult comparisonResult =
+                faceRecognitionService.compareFaces(user.getFaceImagePath(), livePhotoPath);
+        if (!comparisonResult.isSuccessful()) {
+            return FaceAuthenticationResult.failure(comparisonResult.message());
+        }
+
+        double threshold = faceRecognitionService.getMatchThreshold();
+        if (comparisonResult.confidence() < threshold) {
+            return FaceAuthenticationResult.failure(
+                    "Face verification failed. Similarity score: "
+                            + formatConfidence(comparisonResult.confidence())
+                            + "%, required: "
+                            + formatConfidence(threshold)
+                            + "%."
+            );
+        }
+
+        return new FaceAuthenticationResult(
+                true,
+                user,
+                comparisonResult.confidence(),
+                "Face verified with confidence " + formatConfidence(comparisonResult.confidence()) + "%."
+        );
     }
 
     private User checkTableForUser(Connection connection, String tableName, String email, String password, String role) {
@@ -191,6 +298,8 @@ public class AuthService {
                     user.setFullName(rs.getString("full_name"));
                     user.setPhone(rs.getString("phone"));
                     user.setAddress(rs.getString("address"));
+                    user.setFaceImagePath(rs.getString("face_image_path"));
+                    user.setFaceToken(rs.getString("face_token"));
                 }
 
                 return user;
@@ -237,6 +346,26 @@ public class AuthService {
         } catch (SQLException e) {
             System.err.println("Error updating password in " + tableName + ": " + e.getMessage());
             return false;
+        }
+    }
+
+    private String formatConfidence(double value) {
+        return String.format(Locale.US, "%.1f", value);
+    }
+
+    public record PatientRegistrationResult(boolean success, boolean faceEnrolled, String message) {
+        public static PatientRegistrationResult success(boolean faceEnrolled, String message) {
+            return new PatientRegistrationResult(true, faceEnrolled, message);
+        }
+
+        public static PatientRegistrationResult failure(String message) {
+            return new PatientRegistrationResult(false, false, message);
+        }
+    }
+
+    public record FaceAuthenticationResult(boolean success, User user, double confidence, String message) {
+        public static FaceAuthenticationResult failure(String message) {
+            return new FaceAuthenticationResult(false, null, 0.0, message);
         }
     }
 

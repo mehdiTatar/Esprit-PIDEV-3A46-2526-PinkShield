@@ -1917,6 +1917,26 @@
     -fx-padding: 14;
 }
 
+.login-bio-preview-name {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13;
+    -fx-font-weight: 800;
+}
+
+.camera-preview-card {
+    -fx-background-color: rgba(4,10,18,0.92);
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 10;
+}
+
+.camera-status-label {
+    -fx-text-fill: #9eb2cc;
+    -fx-font-size: 12;
+    -fx-font-weight: 600;
+}
+
 .login-bio-preview-icon {
     -fx-text-fill: #ff6ba8;
     -fx-font-size: 44;

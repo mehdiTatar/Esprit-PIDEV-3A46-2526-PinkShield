@@ -11,6 +11,8 @@ public class User {
     private String address;
     private String role; // admin, doctor, user
     private String speciality; // for doctors
+    private String faceImagePath;
+    private String faceToken;
 
     public User() {
     }
@@ -124,6 +126,22 @@ public class User {
 
     public void setSpeciality(String speciality) {
         this.speciality = speciality;
+    }
+
+    public String getFaceImagePath() {
+        return faceImagePath;
+    }
+
+    public void setFaceImagePath(String faceImagePath) {
+        this.faceImagePath = faceImagePath;
+    }
+
+    public String getFaceToken() {
+        return faceToken;
+    }
+
+    public void setFaceToken(String faceToken) {
+        this.faceToken = faceToken;
     }
 
     @Override

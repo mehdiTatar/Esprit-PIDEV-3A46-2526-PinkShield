@@ -14,6 +14,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -32,8 +33,10 @@ import tn.esprit.entities.User;
 import tn.esprit.services.AuthService;
 import tn.esprit.utils.AppNavigator;
 import tn.esprit.utils.FormValidator;
+import tn.esprit.utils.WebcamCaptureDialog;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Random;
 
 public class LoginController {
@@ -44,13 +47,20 @@ public class LoginController {
     @FXML private Label feedbackLabel;
     @FXML private VBox loginContentPane;
     @FXML private VBox forgotPasswordContentPane;
+    @FXML private VBox faceLoginContentPane;
     @FXML private Label forgotPasswordFeedbackLabel;
+    @FXML private Label faceLoginFeedbackLabel;
     @FXML private TextField forgotPasswordEmailField;
+    @FXML private TextField faceLoginEmailField;
     @FXML private TextField forgotPasswordCodeField;
     @FXML private PasswordField forgotPasswordField;
     @FXML private PasswordField forgotPasswordConfirmField;
+    @FXML private Label faceLoginImageNameLabel;
+    @FXML private Label faceLoginImageHelperLabel;
     @FXML private Button forgotPasswordSendCodeButton;
     @FXML private Button forgotPasswordSubmitButton;
+    @FXML private Button faceLoginChooseImageButton;
+    @FXML private Button faceLoginSubmitButton;
     @FXML private Pane loginBackgroundPane;
     @FXML private Pane loginHeroPane;
     @FXML private Circle orbitRingOuter;
@@ -69,6 +79,7 @@ public class LoginController {
 
     private final AuthService authService = new AuthService();
     private boolean passwordVisible;
+    private Path selectedFaceLoginImagePath;
 
     private static final String ERROR_FEEDBACK_STYLE = """
             -fx-background-color: rgba(220,53,69,0.09);
@@ -103,6 +114,7 @@ public class LoginController {
                 forgotPasswordField,
                 forgotPasswordConfirmField
         );
+        FormValidator.attachClearOnInput(faceLoginFeedbackLabel, faceLoginEmailField);
         playHeroAnimations();
         showLoginContent();
     }
@@ -129,34 +141,7 @@ public class LoginController {
             return;
         }
 
-        String fxmlFile = switch (user.getRole()) {
-            case "admin" -> "/fxml/admin_dashboard.fxml";
-            case "doctor" -> "/fxml/doctor_dashboard.fxml";
-            case "user" -> "/fxml/user_dashboard.fxml";
-            default -> "";
-        };
-
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            var scene = AppNavigator.createScene(loader.load(), getClass());
-
-            if ("admin".equals(user.getRole())) {
-                AdminDashboardController controller = loader.getController();
-                controller.setLoggedInUser(user);
-            } else if ("doctor".equals(user.getRole())) {
-                DoctorDashboardController controller = loader.getController();
-                controller.setLoggedInUser(user);
-            } else if ("user".equals(user.getRole())) {
-                UserDashboardController controller = loader.getController();
-                controller.setLoggedInUser(user);
-            }
-
-            Stage stage = (Stage) emailField.getScene().getWindow();
-            AppNavigator.applyStage(stage, scene, "PinkShield Dashboard");
-        } catch (IOException e) {
-            showAlert("Error", "Failed to load dashboard.", Alert.AlertType.ERROR);
-            e.printStackTrace();
-        }
+        openDashboard(user);
     }
 
     public void handleRegister() {
@@ -175,6 +160,7 @@ public class LoginController {
     public void handleShowForgotPassword() {
         clearFeedback();
         clearForgotPasswordFeedback();
+        clearFaceLoginFeedback();
 
         forgotPasswordEmailField.setText(emailField.getText().trim());
         forgotPasswordCodeField.clear();
@@ -183,15 +169,112 @@ public class LoginController {
         forgotPasswordSendCodeButton.setDisable(false);
         forgotPasswordSendCodeButton.setText("Send Verification Code");
         forgotPasswordSubmitButton.setDisable(true);
+        resetFaceLoginSelection();
 
         loginContentPane.setManaged(false);
         loginContentPane.setVisible(false);
         forgotPasswordContentPane.setManaged(true);
         forgotPasswordContentPane.setVisible(true);
+        faceLoginContentPane.setManaged(false);
+        faceLoginContentPane.setVisible(false);
+    }
+
+    public void handleShowFaceLogin() {
+        clearFeedback();
+        clearForgotPasswordFeedback();
+        clearFaceLoginFeedback();
+
+        faceLoginEmailField.setText(emailField.getText().trim());
+        resetFaceLoginSelection();
+
+        loginContentPane.setManaged(false);
+        loginContentPane.setVisible(false);
+        forgotPasswordContentPane.setManaged(false);
+        forgotPasswordContentPane.setVisible(false);
+        faceLoginContentPane.setManaged(true);
+        faceLoginContentPane.setVisible(true);
     }
 
     public void handleBackToLogin() {
         showLoginContent();
+    }
+
+    public void handleCaptureFaceLoginImage() {
+        Stage stage = (Stage) faceLoginChooseImageButton.getScene().getWindow();
+        Path capturedImagePath = WebcamCaptureDialog.captureFaceImage(
+                stage,
+                getClass(),
+                "Face Sign-In",
+                "Open the front camera, center your face, and capture a fresh sign-in image."
+        );
+        if (capturedImagePath == null) {
+            return;
+        }
+
+        selectedFaceLoginImagePath = capturedImagePath;
+        faceLoginImageNameLabel.setText(capturedImagePath.getFileName().toString());
+        faceLoginImageHelperLabel.setText("Front-camera image captured. Face++ will compare it with the enrolled face.");
+    }
+
+    public void handleFaceLogin() {
+        clearFaceLoginFeedback();
+        FormValidator.clearStates(faceLoginEmailField);
+
+        String email = faceLoginEmailField.getText().trim();
+        if (email.isEmpty()) {
+            showFaceLoginError("Email is required.");
+            FormValidator.markInvalid(faceLoginEmailField);
+            return;
+        }
+        if (!FormValidator.isValidEmail(email)) {
+            showFaceLoginError("Enter a valid email address.");
+            FormValidator.markInvalid(faceLoginEmailField);
+            return;
+        }
+        if (selectedFaceLoginImagePath == null) {
+            showFaceLoginError("Capture a face image before continuing.");
+            return;
+        }
+
+        faceLoginChooseImageButton.setDisable(true);
+        faceLoginSubmitButton.setDisable(true);
+        faceLoginSubmitButton.setText("Verifying...");
+
+        Path livePhotoPath = selectedFaceLoginImagePath;
+        Task<AuthService.FaceAuthenticationResult> faceLoginTask = new Task<>() {
+            @Override
+            protected AuthService.FaceAuthenticationResult call() {
+                return authService.authenticateWithFace(email, livePhotoPath);
+            }
+        };
+
+        faceLoginTask.setOnSucceeded(event -> {
+            faceLoginChooseImageButton.setDisable(false);
+            faceLoginSubmitButton.setDisable(false);
+            faceLoginSubmitButton.setText("Verify Face and Enter");
+
+            AuthService.FaceAuthenticationResult result = faceLoginTask.getValue();
+            if (!result.success()) {
+                showFaceLoginError(result.message());
+                FormValidator.markInvalid(faceLoginEmailField);
+                return;
+            }
+
+            showFaceLoginFeedback(result.message(), false);
+            openDashboard(result.user());
+        });
+
+        faceLoginTask.setOnFailed(event -> {
+            faceLoginChooseImageButton.setDisable(false);
+            faceLoginSubmitButton.setDisable(false);
+            faceLoginSubmitButton.setText("Verify Face and Enter");
+            Throwable error = faceLoginTask.getException();
+            showFaceLoginError(error == null ? "Face login failed." : error.getMessage());
+        });
+
+        Thread backgroundThread = new Thread(faceLoginTask, "face-login-verify");
+        backgroundThread.setDaemon(true);
+        backgroundThread.start();
     }
 
     public void handleSendResetCode() {
@@ -350,12 +433,25 @@ public class LoginController {
         hideFeedback(forgotPasswordFeedbackLabel);
     }
 
+    private void showFaceLoginError(String message) {
+        showFaceLoginFeedback(message, true);
+    }
+
+    private void clearFaceLoginFeedback() {
+        FormValidator.clearStates(faceLoginEmailField);
+        hideFeedback(faceLoginFeedbackLabel);
+    }
+
     private void showLoginFeedback(String message, boolean isError) {
         showFeedback(feedbackLabel, message, isError);
     }
 
     private void showForgotPasswordFeedback(String message, boolean isError) {
         showFeedback(forgotPasswordFeedbackLabel, message, isError);
+    }
+
+    private void showFaceLoginFeedback(String message, boolean isError) {
+        showFeedback(faceLoginFeedbackLabel, message, isError);
     }
 
     private void showFeedback(Label label, String message, boolean isError) {
@@ -382,7 +478,7 @@ public class LoginController {
     }
 
     private void showLoginContent() {
-        if (loginContentPane == null || forgotPasswordContentPane == null) {
+        if (loginContentPane == null || forgotPasswordContentPane == null || faceLoginContentPane == null) {
             return;
         }
 
@@ -395,13 +491,66 @@ public class LoginController {
         forgotPasswordSendCodeButton.setDisable(false);
         forgotPasswordSendCodeButton.setText("Send Verification Code");
         forgotPasswordSubmitButton.setDisable(true);
+        faceLoginChooseImageButton.setDisable(false);
+        faceLoginSubmitButton.setDisable(false);
+        faceLoginSubmitButton.setText("Verify Face and Enter");
 
         clearForgotPasswordFeedback();
+        clearFaceLoginFeedback();
+        resetFaceLoginSelection();
 
         loginContentPane.setManaged(true);
         loginContentPane.setVisible(true);
         forgotPasswordContentPane.setManaged(false);
         forgotPasswordContentPane.setVisible(false);
+        faceLoginContentPane.setManaged(false);
+        faceLoginContentPane.setVisible(false);
+    }
+
+    private void resetFaceLoginSelection() {
+        selectedFaceLoginImagePath = null;
+        if (faceLoginImageNameLabel != null) {
+            faceLoginImageNameLabel.setText("No live front-camera image captured");
+        }
+        if (faceLoginImageHelperLabel != null) {
+            faceLoginImageHelperLabel.setText("Open the front camera to capture a live image for comparison.");
+        }
+    }
+
+    private void openDashboard(User user) {
+        if (user == null) {
+            showLoginFeedback("Unable to open the dashboard for this account.", true);
+            return;
+        }
+
+        String fxmlFile = switch (user.getRole()) {
+            case "admin" -> "/fxml/admin_dashboard.fxml";
+            case "doctor" -> "/fxml/doctor_dashboard.fxml";
+            case "user" -> "/fxml/user_dashboard.fxml";
+            default -> "";
+        };
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            var scene = AppNavigator.createScene(loader.load(), getClass());
+
+            if ("admin".equals(user.getRole())) {
+                AdminDashboardController controller = loader.getController();
+                controller.setLoggedInUser(user);
+            } else if ("doctor".equals(user.getRole())) {
+                DoctorDashboardController controller = loader.getController();
+                controller.setLoggedInUser(user);
+            } else if ("user".equals(user.getRole())) {
+                UserDashboardController controller = loader.getController();
+                controller.setLoggedInUser(user);
+            }
+
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            AppNavigator.applyStage(stage, scene, "PinkShield Dashboard");
+        } catch (IOException e) {
+            showAlert("Error", "Failed to load dashboard.", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     private void playHeroAnimations() {

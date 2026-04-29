@@ -29,7 +29,9 @@ public class EmailService {
         properties.put("mail.smtp.port", config.port());
         properties.put("mail.smtp.auth", Boolean.toString(config.auth()));
         properties.put("mail.smtp.starttls.enable", Boolean.toString(config.startTls()));
+        properties.put("mail.smtp.starttls.required", Boolean.toString(config.startTls()));
         properties.put("mail.smtp.ssl.enable", Boolean.toString(config.ssl()));
+        properties.put("mail.smtp.ssl.protocols", "TLSv1.2 TLSv1.3");
         properties.put("mail.smtp.ssl.trust", config.host());
         properties.put("mail.smtp.connectiontimeout", "10000");
         properties.put("mail.smtp.timeout", "10000");

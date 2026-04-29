@@ -272,6 +272,8 @@ public class UserFormController {
         copy.setPhone(source.getPhone());
         copy.setAddress(source.getAddress());
         copy.setSpeciality(source.getSpeciality());
+        copy.setFaceImagePath(source.getFaceImagePath());
+        copy.setFaceToken(source.getFaceToken());
         return copy;
     }
 
