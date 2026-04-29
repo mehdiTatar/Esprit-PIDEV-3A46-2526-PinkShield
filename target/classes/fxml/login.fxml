@@ -1,224 +1,212 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
-<?import javafx.geometry.Pos?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.Priority?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.shape.Polyline?>
 <?import javafx.scene.shape.SVGPath?>
 
 <StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="tn.esprit.controllers.LoginController"
-           id="loginRoot"
-           styleClass="login-template-root">
-    <children>
-        <Pane mouseTransparent="true" styleClass="login-template-background">
-            <children>
-                <Region layoutX="90" layoutY="120" prefHeight="4" prefWidth="4" styleClass="star-dot star-dot-primary" />
-                <Region layoutX="180" layoutY="280" prefHeight="3" prefWidth="3" styleClass="star-dot star-dot-soft" />
-                <Region layoutX="260" layoutY="78" prefHeight="5" prefWidth="5" styleClass="star-dot star-dot-primary" />
-                <Region layoutX="360" layoutY="210" prefHeight="4" prefWidth="4" styleClass="star-dot star-dot-secondary" />
-                <Region layoutX="490" layoutY="130" prefHeight="3" prefWidth="3" styleClass="star-dot star-dot-soft" />
-                <Region layoutX="620" layoutY="260" prefHeight="5" prefWidth="5" styleClass="star-dot star-dot-primary" />
-                <Region layoutX="790" layoutY="92" prefHeight="4" prefWidth="4" styleClass="star-dot star-dot-secondary" />
-                <Region layoutX="930" layoutY="210" prefHeight="3" prefWidth="3" styleClass="star-dot star-dot-soft" />
-                <Region layoutX="1080" layoutY="148" prefHeight="5" prefWidth="5" styleClass="star-dot star-dot-primary" />
-                <Region layoutX="1210" layoutY="246" prefHeight="4" prefWidth="4" styleClass="star-dot star-dot-secondary" />
-                <Region layoutX="116" layoutY="520" prefHeight="3" prefWidth="3" styleClass="star-dot star-dot-soft" />
-                <Region layoutX="280" layoutY="640" prefHeight="5" prefWidth="5" styleClass="star-dot star-dot-primary" />
-                <Region layoutX="430" layoutY="558" prefHeight="4" prefWidth="4" styleClass="star-dot star-dot-secondary" />
-                <Region layoutX="620" layoutY="700" prefHeight="3" prefWidth="3" styleClass="star-dot star-dot-soft" />
-                <Region layoutX="812" layoutY="600" prefHeight="4" prefWidth="4" styleClass="star-dot star-dot-primary" />
-                <Region layoutX="990" layoutY="688" prefHeight="5" prefWidth="5" styleClass="star-dot star-dot-secondary" />
-                <Region layoutX="1188" layoutY="560" prefHeight="3" prefWidth="3" styleClass="star-dot star-dot-soft" />
-            </children>
-        </Pane>
+           styleClass="root login-template-root"
+           stylesheets="@../css/style.css">
+    <Pane fx:id="loginBackgroundPane" mouseTransparent="true" styleClass="login-template-background">
+        <Line startX="0" startY="96" endX="1600" endY="96" styleClass="login-grid-line" />
+        <Line startX="0" startY="210" endX="1600" endY="210" styleClass="login-grid-line" />
+        <Line startX="0" startY="324" endX="1600" endY="324" styleClass="login-grid-line" />
+        <Line startX="0" startY="438" endX="1600" endY="438" styleClass="login-grid-line" />
+        <Line startX="0" startY="552" endX="1600" endY="552" styleClass="login-grid-line" />
+        <Line startX="0" startY="666" endX="1600" endY="666" styleClass="login-grid-line" />
 
-        <Pane mouseTransparent="true" styleClass="login-grid-overlay" />
+        <Line startX="120" startY="0" endX="120" endY="980" styleClass="login-grid-line" />
+        <Line startX="280" startY="0" endX="280" endY="980" styleClass="login-grid-line" />
+        <Line startX="440" startY="0" endX="440" endY="980" styleClass="login-grid-line" />
+        <Line startX="600" startY="0" endX="600" endY="980" styleClass="login-grid-line" />
+        <Line startX="760" startY="0" endX="760" endY="980" styleClass="login-grid-line" />
+        <Line startX="920" startY="0" endX="920" endY="980" styleClass="login-grid-line" />
+        <Line startX="1080" startY="0" endX="1080" endY="980" styleClass="login-grid-line" />
+        <Line startX="1240" startY="0" endX="1240" endY="980" styleClass="login-grid-line" />
 
-        <HBox maxWidth="1240" spacing="56" styleClass="login-template-layout">
-            <children>
-                <VBox alignment="CENTER" prefWidth="690" spacing="18" styleClass="login-hero-side">
-                    <children>
-                        <Label text="PinkShield" styleClass="login-brand-title" />
-                        <Label text="Advanced Health Intelligence" styleClass="login-brand-tagline" />
+        <Region layoutX="78" layoutY="68" prefWidth="4" prefHeight="4" styleClass="star-dot star-dot-soft" />
+        <Region layoutX="184" layoutY="168" prefWidth="3" prefHeight="3" styleClass="star-dot star-dot-primary" />
+        <Region layoutX="312" layoutY="82" prefWidth="5" prefHeight="5" styleClass="star-dot star-dot-soft" />
+        <Region layoutX="424" layoutY="214" prefWidth="4" prefHeight="4" styleClass="star-dot star-dot-secondary" />
+        <Region layoutX="578" layoutY="124" prefWidth="3" prefHeight="3" styleClass="star-dot star-dot-primary" />
+        <Region layoutX="684" layoutY="276" prefWidth="4" prefHeight="4" styleClass="star-dot star-dot-soft" />
+        <Region layoutX="852" layoutY="108" prefWidth="3" prefHeight="3" styleClass="star-dot star-dot-secondary" />
+        <Region layoutX="974" layoutY="188" prefWidth="4" prefHeight="4" styleClass="star-dot star-dot-primary" />
+        <Region layoutX="1136" layoutY="92" prefWidth="5" prefHeight="5" styleClass="star-dot star-dot-soft" />
+        <Region layoutX="1248" layoutY="248" prefWidth="3" prefHeight="3" styleClass="star-dot star-dot-secondary" />
+        <Region layoutX="108" layoutY="544" prefWidth="4" prefHeight="4" styleClass="star-dot star-dot-primary" />
+        <Region layoutX="248" layoutY="638" prefWidth="3" prefHeight="3" styleClass="star-dot star-dot-soft" />
+        <Region layoutX="398" layoutY="718" prefWidth="5" prefHeight="5" styleClass="star-dot star-dot-secondary" />
+        <Region layoutX="596" layoutY="604" prefWidth="4" prefHeight="4" styleClass="star-dot star-dot-primary" />
+        <Region layoutX="918" layoutY="676" prefWidth="3" prefHeight="3" styleClass="star-dot star-dot-soft" />
+        <Region layoutX="1186" layoutY="582" prefWidth="4" prefHeight="4" styleClass="star-dot star-dot-secondary" />
+    </Pane>
 
-                        <AnchorPane prefHeight="500" prefWidth="520" styleClass="login-heart-scene">
-                            <children>
-                                <Circle centerX="260" centerY="220" radius="190" styleClass="login-orbit-ring login-orbit-ring-1" />
-                                <Circle centerX="260" centerY="220" radius="228" styleClass="login-orbit-ring login-orbit-ring-2" />
-                                <Circle centerX="260" centerY="220" radius="154" styleClass="login-orbit-ring login-orbit-ring-3" />
+    <HBox alignment="CENTER" spacing="56" maxWidth="1180" styleClass="login-template-layout">
+        <VBox prefWidth="520" alignment="CENTER" spacing="22" styleClass="login-hero-side">
+            <Label text="PinkShield" styleClass="login-brand-title" />
+            <Label text="ADVANCED HEALTH INTELLIGENCE" styleClass="login-brand-tagline" />
 
-                                <Circle centerX="440" centerY="220" radius="6" styleClass="login-orbit-dot login-orbit-dot-primary" />
-                                <Circle centerX="318" centerY="52" radius="5" styleClass="login-orbit-dot login-orbit-dot-secondary" />
-                                <Circle centerX="122" centerY="280" radius="5" styleClass="login-orbit-dot login-orbit-dot-primary" />
+            <Pane fx:id="loginHeroPane" prefWidth="520" prefHeight="430" styleClass="login-heart-scene">
+                <Circle fx:id="orbitRingOuter" layoutX="256" layoutY="186" radius="178"
+                        styleClass="login-orbit-ring login-orbit-ring-1"
+                        style="-fx-fill: transparent; -fx-stroke: transparent;" />
+                <Circle fx:id="orbitRingDashed" layoutX="256" layoutY="186" radius="218"
+                        styleClass="login-orbit-ring login-orbit-ring-2"
+                        style="-fx-fill: transparent; -fx-stroke: transparent;" />
+                <Circle fx:id="orbitRingInner" layoutX="256" layoutY="186" radius="150"
+                        styleClass="login-orbit-ring login-orbit-ring-3"
+                        style="-fx-fill: transparent; -fx-stroke: transparent;" />
 
-                                <StackPane layoutX="140" layoutY="84" prefHeight="272" prefWidth="240" styleClass="login-heart-shell">
-                                    <children>
-                                        <Label text="♥" styleClass="login-heart-symbol" />
-                                    </children>
-                                </StackPane>
+                <Circle fx:id="orbitDotPrimaryTop" layoutX="116" layoutY="96" radius="4.5" styleClass="login-orbit-dot login-orbit-dot-primary" />
+                <Circle fx:id="orbitDotSecondaryTop" layoutX="414" layoutY="118" radius="3.5" styleClass="login-orbit-dot login-orbit-dot-secondary" />
+                <Circle fx:id="orbitDotSecondaryBottom" layoutX="94" layoutY="284" radius="3.5" styleClass="login-orbit-dot login-orbit-dot-secondary" />
+                <Circle fx:id="orbitDotPrimaryBottom" layoutX="430" layoutY="292" radius="4.5" styleClass="login-orbit-dot login-orbit-dot-primary" />
 
-                                <SVGPath content="M20 34 L96 34 L114 10 L129 57 L145 18 L160 34 L320 34"
-                                         layoutX="98"
-                                         layoutY="384"
-                                         styleClass="login-ekg-path" />
+                <SVGPath fx:id="loginHeartShape" content="M256 246 C256 246 186 202 186 146 C186 115 208 96 234 96 C249 96 256 108 256 108 C256 108 263 96 278 96 C304 96 326 115 326 146 C326 202 256 246 256 246 Z"
+                         styleClass="login-heart-shape" />
 
-                                <Label layoutX="26" layoutY="58" text="72 BPM" styleClass="login-floating-pill login-floating-pill-primary" />
-                                <Label layoutX="398" layoutY="92" text="O2 98%" styleClass="login-floating-pill login-floating-pill-secondary" />
-                                <Label layoutX="8" layoutY="330" text="36.8 C" styleClass="login-floating-pill login-floating-pill-soft" />
-                                <Label layoutX="386" layoutY="350" text="Protected" styleClass="login-floating-pill login-floating-pill-primary" />
-                                <Label layoutX="24" layoutY="214" text="AI Active" styleClass="login-floating-pill login-floating-pill-secondary" />
-                            </children>
-                        </AnchorPane>
-                    </children>
-                </VBox>
+                <Polyline fx:id="loginEkgLine" points="82.0,330.0,148.0,330.0,166.0,302.0,182.0,356.0,198.0,312.0,214.0,330.0,298.0,330.0,316.0,330.0,334.0,302.0,350.0,356.0,366.0,312.0,382.0,330.0,448.0,330.0"
+                          styleClass="login-ekg-path" />
 
-                <VBox prefWidth="470" styleClass="login-form-side">
-                    <children>
-                        <VBox spacing="0" styleClass="login-glass-card">
-                            <children>
-                                <HBox alignment="CENTER_LEFT" spacing="14">
-                                    <children>
-                                        <StackPane prefHeight="48" prefWidth="48" styleClass="login-card-icon">
-                                            <children>
-                                                <Label text="+" styleClass="login-card-icon-text" />
-                                            </children>
-                                        </StackPane>
-                                        <VBox spacing="3">
-                                            <children>
-                                                <Label text="Secure Access" styleClass="login-card-title" />
-                                                <Label text="Sign in to your health intelligence dashboard" styleClass="login-card-subtitle" />
-                                            </children>
-                                        </VBox>
-                                    </children>
-                                </HBox>
+                <Label fx:id="pillTopLeft" layoutX="48" layoutY="36" text="72 BPM"
+                       styleClass="login-floating-pill login-floating-pill-primary" />
+                <Label fx:id="pillTopRight" layoutX="372" layoutY="54" text="AI ACTIVE"
+                       styleClass="login-floating-pill login-floating-pill-secondary" />
+                <Label fx:id="pillBottomLeft" layoutX="34" layoutY="286" text="PROTECTED"
+                       styleClass="login-floating-pill login-floating-pill-soft" />
+                <Label fx:id="pillBottomRight" layoutX="382" layoutY="286" text="36.8 C"
+                       styleClass="login-floating-pill login-floating-pill-primary" />
+            </Pane>
+        </VBox>
 
-                                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="login-status-bar">
-                                    <children>
-                                        <Region prefHeight="8" prefWidth="8" styleClass="login-status-dot" />
-                                        <Label text="All systems operational · End-to-end encrypted" styleClass="login-status-text" />
-                                    </children>
-                                </HBox>
+        <VBox prefWidth="430" maxWidth="430" styleClass="login-form-side">
+            <VBox spacing="22" styleClass="glass-card login-glass-card">
+                <StackPane>
+                    <VBox fx:id="loginContentPane" spacing="22">
+                        <HBox alignment="CENTER_LEFT" spacing="14">
+                            <StackPane prefWidth="46" prefHeight="46" styleClass="login-card-icon">
+                                <Label text="PS" styleClass="login-card-icon-text" />
+                            </StackPane>
+                            <VBox spacing="4">
+                                <Label text="Secure Access" styleClass="login-card-title" />
+                                <Label text="Sign in to your health intelligence dashboard"
+                                       styleClass="login-card-subtitle" wrapText="true" />
+                            </VBox>
+                        </HBox>
 
-                                <Label fx:id="feedbackLabel"
-                                       managed="false"
-                                       visible="false"
-                                       wrapText="true"
-                                       styleClass="login-alert-label" />
+                        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="login-status-bar">
+                            <Region prefWidth="8" prefHeight="8" styleClass="login-status-dot" />
+                            <Label text="All systems operational. End-to-end encrypted."
+                                   styleClass="login-status-text" wrapText="true" />
+                        </HBox>
 
-                                <VBox spacing="18">
-                                    <children>
-                                        <VBox spacing="8">
-                                            <children>
-                                                <Label text="EMAIL ADDRESS" styleClass="login-field-label" />
-                                                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="login-input-shell">
-                                                    <children>
-                                                        <TextField fx:id="emailField"
-                                                                   promptText="your@email.com"
-                                                                   styleClass="login-field-input" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </VBox>
+                        <Label fx:id="feedbackLabel" text="" visible="false" managed="false"
+                               styleClass="login-alert-label" wrapText="true" />
 
-                                        <VBox spacing="8">
-                                            <children>
-                                                <Label text="PASSWORD" styleClass="login-field-label" />
-                                                <HBox alignment="CENTER_LEFT" spacing="8" styleClass="login-password-row">
-                                                    <children>
-                                                        <StackPane HBox.hgrow="ALWAYS">
-                                                            <children>
-                                                                <PasswordField fx:id="passwordField"
-                                                                               promptText="Enter your password"
-                                                                               styleClass="login-field-input" />
-                                                                <TextField fx:id="visiblePasswordField"
-                                                                           managed="false"
-                                                                           visible="false"
-                                                                           promptText="Enter your password"
-                                                                           styleClass="login-field-input" />
-                                                            </children>
-                                                        </StackPane>
-                                                        <Button fx:id="togglePasswordButton"
-                                                                text="Show"
-                                                                onAction="#handleTogglePassword"
-                                                                styleClass="login-toggle-button" />
-                                                    </children>
-                                                </HBox>
-                                            </children>
-                                        </VBox>
-                                    </children>
-                                </VBox>
-
-                                <Button text="Authenticate and Enter"
-                                        onAction="#handleLogin"
-                                        maxWidth="1.7976931348623157E308"
-                                        styleClass="login-primary-button" />
-
-                                <!--
-                                <VBox spacing="14" styleClass="login-biometric-panel">
-                                    <children>
-                                        <HBox alignment="CENTER_LEFT" spacing="10">
-                                            <children>
-                                                <Label text="Biometric Access" styleClass="login-bio-title" />
-                                                <Region HBox.hgrow="ALWAYS" />
-                                                <Label text="DESKTOP" styleClass="login-bio-badge" />
-                                            </children>
-                                        </HBox>
-
-                                        <HBox spacing="14">
-                                            <children>
-                                                <StackPane prefHeight="132" prefWidth="220" styleClass="login-bio-preview">
-                                                    <children>
-                                                        <VBox alignment="CENTER" spacing="8">
-                                                            <children>
-                                                                <Label text="◌" styleClass="login-bio-preview-icon" />
-                                                                <Label text="Camera-based sign in from the web template is not wired to this JavaFX desktop build." wrapText="true" textAlignment="CENTER" styleClass="login-bio-preview-text" />
-                                                            </children>
-                                                        </VBox>
-                                                    </children>
-                                                </StackPane>
-
-                                                <VBox spacing="8" prefWidth="150">
-                                                    <children>
-                                                        <Button text="Desktop mode" disable="true" maxWidth="1.7976931348623157E308" styleClass="login-bio-button" />
-                                                        <Button text="Secure auth only" disable="true" maxWidth="1.7976931348623157E308" styleClass="login-bio-button" />
-                                                        <Button text="Backend required" disable="true" maxWidth="1.7976931348623157E308" styleClass="login-bio-button" />
-                                                    </children>
-                                                </VBox>
-                                            </children>
-                                        </HBox>
-                                    </children>
-                                </VBox>
-                                -->
-
-                                <HBox alignment="CENTER" spacing="6" styleClass="login-register-row">
-                                    <children>
-                                        <Label text="Don't have an account?" styleClass="login-register-text" />
-                                        <Hyperlink text="Create Account"
-                                                   onAction="#handleRegister"
-                                                   styleClass="login-register-link" />
-                                    </children>
-                                </HBox>
-                            </children>
-
-                            <padding>
-                                <Insets top="44" right="40" bottom="40" left="40" />
-                            </padding>
+                        <VBox spacing="7">
+                            <Label text="EMAIL ADDRESS" styleClass="login-field-label" />
+                            <TextField fx:id="emailField" promptText="you@example.com"
+                                       styleClass="login-field-input" />
                         </VBox>
-                    </children>
-                </VBox>
-            </children>
-        </HBox>
-    </children>
+
+                        <VBox spacing="7">
+                            <Label text="PASSWORD" styleClass="login-field-label" />
+                            <HBox spacing="10" styleClass="login-password-row">
+                                <PasswordField fx:id="passwordField" promptText="Enter your password"
+                                               styleClass="login-field-input" HBox.hgrow="ALWAYS" />
+                                <TextField fx:id="visiblePasswordField" promptText="Enter your password"
+                                           styleClass="login-field-input" HBox.hgrow="ALWAYS"
+                                           visible="false" managed="false" />
+                                <Button fx:id="togglePasswordButton" text="Show" onAction="#handleTogglePassword"
+                                        styleClass="login-toggle-button" />
+                            </HBox>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT">
+                            <Hyperlink text="Forgot password?" onAction="#handleShowForgotPassword"
+                                       styleClass="login-inline-link" />
+                        </HBox>
+
+                        <Button text="Authenticate and Enter" onAction="#handleLogin"
+                                maxWidth="Infinity" styleClass="login-primary-button" />
+
+                        <HBox alignment="CENTER" spacing="6" styleClass="login-register-row">
+                            <Label text="Don't have an account?" styleClass="login-register-text" />
+                            <Hyperlink text="Create one now" onAction="#handleRegister"
+                                       styleClass="login-register-link" />
+                        </HBox>
+                    </VBox>
+
+                    <VBox fx:id="forgotPasswordContentPane" spacing="18" visible="false" managed="false">
+                        <HBox alignment="CENTER_LEFT" spacing="14">
+                            <StackPane prefWidth="46" prefHeight="46" styleClass="login-card-icon login-card-icon-success">
+                                <Label text="R" styleClass="login-card-icon-text" />
+                            </StackPane>
+                            <VBox spacing="4">
+                                <Label text="Forgot Password" styleClass="login-card-title" />
+                                <Label text="Request a verification code by email, then use it to set your new password."
+                                       styleClass="login-card-subtitle" wrapText="true" />
+                            </VBox>
+                        </HBox>
+
+                        <Label fx:id="forgotPasswordFeedbackLabel" text="" visible="false" managed="false"
+                               styleClass="login-alert-label" wrapText="true" />
+
+                        <VBox spacing="7" styleClass="login-reset-info-card">
+                            <Label text="Recovery steps" styleClass="login-reset-info-title" />
+                            <Label text="1. Enter the email linked to your account." styleClass="login-reset-info-text" wrapText="true" />
+                            <Label text="2. Request the 6-digit verification code sent to that email." styleClass="login-reset-info-text" wrapText="true" />
+                            <Label text="3. Enter the code and choose your new password." styleClass="login-reset-info-text" wrapText="true" />
+                        </VBox>
+
+                        <VBox spacing="7">
+                            <Label text="EMAIL ADDRESS" styleClass="login-field-label" />
+                            <TextField fx:id="forgotPasswordEmailField" promptText="you@example.com"
+                                       styleClass="login-field-input" />
+                        </VBox>
+
+                        <VBox spacing="8">
+                            <Button fx:id="forgotPasswordSendCodeButton" text="Send Verification Code"
+                                    onAction="#handleSendResetCode"
+                                    maxWidth="Infinity" styleClass="login-secondary-button" />
+                            <Label text="We send a 6-digit code to the address above. The code expires after 10 minutes."
+                                   styleClass="login-reset-meta" wrapText="true" />
+                        </VBox>
+
+                        <VBox spacing="7">
+                            <Label text="VERIFICATION CODE" styleClass="login-field-label" />
+                            <TextField fx:id="forgotPasswordCodeField" promptText="Enter the 6-digit code"
+                                       styleClass="login-field-input" />
+                        </VBox>
+
+                        <VBox spacing="7">
+                            <Label text="NEW PASSWORD" styleClass="login-field-label" />
+                            <PasswordField fx:id="forgotPasswordField" promptText="Create a new password"
+                                           styleClass="login-field-input" />
+                        </VBox>
+
+                        <VBox spacing="7">
+                            <Label text="CONFIRM PASSWORD" styleClass="login-field-label" />
+                            <PasswordField fx:id="forgotPasswordConfirmField" promptText="Repeat the new password"
+                                           styleClass="login-field-input" />
+                        </VBox>
+
+                        <Button fx:id="forgotPasswordSubmitButton" text="Verify Code and Reset Password" onAction="#handleResetPassword"
+                                disable="true"
+                                maxWidth="Infinity" styleClass="login-primary-button" />
+
+                        <HBox alignment="CENTER_LEFT">
+                            <Hyperlink text="Return to login" onAction="#handleBackToLogin"
+                                       styleClass="login-inline-link" />
+                        </HBox>
+                    </VBox>
+                </StackPane>
+            </VBox>
+        </VBox>
+    </HBox>
 </StackPane>

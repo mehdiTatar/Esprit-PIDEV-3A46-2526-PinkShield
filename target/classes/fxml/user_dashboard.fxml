@@ -18,42 +18,75 @@
             styleClass="root"
             stylesheets="@../css/style.css">
     <fx:define>
-        <VBox fx:id="profileEditView" spacing="20">
+        <VBox fx:id="profileEditView" spacing="20" maxWidth="1160">
             <HBox alignment="CENTER_LEFT" styleClass="hero-panel hero-panel-user">
                 <VBox spacing="8">
-                    <Label text="Profile Edit" styleClass="dashboard-title" />
-                    <Label text="Update your contact details and keep your patient profile ready for appointments." styleClass="dashboard-copy" wrapText="true" />
+                    <Label text="Profile Settings" styleClass="dashboard-title" />
+                    <Label text="Keep your patient profile complete so appointments, reminders, and health records stay accurate." styleClass="dashboard-copy" wrapText="true" />
                 </VBox>
             </HBox>
 
-            <VBox spacing="16" styleClass="panel-card profile-card">
-                <Label fx:id="feedbackLabel" text="" visible="false" managed="false" styleClass="feedback-label" />
+            <HBox spacing="20" alignment="TOP_LEFT" styleClass="profile-layout">
+                <VBox prefWidth="300" spacing="16" styleClass="panel-card profile-side-card">
+                    <Label text="Profile Guide" styleClass="section-title" />
+                    <Label text="Use the same contact details you expect doctors and staff to use when confirming appointments." styleClass="dashboard-copy" wrapText="true" />
 
-                <VBox spacing="6">
-                    <Label text="FULL NAME" styleClass="field-label" />
-                    <TextField fx:id="fullNameField" styleClass="text-field" />
+                    <Separator style="-fx-opacity: 0.12;" />
+
+                    <VBox spacing="12">
+                        <VBox spacing="4">
+                            <Label text="Identity" styleClass="profile-side-label" />
+                            <Label text="Your full name appears in patient-facing summaries and booking records." styleClass="dashboard-copy" wrapText="true" />
+                        </VBox>
+
+                        <VBox spacing="4">
+                            <Label text="Contact" styleClass="profile-side-label" />
+                            <Label text="Phone and address are used to keep your account and reminders up to date." styleClass="dashboard-copy" wrapText="true" />
+                        </VBox>
+                    </VBox>
                 </VBox>
 
-                <VBox spacing="6">
-                    <Label text="EMAIL ADDRESS" styleClass="field-label" />
-                    <TextField fx:id="emailField" styleClass="text-field" />
-                </VBox>
+                <VBox spacing="18" styleClass="panel-card profile-card profile-form-card" HBox.hgrow="ALWAYS">
+                    <Label fx:id="feedbackLabel" text="" visible="false" managed="false" styleClass="feedback-label" wrapText="true" />
 
-                <VBox spacing="6">
-                    <Label text="PHONE NUMBER" styleClass="field-label" />
-                    <TextField fx:id="phoneField" styleClass="text-field" />
-                </VBox>
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Personal Information" styleClass="profile-section-title" />
+                        <Label text="Review the core identity details attached to your account." styleClass="profile-section-copy" wrapText="true" />
 
-                <VBox spacing="6">
-                    <Label text="ADDRESS" styleClass="field-label" />
-                    <TextField fx:id="addressField" styleClass="text-field" />
-                </VBox>
+                        <VBox spacing="6">
+                            <Label text="FULL NAME" styleClass="field-label" />
+                            <TextField fx:id="fullNameField" promptText="Your full name" styleClass="text-field" />
+                        </VBox>
 
-                <HBox spacing="12">
-                    <Button text="Save changes" onAction="#handleSaveProfile" styleClass="button" />
-                    <Button text="Reset" onAction="#handleEditProfile" styleClass="button secondary" />
-                </HBox>
-            </VBox>
+                        <VBox spacing="6">
+                            <Label text="EMAIL ADDRESS" styleClass="field-label" />
+                            <TextField fx:id="emailField" promptText="you@example.com" styleClass="text-field" />
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Contact Details" styleClass="profile-section-title" />
+                        <Label text="These details help the care team reach you when schedules or records change." styleClass="profile-section-copy" wrapText="true" />
+
+                        <HBox spacing="14" styleClass="profile-field-grid">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="PHONE NUMBER" styleClass="field-label" />
+                                <TextField fx:id="phoneField" promptText="+216 XX XXX XXX" styleClass="text-field" />
+                            </VBox>
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="ADDRESS" styleClass="field-label" />
+                                <TextField fx:id="addressField" promptText="Your address" styleClass="text-field" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <HBox spacing="12" alignment="CENTER_RIGHT" styleClass="profile-action-row">
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="Reset" onAction="#handleEditProfile" styleClass="button secondary" />
+                        <Button text="Save changes" onAction="#handleSaveProfile" styleClass="button" />
+                    </HBox>
+                </VBox>
+            </HBox>
         </VBox>
     </fx:define>
 

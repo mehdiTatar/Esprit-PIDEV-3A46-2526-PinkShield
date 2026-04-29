@@ -15,9 +15,30 @@ public class BlogService {
         conn = MyDB.getInstance().getConnection();
     }
 
+    /**
+     * Ensure connection is valid
+     */
+    private void ensureConnection() {
+        if (conn == null) {
+            conn = MyDB.getInstance().getConnection();
+        }
+        if (conn != null) {
+            try {
+                if (conn.isClosed()) {
+                    conn = MyDB.getInstance().getConnection();
+                }
+            } catch (SQLException e) {
+                conn = MyDB.getInstance().getConnection();
+            }
+        }
+    }
+
     // --- Blog Post CRUD ---
 
     public boolean addPost(BlogPost post) {
+        ensureConnection();
+        if (conn == null) return false;
+
         String query = "INSERT INTO blog_post (title, content, author_name, author_role, image_path) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, post.getTitle());
@@ -33,7 +54,13 @@ public class BlogService {
     }
 
     public List<BlogPost> getAllPosts() {
+        ensureConnection();
         List<BlogPost> posts = new ArrayList<>();
+        if (conn == null) {
+            System.err.println("Database connection is null");
+            return posts;
+        }
+
         String query = "SELECT * FROM blog_post ORDER BY created_at DESC";
         try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(query)) {
             while (rs.next()) {
@@ -54,6 +81,9 @@ public class BlogService {
     }
 
     public boolean updatePost(BlogPost post) {
+        ensureConnection();
+        if (conn == null) return false;
+
         String query = "UPDATE blog_post SET title = ?, content = ?, image_path = ? WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, post.getTitle());
@@ -68,6 +98,9 @@ public class BlogService {
     }
 
     public boolean deletePost(int id) {
+        ensureConnection();
+        if (conn == null) return false;
+
         String query = "DELETE FROM blog_post WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
@@ -81,6 +114,9 @@ public class BlogService {
     // --- Comment CRUD ---
 
     public boolean addComment(Comment comment) {
+        ensureConnection();
+        if (conn == null) return false;
+
         String query = "INSERT INTO comment (post_id, author_name, content) VALUES (?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, comment.getPostId());
@@ -94,7 +130,10 @@ public class BlogService {
     }
 
     public List<Comment> getCommentsByPostId(int postId) {
+        ensureConnection();
         List<Comment> comments = new ArrayList<>();
+        if (conn == null) return comments;
+
         String query = "SELECT * FROM comment WHERE post_id = ? ORDER BY created_at ASC";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, postId);
@@ -116,6 +155,9 @@ public class BlogService {
     }
 
     public boolean deleteComment(int id) {
+        ensureConnection();
+        if (conn == null) return false;
+
         String query = "DELETE FROM comment WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);

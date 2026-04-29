@@ -3,6 +3,7 @@ package tn.esprit.controllers;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -105,6 +106,7 @@ public class DailyTrackingController {
         configureDatePicker();
         configureSliders();
         configureFormListeners();
+        configureTrendChart();
         applyFormDefaults(LocalDate.now());
         Platform.runLater(this::clipTrackingCards);
     }
@@ -201,6 +203,28 @@ public class DailyTrackingController {
         FormValidator.attachClearOnInput(formFeedbackLabel, activitiesArea, symptomsArea);
 
         medicationTakenCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> clearFormMessage());
+    }
+
+    private void configureTrendChart() {
+        if (trendChart == null || trendYAxis == null) {
+            return;
+        }
+
+        trendChart.setAnimated(false);
+        trendChart.setAlternativeColumnFillVisible(false);
+        trendChart.setAlternativeRowFillVisible(false);
+        trendChart.setHorizontalGridLinesVisible(true);
+        trendChart.setVerticalGridLinesVisible(false);
+        trendChart.setHorizontalZeroLineVisible(false);
+        trendChart.setVerticalZeroLineVisible(false);
+        trendChart.setLegendSide(Side.TOP);
+
+        trendYAxis.setAutoRanging(false);
+        trendYAxis.setLowerBound(0);
+        trendYAxis.setUpperBound(10);
+        trendYAxis.setTickUnit(2);
+        trendYAxis.setMinorTickVisible(false);
+        trendYAxis.setMinorTickCount(0);
     }
 
     private void clipTrackingCards() {
@@ -421,10 +445,11 @@ public class DailyTrackingController {
                 : "Average mood and stress trend across patients for the last 7 days");
 
         trendChart.getData().clear();
+        trendChart.setLegendVisible(false);
         trendYAxis.setAutoRanging(false);
         trendYAxis.setLowerBound(0);
         trendYAxis.setUpperBound(10);
-        trendYAxis.setTickUnit(1);
+        trendYAxis.setTickUnit(2);
 
         if (points.isEmpty()) {
             trendChart.setManaged(false);
@@ -450,14 +475,26 @@ public class DailyTrackingController {
             }
         }
 
+        int visibleSeriesCount = 0;
         if (!moodSeries.getData().isEmpty()) {
-            trendChart.getData().add(moodSeries);
+            visibleSeriesCount++;
         }
         if (!stressSeries.getData().isEmpty()) {
-            trendChart.getData().add(stressSeries);
+            visibleSeriesCount++;
         }
 
-        boolean hasChartData = !trendChart.getData().isEmpty();
+        if (visibleSeriesCount == 0) {
+            trendChart.setManaged(false);
+            trendChart.setVisible(false);
+            trendEmptyLabel.setManaged(true);
+            trendEmptyLabel.setVisible(true);
+            return;
+        }
+
+        trendChart.getData().addAll(moodSeries, stressSeries);
+        trendChart.setLegendVisible(visibleSeriesCount > 1);
+
+        boolean hasChartData = visibleSeriesCount > 0;
         trendChart.setManaged(hasChartData);
         trendChart.setVisible(hasChartData);
         trendEmptyLabel.setManaged(!hasChartData);

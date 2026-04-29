@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.LoginController"
+            styleClass="root"
+            stylesheets="@../css/style.css">
+    <center>
+        <HBox alignment="CENTER" spacing="0" styleClass="auth-screen">
+            <!-- Left Side: Brand & Hero -->
+            <VBox alignment="CENTER" spacing="24" prefWidth="380" styleClass="auth-brand-side">
+                <!-- Logo Section -->
+                <HBox alignment="CENTER" spacing="12" styleClass="auth-logo-row">
+                    <VBox alignment="CENTER" style="-fx-min-width: 48; -fx-min-height: 48;" styleClass="auth-logo-mark">
+                        <Label text="P" styleClass="auth-logo-mark-text" />
+                    </VBox>
+                    <VBox spacing="2">
+                        <Label text="PinkShield" styleClass="auth-wordmark" />
+                        <Label text="HEALTH INTELLIGENCE" styleClass="auth-wordmark-subtitle" />
+                    </VBox>
+                </HBox>
+
+                <!-- Hero Content -->
+                <VBox alignment="CENTER" spacing="20">
+                    <VBox alignment="CENTER" spacing="0" styleClass="auth-hero-badge">
+                        <Label text="❤" styleClass="auth-hero-badge-text" />
+                    </VBox>
+                    <Label text="Secure Health Gateway" styleClass="auth-hero-title" wrapText="true" />
+                </VBox>
+
+                <!-- Features List -->
+                <VBox spacing="12" styleClass="auth-feature-list">
+                    <VBox spacing="8" styleClass="auth-feature-card">
+                        <HBox spacing="10" alignment="TOP_LEFT">
+                            <VBox alignment="CENTER" styleClass="auth-feature-icon">
+                                <Label text="🔒" />
+                            </VBox>
+                            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                <Label text="End-to-End Encrypted" styleClass="auth-feature-title" />
+                                <Label text="Your health data is always protected" styleClass="auth-feature-subtitle" wrapText="true" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                    <VBox spacing="8" styleClass="auth-feature-card">
+                        <HBox spacing="10" alignment="TOP_LEFT">
+                            <VBox alignment="CENTER" styleClass="auth-feature-icon">
+                                <Label text="📅" />
+                            </VBox>
+                            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                <Label text="Smart Scheduling" styleClass="auth-feature-title" />
+                                <Label text="Book appointments instantly" styleClass="auth-feature-subtitle" wrapText="true" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                    <VBox spacing="8" styleClass="auth-feature-card">
+                        <HBox spacing="10" alignment="TOP_LEFT">
+                            <VBox alignment="CENTER" styleClass="auth-feature-icon">
+                                <Label text="📊" />
+                            </VBox>
+                            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                <Label text="Health Tracking" styleClass="auth-feature-title" />
+                                <Label text="Monitor your wellness journey" styleClass="auth-feature-subtitle" wrapText="true" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </VBox>
+
+            <!-- Right Side: Login Form -->
+            <VBox alignment="TOP_CENTER" spacing="28" prefWidth="380" styleClass="auth-form-side">
+                <VBox spacing="12">
+                    <Label text="Sign In" styleClass="auth-form-title" />
+                    <Label text="Access your personalized health dashboard" styleClass="auth-form-subtitle" wrapText="true" />
+                </VBox>
+
+                <!-- Feedback Message -->
+                <Label fx:id="feedbackLabel" text="" visible="false" managed="false"
+                        styleClass="auth-alert-label" wrapText="true" />
+
+                <!-- Email Field -->
+                <VBox spacing="7" styleClass="auth-field-block">
+                    <Label text="EMAIL ADDRESS" styleClass="auth-field-label" />
+                    <TextField fx:id="emailField" promptText="you@example.com" styleClass="text-field" />
+                </VBox>
+
+                <!-- Password Fields -->
+                <VBox spacing="7" styleClass="auth-field-block">
+                    <Label text="PASSWORD" styleClass="auth-field-label" />
+                    <HBox spacing="8">
+                        <PasswordField fx:id="passwordField" promptText="Enter your password"
+                                      styleClass="text-field" HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="visiblePasswordField" promptText="Enter your password"
+                                   styleClass="text-field" HBox.hgrow="ALWAYS" visible="false" managed="false" />
+                        <Button fx:id="togglePasswordButton" text="Show" onAction="#handleTogglePassword"
+                               style="-fx-min-width: 60;" styleClass="button secondary" />
+                    </HBox>
+                </VBox>
+
+                <!-- Remember & Forgot Password -->
+                <HBox alignment="CENTER_RIGHT">
+                    <Hyperlink text="Forgot password?" onAction="#handleRegister"
+                              styleClass="auth-link" style="-fx-font-size: 12;" />
+                </HBox>
+
+                <!-- Login Button -->
+                <Button text="Sign In" onAction="#handleLogin"
+                       style="-fx-min-height: 48; -fx-font-size: 15;" styleClass="button" />
+
+                <!-- Divider -->
+                <Separator style="-fx-opacity: 0.1;" />
+
+                <!-- Register Link -->
+                <HBox alignment="CENTER" spacing="6">
+                    <Label text="Don't have an account?" styleClass="auth-inline-text" />
+                    <Hyperlink text="Create one now" onAction="#handleRegister" styleClass="auth-link" />
+                </HBox>
+
+                <!-- Status Bar -->
+                <HBox alignment="CENTER" spacing="8" styleClass="auth-status-bar">
+                    <Region style="-fx-min-width: 8; -fx-min-height: 8; -fx-background-color: #10b981; -fx-background-radius: 999;" />
+                    <Label text="System Status: All Systems Operational" styleClass="auth-status-text" />
+                </HBox>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>
+

@@ -18,43 +18,75 @@
             styleClass="root"
             stylesheets="@../css/style.css">
     <fx:define>
-        <VBox fx:id="profileEditView" spacing="20">
+        <VBox fx:id="profileEditView" spacing="20" maxWidth="1160">
             <HBox alignment="CENTER_LEFT" styleClass="hero-panel hero-panel-doctor">
                 <VBox spacing="8">
-                    <Label text="Profile Edit" styleClass="dashboard-title" />
-                    <Label text="Keep your public information, speciality, and contact details current." styleClass="dashboard-copy" wrapText="true" />
+                    <Label text="Profile Settings" styleClass="dashboard-title" />
+                    <Label text="Present a clear professional profile so patients can identify you and trust the information shown in the workspace." styleClass="dashboard-copy" wrapText="true" />
                 </VBox>
             </HBox>
 
-            <VBox spacing="16" styleClass="panel-card profile-card">
-                <Label fx:id="feedbackLabel" text="" visible="false" managed="false" styleClass="feedback-label" />
+            <HBox spacing="20" alignment="TOP_LEFT" styleClass="profile-layout">
+                <VBox prefWidth="300" spacing="16" styleClass="panel-card profile-side-card">
+                    <Label text="Profile Guide" styleClass="section-title" />
+                    <Label text="Your public details should match how patients and administrators recognize you across appointments and posts." styleClass="dashboard-copy" wrapText="true" />
 
-                <HBox spacing="14">
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="FIRST NAME" styleClass="field-label" />
-                        <TextField fx:id="firstNameField" styleClass="text-field" />
-                    </VBox>
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="LAST NAME" styleClass="field-label" />
-                        <TextField fx:id="lastNameField" styleClass="text-field" />
-                    </VBox>
-                </HBox>
+                    <Separator style="-fx-opacity: 0.12;" />
 
-                <VBox spacing="6">
-                    <Label text="EMAIL ADDRESS" styleClass="field-label" />
-                    <TextField fx:id="emailField" styleClass="text-field" />
+                    <VBox spacing="12">
+                        <VBox spacing="4">
+                            <Label text="Professional identity" styleClass="profile-side-label" />
+                            <Label text="Use your real first and last name to keep appointment records consistent." styleClass="dashboard-copy" wrapText="true" />
+                        </VBox>
+
+                        <VBox spacing="4">
+                            <Label text="Medical specialty" styleClass="profile-side-label" />
+                            <Label text="Your specialty is shown throughout the doctor dashboard and related booking views." styleClass="dashboard-copy" wrapText="true" />
+                        </VBox>
+                    </VBox>
                 </VBox>
 
-                <VBox spacing="6">
-                    <Label text="SPECIALITY" styleClass="field-label" />
-                    <TextField fx:id="specialityField" styleClass="text-field" />
-                </VBox>
+                <VBox spacing="18" styleClass="panel-card profile-card profile-form-card" HBox.hgrow="ALWAYS">
+                    <Label fx:id="feedbackLabel" text="" visible="false" managed="false" styleClass="feedback-label" wrapText="true" />
 
-                <HBox spacing="12">
-                    <Button text="Save changes" onAction="#handleSaveProfile" styleClass="button" />
-                    <Button text="Reset" onAction="#handleResetProfile" styleClass="button secondary" />
-                </HBox>
-            </VBox>
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Professional Details" styleClass="profile-section-title" />
+                        <Label text="Maintain the name and email address tied to your clinical profile." styleClass="profile-section-copy" wrapText="true" />
+
+                        <HBox spacing="14" styleClass="profile-field-grid">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="FIRST NAME" styleClass="field-label" />
+                                <TextField fx:id="firstNameField" promptText="First name" styleClass="text-field" />
+                            </VBox>
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="LAST NAME" styleClass="field-label" />
+                                <TextField fx:id="lastNameField" promptText="Last name" styleClass="text-field" />
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="6">
+                            <Label text="EMAIL ADDRESS" styleClass="field-label" />
+                            <TextField fx:id="emailField" promptText="doctor@example.com" styleClass="text-field" />
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Practice Information" styleClass="profile-section-title" />
+                        <Label text="Keep your specialty accurate so patients know what type of care you provide." styleClass="profile-section-copy" wrapText="true" />
+
+                        <VBox spacing="6">
+                            <Label text="SPECIALITY" styleClass="field-label" />
+                            <TextField fx:id="specialityField" promptText="Cardiology, Dermatology, Pediatrics..." styleClass="text-field" />
+                        </VBox>
+                    </VBox>
+
+                    <HBox spacing="12" alignment="CENTER_RIGHT" styleClass="profile-action-row">
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="Reset" onAction="#handleResetProfile" styleClass="button secondary" />
+                        <Button text="Save changes" onAction="#handleSaveProfile" styleClass="button" />
+                    </HBox>
+                </VBox>
+            </HBox>
         </VBox>
     </fx:define>
 

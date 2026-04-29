@@ -104,18 +104,26 @@ public class ParapharmacyService {
         return list;
     }
 
-    public boolean productExists(Parapharmacy product, Integer excludeId) {
-        String query = "SELECT COUNT(*) FROM parapharmacy WHERE LOWER(name) = LOWER(?) AND LOWER(category) = LOWER(?) AND id <> ?";
+    public boolean productExists(Parapharmacy product, Integer excludedId) {
+        String query = "SELECT COUNT(*) as count FROM parapharmacy WHERE name = ? AND category = ?";
+        if (excludedId != null) {
+            query += " AND id != ?";
+        }
+        
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, product.getName());
             ps.setString(2, product.getCategory());
-            ps.setInt(3, excludeId == null ? -1 : excludeId);
+            if (excludedId != null) {
+                ps.setInt(3, excludedId);
+            }
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() && rs.getInt(1) > 0;
+                if (rs.next()) {
+                    return rs.getInt("count") > 0;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 }

@@ -21,38 +21,65 @@
             styleClass="root"
             stylesheets="@../css/style.css">
     <fx:define>
-        <VBox fx:id="profileEditView" spacing="20">
+        <VBox fx:id="profileEditView" spacing="20" maxWidth="1160">
             <HBox alignment="CENTER_LEFT" styleClass="hero-panel">
                 <VBox spacing="8">
-                    <Label text="Profile Edit" styleClass="dashboard-title" />
-                    <Label text="Update your administrator identity without leaving the desktop workspace." styleClass="dashboard-copy" wrapText="true" />
+                    <Label text="Profile Settings" styleClass="dashboard-title" />
+                    <Label text="Maintain the administrator account details used to manage platform-wide activity and access." styleClass="dashboard-copy" wrapText="true" />
                 </VBox>
             </HBox>
 
-            <VBox spacing="16" styleClass="panel-card profile-card">
-                <Label fx:id="profileFeedbackLabel" text="" visible="false" managed="false" styleClass="feedback-label" />
+            <HBox spacing="20" alignment="TOP_LEFT" styleClass="profile-layout">
+                <VBox prefWidth="300" spacing="16" styleClass="panel-card profile-side-card">
+                    <Label text="Profile Guide" styleClass="section-title" />
+                    <Label text="This administrator identity is used whenever you manage users, content, and operational workflows." styleClass="dashboard-copy" wrapText="true" />
 
-                <HBox spacing="14">
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="FIRST NAME" styleClass="field-label" />
-                        <TextField fx:id="adminFirstNameField" styleClass="text-field" />
-                    </VBox>
-                    <VBox spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="LAST NAME" styleClass="field-label" />
-                        <TextField fx:id="adminLastNameField" styleClass="text-field" />
-                    </VBox>
-                </HBox>
+                    <Separator style="-fx-opacity: 0.12;" />
 
-                <VBox spacing="6">
-                    <Label text="EMAIL ADDRESS" styleClass="field-label" />
-                    <TextField fx:id="adminEmailField" styleClass="text-field" />
+                    <VBox spacing="12">
+                        <VBox spacing="4">
+                            <Label text="Account owner" styleClass="profile-side-label" />
+                            <Label text="Keep the administrator name current so management actions remain traceable." styleClass="dashboard-copy" wrapText="true" />
+                        </VBox>
+
+                        <VBox spacing="4">
+                            <Label text="Primary email" styleClass="profile-side-label" />
+                            <Label text="Use a stable email address associated with the administration account." styleClass="dashboard-copy" wrapText="true" />
+                        </VBox>
+                    </VBox>
                 </VBox>
 
-                <HBox spacing="12">
-                    <Button text="Save changes" onAction="#handleSaveProfile" styleClass="button" />
-                    <Button text="Reset" onAction="#handleResetProfile" styleClass="button secondary" />
-                </HBox>
-            </VBox>
+                <VBox spacing="18" styleClass="panel-card profile-card profile-form-card" HBox.hgrow="ALWAYS">
+                    <Label fx:id="profileFeedbackLabel" text="" visible="false" managed="false" styleClass="feedback-label" wrapText="true" />
+
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Administrator Identity" styleClass="profile-section-title" />
+                        <Label text="Update the name and email address associated with this administrator account." styleClass="profile-section-copy" wrapText="true" />
+
+                        <HBox spacing="14" styleClass="profile-field-grid">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="FIRST NAME" styleClass="field-label" />
+                                <TextField fx:id="adminFirstNameField" promptText="First name" styleClass="text-field" />
+                            </VBox>
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="LAST NAME" styleClass="field-label" />
+                                <TextField fx:id="adminLastNameField" promptText="Last name" styleClass="text-field" />
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="6">
+                            <Label text="EMAIL ADDRESS" styleClass="field-label" />
+                            <TextField fx:id="adminEmailField" promptText="admin@example.com" styleClass="text-field" />
+                        </VBox>
+                    </VBox>
+
+                    <HBox spacing="12" alignment="CENTER_RIGHT" styleClass="profile-action-row">
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="Reset" onAction="#handleResetProfile" styleClass="button secondary" />
+                        <Button text="Save changes" onAction="#handleSaveProfile" styleClass="button" />
+                    </HBox>
+                </VBox>
+            </HBox>
         </VBox>
     </fx:define>
 

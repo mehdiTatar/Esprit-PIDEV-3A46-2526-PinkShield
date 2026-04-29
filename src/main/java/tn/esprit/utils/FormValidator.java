@@ -1,93 +1,301 @@
 package tn.esprit.utils;
 
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextInputControl;
-
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import java.util.regex.Pattern;
 
-public final class FormValidator {
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-    private static final Pattern PHONE_PATTERN = Pattern.compile("^[+]?[0-9 ]{8,20}$");
-    private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z\\s'.-]{1,49}$");
+/**
+ * FormValidator — Port of form-validation.js to JavaFX
+ * Provides AJAX-like validation for form fields with error display
+ */
+public class FormValidator {
 
-    private FormValidator() {
-    }
+    private static final Pattern EMAIL_PATTERN = 
+        Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+    
+    private static final Pattern PASSWORD_MIN_LENGTH = 
+        Pattern.compile(".{8,}");
+    
+    private static final Pattern PHONE_PATTERN =
+        Pattern.compile("^\\d{8,20}$");
 
+    // ============ STATIC UTILITY METHODS ============
+    
+    /**
+     * Static method: Validates email format
+     */
     public static boolean isValidEmail(String email) {
-        return email != null && EMAIL_PATTERN.matcher(email.trim()).matches();
+        return EMAIL_PATTERN.matcher(email).matches();
     }
 
+    /**
+     * Static method: Validates phone format (8-20 digits)
+     */
     public static boolean isValidPhone(String phone) {
-        return phone != null && PHONE_PATTERN.matcher(phone.trim()).matches();
+        return phone != null && PHONE_PATTERN.matcher(phone.replaceAll("\\D", "")).matches();
     }
 
-    public static boolean isValidName(String value) {
-        return value != null && NAME_PATTERN.matcher(value.trim()).matches();
-    }
-
-    public static void clearFieldState(Control control) {
-        if (control == null) {
-            return;
-        }
-        control.getStyleClass().removeAll("field-invalid", "field-valid");
-    }
-
-    public static void markInvalid(Control control) {
-        clearFieldState(control);
-        control.getStyleClass().add("field-invalid");
-    }
-
-    public static void markValid(Control control) {
-        clearFieldState(control);
-        control.getStyleClass().add("field-valid");
-    }
-
-    public static void clearStates(Control... controls) {
-        for (Control control : controls) {
-            clearFieldState(control);
+    /**
+     * Mark a field as invalid with error styling
+     */
+    public static void markInvalid(Control field) {
+        if (field instanceof TextInputControl) {
+            ((TextInputControl) field).setStyle("-fx-border-color: #ff4444; -fx-border-width: 2;");
         }
     }
 
-    public static void setMessage(Label label, String message, boolean error) {
-        if (label == null) {
-            return;
-        }
-        label.setVisible(message != null && !message.isBlank());
-        label.setManaged(message != null && !message.isBlank());
-        label.setText(message == null ? "" : message);
-        label.getStyleClass().removeAll("feedback-error", "feedback-success");
-        if (message != null && !message.isBlank()) {
-            label.getStyleClass().add(error ? "feedback-error" : "feedback-success");
+    /**
+     * Clear field state
+     */
+    public static void clearFieldState(Control field) {
+        if (field instanceof TextInputControl) {
+            ((TextInputControl) field).setStyle("");
         }
     }
 
-    public static void attachClearOnInput(Label label, TextInputControl... controls) {
-        for (TextInputControl control : controls) {
-            if (control == null) {
-                continue;
+    /**
+     * Clear states of multiple fields
+     */
+    public static void clearStates(Control... fields) {
+        for (Control field : fields) {
+            clearFieldState(field);
+        }
+    }
+
+    /**
+     * Set message on a label with color (error or success)
+     */
+    public static void setMessage(Label label, String message, boolean isError) {
+        if (label == null) return;
+        
+        label.setText(message);
+        if (isError) {
+            label.setStyle("-fx-text-fill: #ff6b6b; -fx-padding: 10;");
+        } else {
+            label.setStyle("-fx-text-fill: #4ade80; -fx-padding: 10;");
+        }
+        label.setVisible(!message.isEmpty());
+        label.setManaged(!message.isEmpty());
+    }
+
+    /**
+     * Attach listeners to clear message when field receives input
+     */
+    public static void attachClearOnInput(Label feedbackLabel, Control... fields) {
+        for (Control field : fields) {
+            if (field instanceof TextInputControl) {
+                ((TextInputControl) field).textProperty().addListener((obs, oldVal, newVal) -> {
+                    setMessage(feedbackLabel, "", true);
+                });
             }
-            control.textProperty().addListener((obs, oldValue, newValue) -> {
-                clearFieldState(control);
-                setMessage(label, "", true);
-            });
         }
     }
 
-    public static void attachClearOnInput(Label label, ComboBox<?>... controls) {
-        for (ComboBox<?> control : controls) {
-            if (control == null) {
-                continue;
-            }
-            control.valueProperty().addListener((obs, oldValue, newValue) -> {
-                clearFieldState(control);
-                setMessage(label, "", true);
-            });
-            control.getEditor().textProperty().addListener((obs, oldValue, newValue) -> {
-                clearFieldState(control);
-                setMessage(label, "", true);
-            });
+    // ============ INSTANCE METHODS ============
+
+    /**
+     * Validates email format
+     */
+    public boolean validateEmail(TextField emailField) {
+        String email = emailField.getText().trim();
+        
+        if (email.isEmpty()) {
+            showError(emailField, "Email is required");
+            return false;
         }
+        
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            showError(emailField, "Invalid email format");
+            return false;
+        }
+        
+        clearError(emailField);
+        return true;
+    }
+
+    /**
+     * Validates password strength
+     */
+    public boolean validatePassword(PasswordField passwordField) {
+        String password = passwordField.getText();
+        
+        if (password.isEmpty()) {
+            showError(passwordField, "Password is required");
+            return false;
+        }
+        
+        if (!PASSWORD_MIN_LENGTH.matcher(password).matches()) {
+            showError(passwordField, "Password must be at least 8 characters");
+            return false;
+        }
+        
+        clearError(passwordField);
+        return true;
+    }
+
+    /**
+     * Validates text field is not empty
+     */
+    public boolean validateRequired(TextField field, String fieldName) {
+        String value = field.getText().trim();
+        
+        if (value.isEmpty()) {
+            showError(field, fieldName + " is required");
+            return false;
+        }
+        
+        clearError(field);
+        return true;
+    }
+
+    /**
+     * Validates combo box has selection
+     */
+    public boolean validateRequired(ComboBox<?> field, String fieldName) {
+        if (field.getValue() == null) {
+            showErrorCombo(field, fieldName + " is required");
+            return false;
+        }
+        
+        clearErrorCombo(field);
+        return true;
+    }
+
+    /**
+     * Shows error state and message for text input
+     */
+    public void showError(TextInputControl field, String message) {
+        field.setStyle("-fx-border-color: #ff4444; -fx-border-width: 2; -fx-padding: 10;");
+        field.getStyleClass().add("is-invalid");
+        field.getStyleClass().remove("is-valid");
+        
+        Label errorLabel = getOrCreateErrorLabel(field);
+        errorLabel.setText("⚠ " + message);
+        errorLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-size: 11;");
+        errorLabel.setVisible(true);
+    }
+
+    /**
+     * Shows error state for ComboBox
+     */
+    public void showErrorCombo(ComboBox<?> field, String message) {
+        field.setStyle("-fx-border-color: #ff4444; -fx-border-width: 2;");
+        Label errorLabel = getOrCreateErrorLabel(field);
+        errorLabel.setText("⚠ " + message);
+        errorLabel.setVisible(true);
+    }
+
+    /**
+     * Clears error state for text input
+     */
+    public void clearError(TextInputControl field) {
+        field.setStyle("");
+        field.getStyleClass().remove("is-invalid");
+        field.getStyleClass().add("is-valid");
+        
+        Label errorLabel = getOrCreateErrorLabel(field);
+        errorLabel.setVisible(false);
+    }
+
+    /**
+     * Clears error state for ComboBox
+     */
+    public void clearErrorCombo(ComboBox<?> field) {
+        field.setStyle("");
+        Label errorLabel = getOrCreateErrorLabel(field);
+        errorLabel.setVisible(false);
+    }
+
+    /**
+     * Resets field to initial state
+     */
+    public void resetField(TextInputControl field) {
+        field.setStyle("");
+        field.getStyleClass().removeAll("is-invalid", "is-valid");
+        
+        Label errorLabel = getOrCreateErrorLabel(field);
+        errorLabel.setVisible(false);
+    }
+
+    /**
+     * Gets or creates an error label below the field
+     */
+    private Label getOrCreateErrorLabel(Control field) {
+        Label errorLabel = (Label) field.getUserData();
+        
+        if (errorLabel == null) {
+            errorLabel = new Label();
+            errorLabel.setWrapText(true);
+            errorLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-size: 11; -fx-padding: 4 0 0 0;");
+            field.setUserData(errorLabel);
+            
+            if (field.getParent() instanceof VBox) {
+                VBox parent = (VBox) field.getParent();
+                parent.getChildren().add(errorLabel);
+            }
+        }
+        
+        return errorLabel;
+    }
+
+    /**
+     * Validates entire form
+     */
+    public boolean validateForm(Control... fields) {
+        boolean allValid = true;
+        
+        for (Control field : fields) {
+            if (field instanceof TextField) {
+                TextField tf = (TextField) field;
+                if (tf.getText().trim().isEmpty()) {
+                    showError(tf, "This field is required");
+                    allValid = false;
+                }
+            } else if (field instanceof PasswordField) {
+                PasswordField pf = (PasswordField) field;
+                if (!validatePassword(pf)) {
+                    allValid = false;
+                }
+            } else if (field instanceof ComboBox) {
+                ComboBox<?> cb = (ComboBox<?>) field;
+                if (cb.getValue() == null) {
+                    showErrorCombo(cb, "Selection required");
+                    allValid = false;
+                }
+            }
+        }
+        
+        return allValid;
+    }
+
+    /**
+     * Attaches blur listeners to a TextField for real-time validation
+     */
+    public void attachEmailValidation(TextField emailField) {
+        emailField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused && !emailField.getText().isEmpty()) {
+                validateEmail(emailField);
+            }
+        });
+    }
+
+    /**
+     * Attaches blur listeners to a PasswordField for real-time validation
+     */
+    public void attachPasswordValidation(PasswordField passwordField) {
+        passwordField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused && !passwordField.getText().isEmpty()) {
+                validatePassword(passwordField);
+            }
+        });
+    }
+
+    /**
+     * Show success state
+     */
+    public void showSuccess(TextInputControl field) {
+        field.setStyle("-fx-border-color: #22c55e; -fx-border-width: 2;");
+        field.getStyleClass().add("is-valid");
+        field.getStyleClass().remove("is-invalid");
     }
 }
