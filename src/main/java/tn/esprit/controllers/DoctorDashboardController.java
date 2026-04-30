@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -18,14 +19,20 @@ import tn.esprit.utils.AppNavigator;
 import tn.esprit.utils.FormValidator;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 
 public class DoctorDashboardController {
+    private static final DateTimeFormatter PROFILE_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
     @FXML private Label welcomeLabel;
     @FXML private Label feedbackLabel;
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
     @FXML private TextField emailField;
     @FXML private TextField specialityField;
+    @FXML private PasswordField passwordField;
+    @FXML private TextField accountIdField;
+    @FXML private TextField createdAtField;
     @FXML private Label totalAppointmentsLabel;
     @FXML private Label upcomingAppointmentsLabel;
     @FXML private Label dashboardRoleLabel;
@@ -49,7 +56,7 @@ public class DoctorDashboardController {
 
     @FXML
     public void initialize() {
-        FormValidator.attachClearOnInput(feedbackLabel, firstNameField, lastNameField, emailField, specialityField);
+        FormValidator.attachClearOnInput(feedbackLabel, firstNameField, lastNameField, emailField, specialityField, passwordField);
     }
 
     public void setLoggedInUser(User user) {
@@ -125,6 +132,7 @@ public class DoctorDashboardController {
         String lastName = lastNameField.getText().trim();
         String email = emailField.getText().trim();
         String speciality = specialityField.getText().trim();
+        String password = passwordField.getText();
 
         if (firstName.isEmpty()) {
             FormValidator.markInvalid(firstNameField);
@@ -146,12 +154,20 @@ public class DoctorDashboardController {
             FormValidator.setMessage(feedbackLabel, "Speciality is required.", true);
             return;
         }
+        if (!password.isBlank() && password.length() < 8) {
+            FormValidator.markInvalid(passwordField);
+            FormValidator.setMessage(feedbackLabel, "Password must contain at least 8 characters.", true);
+            return;
+        }
 
         loggedInUser.setFirstName(firstName);
         loggedInUser.setLastName(lastName);
         loggedInUser.setFullName((firstName + " " + lastName).trim());
         loggedInUser.setEmail(email);
         loggedInUser.setSpeciality(speciality);
+        if (!password.isBlank()) {
+            loggedInUser.setPassword(password);
+        }
 
         String validationMessage = userService.validateUser(loggedInUser, loggedInUser.getPassword(), true);
         if (validationMessage != null) {
@@ -192,6 +208,11 @@ public class DoctorDashboardController {
         lastNameField.setText(loggedInUser.getLastName());
         emailField.setText(loggedInUser.getEmail());
         specialityField.setText(loggedInUser.getSpeciality() == null ? "" : loggedInUser.getSpeciality());
+        passwordField.clear();
+        accountIdField.setText(String.valueOf(loggedInUser.getId()));
+        createdAtField.setText(loggedInUser.getCreatedAt() == null
+                ? ""
+                : loggedInUser.getCreatedAt().toLocalDateTime().format(PROFILE_TIMESTAMP_FORMAT));
     }
 
     private void populateDashboardSummary() {

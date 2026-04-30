@@ -1,6 +1,7 @@
 package tn.esprit.controllers;
 
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -10,10 +11,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import tn.esprit.services.AuthService;
 import tn.esprit.utils.AppNavigator;
 import tn.esprit.utils.FormValidator;
+import tn.esprit.utils.RecaptchaWidget;
 
 import java.io.IOException;
 
@@ -25,9 +28,12 @@ public class DoctorRegisterController {
     @FXML private ComboBox<String> specialityCombo;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
+    @FXML private Label recaptchaStatusLabel;
     @FXML private Button registerButton;
+    @FXML private WebView recaptchaWebView;
 
     private final AuthService authService = new AuthService();
+    private final RecaptchaWidget recaptchaWidget = new RecaptchaWidget();
 
     @FXML
     public void initialize() {
@@ -54,6 +60,7 @@ public class DoctorRegisterController {
             specialityCombo.setStyle("");
             FormValidator.setMessage(feedbackLabel, "", true);
         });
+        recaptchaWidget.attach(recaptchaWebView, recaptchaStatusLabel);
     }
 
     @FXML
@@ -98,15 +105,69 @@ public class DoctorRegisterController {
             showFieldError(emailField, "This email address already exists.");
             return;
         }
-
-        boolean success = authService.registerDoctor(firstName, lastName, email, password, speciality);
-        if (!success) {
-            FormValidator.setMessage(feedbackLabel, "Registration failed. Check the entered details and try again.", true);
+        if (!recaptchaWidget.isConfigured()) {
+            FormValidator.setMessage(feedbackLabel, recaptchaWidget.getConfigurationMessage(), true);
+            return;
+        }
+        if (!recaptchaWidget.hasToken()) {
+            FormValidator.setMessage(feedbackLabel, "Complete the reCAPTCHA security check first.", true);
             return;
         }
 
-        showAlert("Success", "Registration successful. Please sign in.", Alert.AlertType.INFORMATION);
-        loadScene("/fxml/login.fxml", "PinkShield Login");
+        registerButton.setDisable(true);
+        registerButton.setText("Creating account...");
+
+        Task<DoctorRegistrationResult> registrationTask = new Task<>() {
+            @Override
+            protected DoctorRegistrationResult call() {
+                var verification = recaptchaWidget.verifyCurrentToken();
+                if (!verification.success()) {
+                    return DoctorRegistrationResult.failed(verification.message(), verification.resetRequired());
+                }
+
+                boolean success = authService.registerDoctor(firstName, lastName, email, password, speciality);
+                if (!success) {
+                    return DoctorRegistrationResult.failed(
+                            "Registration failed. Check the entered details and try again.",
+                            true
+                    );
+                }
+
+                return DoctorRegistrationResult.created();
+            }
+        };
+
+        registrationTask.setOnSucceeded(event -> {
+            restoreRegisterButton();
+
+            DoctorRegistrationResult result = registrationTask.getValue();
+            if (result.resetCaptcha()) {
+                recaptchaWidget.reset();
+            }
+
+            if (!result.success()) {
+                FormValidator.setMessage(feedbackLabel, result.message(), true);
+                return;
+            }
+
+            showAlert("Success", "Registration successful. Please sign in.", Alert.AlertType.INFORMATION);
+            loadScene("/fxml/login.fxml", "PinkShield Login");
+        });
+
+        registrationTask.setOnFailed(event -> {
+            restoreRegisterButton();
+            recaptchaWidget.reset();
+            Throwable error = registrationTask.getException();
+            FormValidator.setMessage(
+                    feedbackLabel,
+                    error == null ? "Registration failed. Please try again." : error.getMessage(),
+                    true
+            );
+        });
+
+        Thread backgroundThread = new Thread(registrationTask, "doctor-register-recaptcha");
+        backgroundThread.setDaemon(true);
+        backgroundThread.start();
     }
 
     @FXML
@@ -160,5 +221,20 @@ public class DoctorRegisterController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void restoreRegisterButton() {
+        registerButton.setDisable(false);
+        registerButton.setText("Register as Doctor");
+    }
+
+    private record DoctorRegistrationResult(boolean success, String message, boolean resetCaptcha) {
+        private static DoctorRegistrationResult created() {
+            return new DoctorRegistrationResult(true, "", true);
+        }
+
+        private static DoctorRegistrationResult failed(String message, boolean resetCaptcha) {
+            return new DoctorRegistrationResult(false, message, resetCaptcha);
+        }
     }
 }

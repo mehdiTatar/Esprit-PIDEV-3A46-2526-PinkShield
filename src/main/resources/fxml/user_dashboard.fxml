@@ -2,6 +2,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
@@ -80,6 +81,41 @@
                         </HBox>
                     </VBox>
 
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Security" styleClass="profile-section-title" />
+                        <Label text="Update your password here. Leave it blank to keep the current one." styleClass="profile-section-copy" wrapText="true" />
+
+                        <VBox spacing="6">
+                            <Label text="NEW PASSWORD" styleClass="field-label" />
+                            <PasswordField fx:id="passwordField" promptText="Leave blank to keep the current password" />
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Account Metadata" styleClass="profile-section-title" />
+                        <Label text="These values come directly from your database record." styleClass="profile-section-copy" wrapText="true" />
+
+                        <VBox spacing="6">
+                            <Label text="ACCOUNT ID" styleClass="field-label" />
+                            <TextField fx:id="accountIdField" editable="false" promptText="Database account id" styleClass="text-field" />
+                        </VBox>
+
+                        <VBox spacing="6">
+                            <Label text="FACE IMAGE PATH" styleClass="field-label" />
+                            <TextField fx:id="faceImagePathField" editable="false" promptText="No face image path recorded" styleClass="text-field" />
+                        </VBox>
+
+                        <VBox spacing="6">
+                            <Label text="FACE TOKEN" styleClass="field-label" />
+                            <TextField fx:id="faceTokenField" editable="false" promptText="No face token recorded" styleClass="text-field" />
+                        </VBox>
+
+                        <VBox spacing="6">
+                            <Label text="CREATED AT" styleClass="field-label" />
+                            <TextField fx:id="createdAtField" editable="false" promptText="Account creation timestamp" styleClass="text-field" />
+                        </VBox>
+                    </VBox>
+
                     <HBox spacing="12" alignment="CENTER_RIGHT" styleClass="profile-action-row">
                         <Region HBox.hgrow="ALWAYS" />
                         <Button text="Reset" onAction="#handleEditProfile" styleClass="button secondary" />
@@ -114,44 +150,82 @@
     </left>
 
     <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="page-scroll">
-            <content>
-                <StackPane fx:id="mainContent" alignment="TOP_CENTER" styleClass="content-area">
-                    <VBox fx:id="dashboardView" maxWidth="1160" spacing="20">
-                <HBox alignment="CENTER_LEFT" styleClass="hero-panel hero-panel-user">
-                    <VBox spacing="8">
-                        <Label fx:id="welcomeLabel" text="Patient workspace" styleClass="dashboard-title" />
-                        <Label fx:id="dashboardRoleLabel" text="Patient dashboard" styleClass="dashboard-copy" />
-                    </VBox>
-                </HBox>
-
-                <HBox spacing="16">
-                    <VBox styleClass="metric-card metric-card-user" HBox.hgrow="ALWAYS">
-                        <Label text="TOTAL APPOINTMENTS" styleClass="metric-label" />
-                        <Label fx:id="totalAppointmentsLabel" text="0" styleClass="metric-value" />
-                    </VBox>
-                    <VBox styleClass="metric-card metric-card-user" HBox.hgrow="ALWAYS">
-                        <Label text="UPCOMING" styleClass="metric-label" />
-                        <Label fx:id="upcomingAppointmentsLabel" text="0" styleClass="metric-value" />
-                    </VBox>
-                </HBox>
-
-                <VBox spacing="16" styleClass="panel-card">
-                    <Label text="My Health Profile" styleClass="section-title" />
-                    <Label fx:id="patientNameSummaryLabel" text="Patient name" styleClass="dashboard-copy" />
-                    <Label fx:id="patientEmailSummaryLabel" text="Patient email" styleClass="dashboard-copy" />
-                    <Label fx:id="patientPhoneSummaryLabel" text="Patient phone" styleClass="dashboard-copy" />
-                    <Label fx:id="patientAddressSummaryLabel" text="Patient address" styleClass="dashboard-copy" wrapText="true" />
-
-                    <HBox spacing="12">
-                        <Button text="Book appointment" onAction="#showAppointments" styleClass="button" />
-                        <Button text="Open check-ins" onAction="#showDailyCheckIn" styleClass="button secondary" />
-                        <Button text="Edit profile" onAction="#showProfileEdit" styleClass="button secondary" />
+        <StackPane>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="page-scroll">
+                <content>
+                    <StackPane fx:id="mainContent" alignment="TOP_CENTER" styleClass="content-area">
+                        <VBox fx:id="dashboardView" maxWidth="1160" spacing="20">
+                    <HBox alignment="CENTER_LEFT" styleClass="hero-panel hero-panel-user">
+                        <VBox spacing="8">
+                            <Label fx:id="welcomeLabel" text="Patient workspace" styleClass="dashboard-title" />
+                            <Label fx:id="dashboardRoleLabel" text="Patient dashboard" styleClass="dashboard-copy" />
+                        </VBox>
                     </HBox>
-                </VBox>
+
+                    <HBox spacing="16">
+                        <VBox styleClass="metric-card metric-card-user" HBox.hgrow="ALWAYS">
+                            <Label text="TOTAL APPOINTMENTS" styleClass="metric-label" />
+                            <Label fx:id="totalAppointmentsLabel" text="0" styleClass="metric-value" />
+                        </VBox>
+                        <VBox styleClass="metric-card metric-card-user" HBox.hgrow="ALWAYS">
+                            <Label text="UPCOMING" styleClass="metric-label" />
+                            <Label fx:id="upcomingAppointmentsLabel" text="0" styleClass="metric-value" />
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="16" styleClass="panel-card">
+                        <Label text="My Health Profile" styleClass="section-title" />
+                        <Label fx:id="patientNameSummaryLabel" text="Patient name" styleClass="dashboard-copy" />
+                        <Label fx:id="patientEmailSummaryLabel" text="Patient email" styleClass="dashboard-copy" />
+                        <Label fx:id="patientPhoneSummaryLabel" text="Patient phone" styleClass="dashboard-copy" />
+                        <Label fx:id="patientAddressSummaryLabel" text="Patient address" styleClass="dashboard-copy" wrapText="true" />
+
+                        <HBox spacing="12">
+                            <Button text="Book appointment" onAction="#showAppointments" styleClass="button" />
+                            <Button text="Open check-ins" onAction="#showDailyCheckIn" styleClass="button secondary" />
+                            <Button text="Edit profile" onAction="#showProfileEdit" styleClass="button secondary" />
+                        </HBox>
                     </VBox>
-                </StackPane>
-            </content>
-        </ScrollPane>
+                        </VBox>
+                    </StackPane>
+                </content>
+            </ScrollPane>
+
+            <VBox fx:id="chatLauncherBox" alignment="BOTTOM_RIGHT" maxWidth="-Infinity" pickOnBounds="false" StackPane.alignment="BOTTOM_RIGHT">
+                <StackPane.margin>
+                    <Insets right="28" bottom="24" />
+                </StackPane.margin>
+                <Button fx:id="chatLauncherButton" text="AI Assistant" onAction="#handleOpenChatbot" styleClass="chat-launcher-button" />
+            </VBox>
+
+            <VBox fx:id="chatWidget" visible="false" managed="false" maxWidth="360" prefWidth="360" prefHeight="520" styleClass="chat-widget" StackPane.alignment="BOTTOM_RIGHT">
+                <StackPane.margin>
+                    <Insets right="28" bottom="24" />
+                </StackPane.margin>
+
+                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="chat-widget-header">
+                    <VBox spacing="2">
+                        <Label text="PinkShield AI" styleClass="chat-widget-title" />
+                        <Label text="Appointments, tracking, profile, blog" styleClass="chat-widget-subtitle" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button text="New chat" onAction="#handleResetChatbot" styleClass="chat-header-button" />
+                    <Button text="Close" onAction="#handleCloseChatbot" styleClass="chat-header-button" />
+                </HBox>
+
+                <ScrollPane fx:id="chatMessagesScrollPane" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="chat-messages-scroll">
+                    <content>
+                        <VBox fx:id="chatMessagesBox" spacing="10" styleClass="chat-messages-box" />
+                    </content>
+                </ScrollPane>
+
+                <Label fx:id="chatStatusLabel" text="" visible="false" managed="false" wrapText="true" styleClass="chat-status-label" />
+
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="chat-input-row">
+                    <TextField fx:id="chatInputField" promptText="Ask about appointments, tracking, or wellness..." onAction="#handleSendChatMessage" styleClass="chat-input-field" HBox.hgrow="ALWAYS" />
+                    <Button fx:id="chatSendButton" text="Send" onAction="#handleSendChatMessage" styleClass="chat-send-button" />
+                </HBox>
+            </VBox>
+        </StackPane>
     </center>
 </BorderPane>

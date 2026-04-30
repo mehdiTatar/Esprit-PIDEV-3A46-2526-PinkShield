@@ -1,56 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.controllers.AppointmentListController" style="-fx-background-color: #f5f5f5;">
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.AppointmentListController"
+            styleClass="appointment-page">
     <top>
-        <!-- Hero Header -->
-        <VBox style="-fx-background: linear-gradient(135deg, #c0396b 0%, #e8557a 100%); -fx-padding: 32;" spacing="5">
-            <Label text="Book an Appointment" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: white;" />
-            <Label text="Select a doctor and choose a suitable date and time for your consultation" style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13;" />
+        <VBox spacing="8" styleClass="hero-panel appointment-hero">
+            <padding>
+                <Insets top="28" right="32" bottom="28" left="32" />
+            </padding>
+            <Label fx:id="formTitle" text="Book an Appointment" styleClass="dashboard-title" />
+            <Label text="Choose a doctor, check the clinic conditions, and confirm the best consultation slot." styleClass="dashboard-copy" wrapText="true" />
         </VBox>
     </top>
     <center>
-        <ScrollPane style="-fx-background-color: transparent; -fx-control-inner-background: transparent;" fitToWidth="true">
-            <VBox alignment="TOP_CENTER" spacing="0" style="-fx-background-color: transparent; -fx-padding: 40;">
-                <!-- Form Card -->
-                <VBox style="-fx-background-color: white; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 4); -fx-padding: 0;" spacing="0" maxWidth="600">
-                    <!-- Form Content -->
-                    <VBox spacing="20" style="-fx-padding: 36;">
-                        <!-- Doctor Selection -->
-                        <VBox spacing="8">
-                            <Label text="SELECT DOCTOR / SPECIALIST" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #333; -fx-text-transform: uppercase; -fx-letter-spacing: 0.5;" />
-                            <ComboBox fx:id="doctorCombo" promptText="Choose a doctor..." maxWidth="Infinity" style="-fx-padding: 10; -fx-border-radius: 6; -fx-border-color: #ddd;" />
-                            <Label text="Only active doctors are available for booking." style="-fx-font-size: 9; -fx-text-fill: #999; -fx-padding: 4 0 0 0;" />
+        <ScrollPane fitToWidth="true" styleClass="auth-scroll">
+            <content>
+                <VBox maxWidth="1180" spacing="20" styleClass="content-area">
+                    <padding>
+                        <Insets top="20" right="40" bottom="24" left="0" />
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Button text="Calendar" onAction="#handleOpenCalendar" styleClass="button secondary" />
+                        <Button text="Parapharmacy" onAction="#handleOpenParapharmacy" styleClass="button secondary" />
+                        <Button text="Open clinic map" onAction="#handleOpenClinicMap" styleClass="button secondary" />
+                        <Button text="Refresh weather" onAction="#handleRefreshWeather" styleClass="button secondary" />
+                    </HBox>
+
+                    <HBox alignment="TOP_LEFT" spacing="20">
+                        <VBox spacing="18" styleClass="panel-card appointment-form-card" HBox.hgrow="ALWAYS">
+                            <VBox spacing="8">
+                                <Label text="Doctor / specialist" styleClass="section-title" />
+                                <ComboBox fx:id="doctorCombo" promptText="Choose a doctor" maxWidth="1.7976931348623157E308" />
+                                <Label text="Only active doctors are available for booking." styleClass="table-meta" />
+                            </VBox>
+
+                            <HBox spacing="16">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="Appointment date" styleClass="section-title" />
+                                    <DatePicker fx:id="datePicker" maxWidth="1.7976931348623157E308" />
+                                </VBox>
+                                <VBox spacing="8" prefWidth="170">
+                                    <Label text="Time" styleClass="section-title" />
+                                    <TextField fx:id="timeField" promptText="HH:mm" />
+                                </VBox>
+                            </HBox>
+
+                            <VBox spacing="8">
+                                <Label text="Symptoms / reason for visit" styleClass="section-title" />
+                                <TextArea fx:id="notesArea" prefHeight="150" promptText="Briefly describe your symptoms or reason for this appointment..." wrapText="true" />
+                            </VBox>
+
+                            <Label fx:id="feedbackLabel" managed="false" visible="false" wrapText="true" />
+
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Button text="Cancel" onAction="#handleCancelForm" styleClass="button secondary" />
+                                <Button text="Download PDF Proof" onAction="#handleDownloadPdf" styleClass="button secondary" />
+                                <Button text="Confirm Booking" onAction="#handleConfirmBooking" styleClass="button" />
+                                <Region HBox.hgrow="ALWAYS" />
+                            </HBox>
                         </VBox>
 
-                        <!-- Date and Time Selection -->
-                        <HBox spacing="20">
-                            <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Label text="APPOINTMENT DATE" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #333; -fx-text-transform: uppercase; -fx-letter-spacing: 0.5;" />
-                                <DatePicker fx:id="datePicker" maxWidth="Infinity" style="-fx-padding: 10; -fx-border-radius: 6; -fx-border-color: #ddd;" />
+                        <VBox prefWidth="330" spacing="18">
+                            <VBox spacing="10" styleClass="panel-card appointment-weather-card">
+                                <Label text="Clinic weather" styleClass="section-title" />
+                                <Label fx:id="weatherSummaryLabel" text="Loading clinic weather..." styleClass="dashboard-title appointment-mini-title" wrapText="true" />
+                                <Label fx:id="weatherMetaLabel" text="Fetching the latest conditions for the appointment location." styleClass="dashboard-copy" wrapText="true" />
                             </VBox>
-                            <VBox spacing="8" prefWidth="150">
-                                <Label text="TIME" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #333; -fx-text-transform: uppercase; -fx-letter-spacing: 0.5;" />
-                                <TextField fx:id="timeField" promptText="HH:MM" style="-fx-padding: 10; -fx-border-radius: 6; -fx-border-color: #ddd;" />
-                            </VBox>
-                        </HBox>
 
-                        <!-- Notes -->
-                        <VBox spacing="8">
-                            <Label text="SYMPTOMS / REASON FOR VISIT" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #333; -fx-text-transform: uppercase; -fx-letter-spacing: 0.5;" />
-                            <TextArea fx:id="notesArea" promptText="Briefly describe your symptoms or reason for this appointment..." prefHeight="120" wrapText="true" style="-fx-padding: 10; -fx-border-radius: 6; -fx-border-color: #ddd; -fx-control-inner-background: white;" />
+                            <VBox spacing="10" styleClass="panel-card appointment-weather-card">
+                                <Label text="Clinic location" styleClass="section-title" />
+                                <Label fx:id="clinicSummaryLabel" text="PinkShield Medical Center - Centre Urbain Nord, Tunis, Tunisia" styleClass="dashboard-copy" wrapText="true" />
+                                <Label text="The weather, map preview, and QR features need internet access at runtime." styleClass="table-meta" wrapText="true" />
+                            </VBox>
                         </VBox>
-                    </VBox>
-
-                    <!-- Form Actions -->
-                    <HBox spacing="12" style="-fx-padding: 22 36; -fx-border-top: 1 solid #ddd; -fx-background-color: #fafafa; -fx-border-radius: 0 0 8 8;" alignment="CENTER_LEFT">
-                        <Button fx:id="cancelBtn" text="Cancel" onAction="#handleCancelForm" style="-fx-padding: 10 24; -fx-background-color: #ccc; -fx-text-fill: #333; -fx-font-weight: bold; -fx-border-radius: 6;" />
-                        <Button fx:id="confirmBtn" text="Confirm Booking" onAction="#handleConfirmBooking" style="-fx-padding: 10 24; -fx-background-color: linear-gradient(135deg, #c0396b 0%, #e8557a 100%); -fx-text-fill: white; -fx-font-weight: bold; -fx-border-radius: 6;" />
                     </HBox>
                 </VBox>
-            </VBox>
+            </content>
         </ScrollPane>
     </center>
 </BorderPane>

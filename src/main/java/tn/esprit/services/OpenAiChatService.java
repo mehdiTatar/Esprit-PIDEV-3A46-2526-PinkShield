@@ -24,6 +24,7 @@ public class OpenAiChatService {
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(20))
             .build();
+    private final LocalChatbotService localChatbotService = new LocalChatbotService();
 
     public ChatResponse sendMessage(String userMessage, String previousResponseId, String patientName) {
         String message = userMessage == null ? "" : userMessage.trim();
@@ -33,7 +34,10 @@ public class OpenAiChatService {
 
         OpenAiConfig config = loadConfig();
         if (!config.isConfigured()) {
-            return ChatResponse.error("OpenAI is not configured. Add your API key in openai.properties.");
+            return ChatResponse.fallback(
+                    localChatbotService.getResponse(message),
+                    "OpenAI is not configured. Using the built-in PinkShield assistant."
+            );
         }
 
         String instructions = buildInstructions(patientName);
@@ -50,21 +54,33 @@ public class OpenAiChatService {
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (response.statusCode() >= 400) {
-                return ChatResponse.error("OpenAI request failed: " + extractErrorMessage(response.body(), response.statusCode()));
+                return ChatResponse.fallback(
+                        localChatbotService.getResponse(message),
+                        "OpenAI is unavailable right now (" + extractErrorMessage(response.body(), response.statusCode()) + "). Using the built-in PinkShield assistant."
+                );
             }
 
             String responseId = extractValue(response.body(), RESPONSE_ID_PATTERN);
             String replyText = extractValue(response.body(), OUTPUT_TEXT_PATTERN);
             if (replyText == null || replyText.isBlank()) {
-                return ChatResponse.error("OpenAI returned no assistant text for this request.");
+                return ChatResponse.fallback(
+                        localChatbotService.getResponse(message),
+                        "OpenAI returned no assistant text. Using the built-in PinkShield assistant."
+                );
             }
 
-            return new ChatResponse(responseId, unescapeJson(replyText).trim(), null);
+            return ChatResponse.success(responseId, unescapeJson(replyText).trim());
         } catch (IOException e) {
-            return ChatResponse.error("OpenAI connection failed: " + e.getMessage());
+            return ChatResponse.fallback(
+                    localChatbotService.getResponse(message),
+                    "OpenAI connection failed. Using the built-in PinkShield assistant."
+            );
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return ChatResponse.error("OpenAI request was interrupted.");
+            return ChatResponse.fallback(
+                    localChatbotService.getResponse(message),
+                    "OpenAI request was interrupted. Using the built-in PinkShield assistant."
+            );
         }
     }
 
@@ -75,7 +91,7 @@ public class OpenAiChatService {
     private OpenAiConfig loadConfig() {
         Properties fileProperties = loadProperties();
         String apiKey = readSetting("OPENAI_API_KEY", "", fileProperties);
-        String model = readSetting("OPENAI_MODEL", "gpt-5.4-mini", fileProperties);
+        String model = readSetting("OPENAI_MODEL", "gpt-4.1-mini", fileProperties);
         return new OpenAiConfig(apiKey, model);
     }
 
@@ -132,7 +148,7 @@ public class OpenAiChatService {
                 Do not claim to be a doctor and do not provide diagnosis, emergency triage, or medication prescriptions.
                 For medical-risk questions, advise the patient to contact a qualified healthcare professional.
                 The current signed-in patient is %s.
-                """.formatted(escapeJson(resolvedName));
+                """.formatted(resolvedName);
     }
 
     private String buildRequestBody(String model, String instructions, String userMessage, String previousResponseId) {
@@ -140,6 +156,7 @@ public class OpenAiChatService {
         json.append("{");
         json.append("\"model\":\"").append(escapeJson(model)).append("\",");
         json.append("\"instructions\":\"").append(escapeJson(instructions)).append("\",");
+        json.append("\"max_output_tokens\":320,");
         if (previousResponseId != null && !previousResponseId.isBlank()) {
             json.append("\"previous_response_id\":\"").append(escapeJson(previousResponseId)).append("\",");
         }
@@ -194,9 +211,17 @@ public class OpenAiChatService {
                 .replace("\\\\", "\\");
     }
 
-    public record ChatResponse(String responseId, String assistantText, String errorMessage) {
+    public record ChatResponse(String responseId, String assistantText, String errorMessage, String statusMessage, boolean fallbackUsed) {
+        public static ChatResponse success(String responseId, String assistantText) {
+            return new ChatResponse(responseId, assistantText, null, null, false);
+        }
+
         public static ChatResponse error(String errorMessage) {
-            return new ChatResponse(null, null, errorMessage);
+            return new ChatResponse(null, null, errorMessage, null, false);
+        }
+
+        public static ChatResponse fallback(String assistantText, String statusMessage) {
+            return new ChatResponse(null, assistantText, null, statusMessage, true);
         }
 
         public boolean success() {

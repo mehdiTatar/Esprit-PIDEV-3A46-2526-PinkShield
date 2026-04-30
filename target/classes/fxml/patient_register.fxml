@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.esprit.controllers.PatientRegisterController"
@@ -124,6 +125,17 @@
                             <Button fx:id="chooseFaceImageButton" text="Open Front Camera"
                                     onAction="#handleCaptureFaceImage"
                                     maxWidth="Infinity" styleClass="login-secondary-button" />
+                        </VBox>
+
+                        <VBox spacing="8" styleClass="captcha-panel">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Security Check" styleClass="captcha-title" />
+                                <Label text="reCAPTCHA" styleClass="login-bio-badge" />
+                            </HBox>
+                            <WebView id="captchaWebView" fx:id="recaptchaWebView"
+                                     prefHeight="112" minHeight="112" maxHeight="112" />
+                            <Label fx:id="recaptchaStatusLabel" text="" visible="false" managed="false"
+                                   wrapText="true" styleClass="captcha-status-label" />
                         </VBox>
 
                         <Button fx:id="registerButton" text="Register as Patient" onAction="#handleRegister"

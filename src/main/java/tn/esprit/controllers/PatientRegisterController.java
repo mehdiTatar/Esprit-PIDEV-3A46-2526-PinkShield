@@ -9,10 +9,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import tn.esprit.services.AuthService;
 import tn.esprit.utils.AppNavigator;
 import tn.esprit.utils.FormValidator;
+import tn.esprit.utils.RecaptchaWidget;
 import tn.esprit.utils.WebcamCaptureDialog;
 
 import java.io.IOException;
@@ -29,10 +31,13 @@ public class PatientRegisterController {
     @FXML private PasswordField confirmPasswordField;
     @FXML private Label faceImageNameLabel;
     @FXML private Label faceImageHelperLabel;
+    @FXML private Label recaptchaStatusLabel;
     @FXML private Button registerButton;
     @FXML private Button chooseFaceImageButton;
+    @FXML private WebView recaptchaWebView;
 
     private final AuthService authService = new AuthService();
+    private final RecaptchaWidget recaptchaWidget = new RecaptchaWidget();
     private Path selectedFaceImagePath;
 
     @FXML
@@ -47,6 +52,7 @@ public class PatientRegisterController {
                 passwordField,
                 confirmPasswordField
         );
+        recaptchaWidget.attach(recaptchaWebView, recaptchaStatusLabel);
     }
 
     @FXML
@@ -95,6 +101,14 @@ public class PatientRegisterController {
             showFieldError(emailField, "This email address already exists.");
             return;
         }
+        if (!recaptchaWidget.isConfigured()) {
+            FormValidator.setMessage(feedbackLabel, recaptchaWidget.getConfigurationMessage(), true);
+            return;
+        }
+        if (!recaptchaWidget.hasToken()) {
+            FormValidator.setMessage(feedbackLabel, "Complete the reCAPTCHA security check first.", true);
+            return;
+        }
 
         String fullName = (firstName + " " + lastName).trim();
         registerButton.setDisable(true);
@@ -105,6 +119,10 @@ public class PatientRegisterController {
         Task<AuthService.PatientRegistrationResult> registrationTask = new Task<>() {
             @Override
             protected AuthService.PatientRegistrationResult call() {
+                var verification = recaptchaWidget.verifyCurrentToken();
+                if (!verification.success()) {
+                    return AuthService.PatientRegistrationResult.failure(verification.message());
+                }
                 return authService.registerPatientWithFace(fullName, email, password, phone, address, faceImagePath);
             }
         };
@@ -113,6 +131,7 @@ public class PatientRegisterController {
             registerButton.setDisable(false);
             registerButton.setText("Register as Patient");
             chooseFaceImageButton.setDisable(false);
+            recaptchaWidget.reset();
 
             AuthService.PatientRegistrationResult result = registrationTask.getValue();
             if (!result.success()) {
@@ -137,6 +156,7 @@ public class PatientRegisterController {
             registerButton.setDisable(false);
             registerButton.setText("Register as Patient");
             chooseFaceImageButton.setDisable(false);
+            recaptchaWidget.reset();
             Throwable error = registrationTask.getException();
             FormValidator.setMessage(
                     feedbackLabel,

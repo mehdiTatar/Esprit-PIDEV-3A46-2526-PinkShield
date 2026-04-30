@@ -411,6 +411,7 @@ public class UserService {
         user.setEmail(rs.getString("email"));
         user.setPassword(rs.getString("password"));
         user.setRole(role);
+        user.setCreatedAt(readTimestampColumn(rs, "created_at"));
 
         if (ROLE_ADMIN.equals(role)) {
             user.setFirstName(rs.getString("first_name"));
@@ -473,6 +474,14 @@ public class UserService {
     private String readOptionalColumn(ResultSet rs, String columnName) {
         try {
             return rs.getString(columnName);
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    private java.sql.Timestamp readTimestampColumn(ResultSet rs, String columnName) {
+        try {
+            return rs.getTimestamp(columnName);
         } catch (SQLException e) {
             return null;
         }

@@ -5,6 +5,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.shape.Polyline?>
 <?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.web.WebView?>
 
 <StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -84,10 +85,13 @@
             </Pane>
         </VBox>
 
-        <VBox prefWidth="430" maxWidth="430" styleClass="login-form-side">
-            <VBox spacing="22" styleClass="glass-card login-glass-card">
-                <StackPane>
-                    <VBox fx:id="loginContentPane" spacing="22">
+        <VBox prefWidth="430" maxWidth="430" maxHeight="Infinity" styleClass="login-form-side">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        pannable="true" VBox.vgrow="ALWAYS"
+                        styleClass="login-form-scroll">
+                <VBox spacing="22" styleClass="glass-card login-glass-card">
+                    <StackPane>
+                        <VBox fx:id="loginContentPane" spacing="22">
                         <HBox alignment="CENTER_LEFT" spacing="14">
                             <StackPane prefWidth="46" prefHeight="46" styleClass="login-card-icon">
                                 <Label text="PS" styleClass="login-card-icon-text" />
@@ -132,7 +136,18 @@
                                        styleClass="login-inline-link" />
                         </HBox>
 
-                        <Button text="Authenticate and Enter" onAction="#handleLogin"
+                        <VBox spacing="8" styleClass="captcha-panel">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="Security Check" styleClass="captcha-title" />
+                                <Label text="reCAPTCHA" styleClass="login-bio-badge" />
+                            </HBox>
+                            <WebView id="captchaWebView" fx:id="recaptchaWebView"
+                                     prefHeight="112" minHeight="112" maxHeight="112" />
+                            <Label fx:id="recaptchaStatusLabel" text="" visible="false" managed="false"
+                                   wrapText="true" styleClass="captcha-status-label" />
+                        </VBox>
+
+                        <Button fx:id="loginButton" text="Authenticate and Enter" onAction="#handleLogin"
                                 maxWidth="Infinity" styleClass="login-primary-button" />
 
                         <VBox spacing="12" styleClass="login-biometric-panel">
@@ -151,9 +166,9 @@
                             <Hyperlink text="Create one now" onAction="#handleRegister"
                                        styleClass="login-register-link" />
                         </HBox>
-                    </VBox>
+                        </VBox>
 
-                    <VBox fx:id="forgotPasswordContentPane" spacing="18" visible="false" managed="false">
+                        <VBox fx:id="forgotPasswordContentPane" spacing="18" visible="false" managed="false">
                         <HBox alignment="CENTER_LEFT" spacing="14">
                             <StackPane prefWidth="46" prefHeight="46" styleClass="login-card-icon login-card-icon-success">
                                 <Label text="R" styleClass="login-card-icon-text" />
@@ -215,9 +230,9 @@
                             <Hyperlink text="Return to login" onAction="#handleBackToLogin"
                                        styleClass="login-inline-link" />
                         </HBox>
-                    </VBox>
+                        </VBox>
 
-                    <VBox fx:id="faceLoginContentPane" spacing="18" visible="false" managed="false">
+                        <VBox fx:id="faceLoginContentPane" spacing="18" visible="false" managed="false">
                         <HBox alignment="CENTER_LEFT" spacing="14">
                             <StackPane prefWidth="46" prefHeight="46" styleClass="login-card-icon">
                                 <Label text="F" styleClass="login-card-icon-text" />
@@ -262,9 +277,10 @@
                             <Hyperlink text="Return to login" onAction="#handleBackToLogin"
                                        styleClass="login-inline-link" />
                         </HBox>
-                    </VBox>
-                </StackPane>
-            </VBox>
+                        </VBox>
+                    </StackPane>
+                </VBox>
+            </ScrollPane>
         </VBox>
     </HBox>
 </StackPane>

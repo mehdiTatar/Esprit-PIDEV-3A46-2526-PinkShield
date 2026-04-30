@@ -2,7 +2,6 @@ package tn.esprit.controllers;
 
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.animation.Interpolator;
@@ -27,12 +26,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import tn.esprit.entities.User;
 import tn.esprit.services.AuthService;
 import tn.esprit.utils.AppNavigator;
 import tn.esprit.utils.FormValidator;
+import tn.esprit.utils.RecaptchaWidget;
 import tn.esprit.utils.WebcamCaptureDialog;
 
 import java.io.IOException;
@@ -44,7 +45,9 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private TextField visiblePasswordField;
     @FXML private Button togglePasswordButton;
+    @FXML private Button loginButton;
     @FXML private Label feedbackLabel;
+    @FXML private Label recaptchaStatusLabel;
     @FXML private VBox loginContentPane;
     @FXML private VBox forgotPasswordContentPane;
     @FXML private VBox faceLoginContentPane;
@@ -76,8 +79,10 @@ public class LoginController {
     @FXML private Label pillTopRight;
     @FXML private Label pillBottomLeft;
     @FXML private Label pillBottomRight;
+    @FXML private WebView recaptchaWebView;
 
     private final AuthService authService = new AuthService();
+    private final RecaptchaWidget loginRecaptchaWidget = new RecaptchaWidget();
     private boolean passwordVisible;
     private Path selectedFaceLoginImagePath;
 
@@ -115,6 +120,7 @@ public class LoginController {
                 forgotPasswordConfirmField
         );
         FormValidator.attachClearOnInput(faceLoginFeedbackLabel, faceLoginEmailField);
+        loginRecaptchaWidget.attach(recaptchaWebView, recaptchaStatusLabel);
         playHeroAnimations();
         showLoginContent();
     }
@@ -135,13 +141,66 @@ public class LoginController {
             return;
         }
 
-        User user = authService.authenticate(email, password);
-        if (user == null) {
-            showInlineError("Invalid email or password.");
+        if (!loginRecaptchaWidget.isConfigured()) {
+            showLoginFeedback(loginRecaptchaWidget.getConfigurationMessage(), true);
             return;
         }
 
-        openDashboard(user);
+        if (!loginRecaptchaWidget.hasToken()) {
+            showLoginFeedback("Complete the reCAPTCHA security check first.", true);
+            return;
+        }
+
+        loginButton.setDisable(true);
+        loginButton.setText("Checking...");
+
+        Task<LoginAttemptResult> loginTask = new Task<>() {
+            @Override
+            protected LoginAttemptResult call() {
+                var verification = loginRecaptchaWidget.verifyCurrentToken();
+                if (!verification.success()) {
+                    return LoginAttemptResult.failed(verification.message(), verification.resetRequired(), false);
+                }
+
+                User user = authService.authenticate(email, password);
+                if (user == null) {
+                    return LoginAttemptResult.failed("Invalid email or password.", true, true);
+                }
+
+                return LoginAttemptResult.authenticated(user);
+            }
+        };
+
+        loginTask.setOnSucceeded(event -> {
+            restoreLoginButton();
+
+            LoginAttemptResult result = loginTask.getValue();
+            if (result.resetCaptcha()) {
+                loginRecaptchaWidget.reset();
+            }
+
+            if (!result.success()) {
+                if (result.markCredentialsInvalid()) {
+                    showInlineError(result.message());
+                } else {
+                    showLoginFeedback(result.message(), true);
+                }
+                return;
+            }
+
+            openDashboard(result.user());
+        });
+
+        loginTask.setOnFailed(event -> {
+            restoreLoginButton();
+            loginRecaptchaWidget.reset();
+            Throwable error = loginTask.getException();
+            showLoginFeedback(error == null ? "Login failed. Please try again." : error.getMessage(), true);
+        });
+
+        Thread backgroundThread = new Thread(loginTask, "login-with-recaptcha");
+        backgroundThread.setDaemon(true);
+        backgroundThread.start();
     }
 
     public void handleRegister() {
@@ -517,6 +576,15 @@ public class LoginController {
         }
     }
 
+    private void restoreLoginButton() {
+        if (loginButton == null) {
+            return;
+        }
+
+        loginButton.setDisable(false);
+        loginButton.setText("Authenticate and Enter");
+    }
+
     private void openDashboard(User user) {
         if (user == null) {
             showLoginFeedback("Unable to open the dashboard for this account.", true);
@@ -743,5 +811,21 @@ public class LoginController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private record LoginAttemptResult(
+            boolean success,
+            User user,
+            String message,
+            boolean resetCaptcha,
+            boolean markCredentialsInvalid
+    ) {
+        private static LoginAttemptResult authenticated(User user) {
+            return new LoginAttemptResult(true, user, "", true, false);
+        }
+
+        private static LoginAttemptResult failed(String message, boolean resetCaptcha, boolean markCredentialsInvalid) {
+            return new LoginAttemptResult(false, null, message, resetCaptcha, markCredentialsInvalid);
+        }
     }
 }

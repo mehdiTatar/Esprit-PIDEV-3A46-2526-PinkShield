@@ -2,6 +2,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
@@ -77,6 +78,31 @@
                         <VBox spacing="6">
                             <Label text="SPECIALITY" styleClass="field-label" />
                             <TextField fx:id="specialityField" promptText="Cardiology, Dermatology, Pediatrics..." styleClass="text-field" />
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Security" styleClass="profile-section-title" />
+                        <Label text="Leave the password field blank to keep the existing one." styleClass="profile-section-copy" wrapText="true" />
+
+                        <VBox spacing="6">
+                            <Label text="NEW PASSWORD" styleClass="field-label" />
+                            <PasswordField fx:id="passwordField" promptText="Leave blank to keep the current password" />
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Account Metadata" styleClass="profile-section-title" />
+                        <Label text="This timestamp is loaded from the doctor table." styleClass="profile-section-copy" wrapText="true" />
+
+                        <VBox spacing="6">
+                            <Label text="ACCOUNT ID" styleClass="field-label" />
+                            <TextField fx:id="accountIdField" editable="false" promptText="Database account id" styleClass="text-field" />
+                        </VBox>
+
+                        <VBox spacing="6">
+                            <Label text="CREATED AT" styleClass="field-label" />
+                            <TextField fx:id="createdAtField" editable="false" promptText="Account creation timestamp" styleClass="text-field" />
                         </VBox>
                     </VBox>
 

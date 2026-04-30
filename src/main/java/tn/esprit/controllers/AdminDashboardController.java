@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -29,9 +30,12 @@ import tn.esprit.utils.AppNavigator;
 import tn.esprit.utils.FormValidator;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public class AdminDashboardController {
+    private static final DateTimeFormatter PROFILE_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, Integer> idColumn;
     @FXML private TableColumn<User, String> nameColumn;
@@ -51,6 +55,9 @@ public class AdminDashboardController {
     @FXML private TextField adminFirstNameField;
     @FXML private TextField adminLastNameField;
     @FXML private TextField adminEmailField;
+    @FXML private PasswordField adminPasswordField;
+    @FXML private TextField adminAccountIdField;
+    @FXML private TextField adminCreatedAtField;
 
     @FXML private StackPane mainContent;
     @FXML private VBox dashboardView;
@@ -73,7 +80,7 @@ public class AdminDashboardController {
         setupRowInteractions();
 
         if (profileFeedbackLabel != null) {
-            FormValidator.attachClearOnInput(profileFeedbackLabel, adminFirstNameField, adminLastNameField, adminEmailField);
+            FormValidator.attachClearOnInput(profileFeedbackLabel, adminFirstNameField, adminLastNameField, adminEmailField, adminPasswordField);
         }
 
         refreshUserManagement();
@@ -129,6 +136,7 @@ public class AdminDashboardController {
         String firstName = adminFirstNameField.getText().trim();
         String lastName = adminLastNameField.getText().trim();
         String email = adminEmailField.getText().trim();
+        String password = adminPasswordField.getText();
 
         if (firstName.isEmpty()) {
             FormValidator.markInvalid(adminFirstNameField);
@@ -145,11 +153,19 @@ public class AdminDashboardController {
             FormValidator.setMessage(profileFeedbackLabel, "Enter a valid email address.", true);
             return;
         }
+        if (!password.isBlank() && password.length() < 8) {
+            FormValidator.markInvalid(adminPasswordField);
+            FormValidator.setMessage(profileFeedbackLabel, "Password must contain at least 8 characters.", true);
+            return;
+        }
 
         loggedInUser.setFirstName(firstName);
         loggedInUser.setLastName(lastName);
         loggedInUser.setFullName((firstName + " " + lastName).trim());
         loggedInUser.setEmail(email);
+        if (!password.isBlank()) {
+            loggedInUser.setPassword(password);
+        }
 
         String validationMessage = userService.validateUser(loggedInUser, loggedInUser.getPassword(), true);
         if (validationMessage != null) {
@@ -255,6 +271,11 @@ public class AdminDashboardController {
         adminFirstNameField.setText(loggedInUser.getFirstName());
         adminLastNameField.setText(loggedInUser.getLastName());
         adminEmailField.setText(loggedInUser.getEmail());
+        adminPasswordField.clear();
+        adminAccountIdField.setText(String.valueOf(loggedInUser.getId()));
+        adminCreatedAtField.setText(loggedInUser.getCreatedAt() == null
+                ? ""
+                : loggedInUser.getCreatedAt().toLocalDateTime().format(PROFILE_TIMESTAMP_FORMAT));
     }
 
     private void setupFilters() {

@@ -1,5 +1,7 @@
 package tn.esprit.entities;
 
+import java.sql.Timestamp;
+
 public class User {
     private int id;
     private String firstName;
@@ -13,6 +15,7 @@ public class User {
     private String speciality; // for doctors
     private String faceImagePath;
     private String faceToken;
+    private Timestamp createdAt;
 
     public User() {
     }
@@ -142,6 +145,14 @@ public class User {
 
     public void setFaceToken(String faceToken) {
         this.faceToken = faceToken;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override

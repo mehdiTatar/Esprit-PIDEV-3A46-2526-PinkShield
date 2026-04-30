@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.AdminAppointmentController" stylesheets="@style.css" spacing="0" styleClass="day-mode">
+
+    <ToolBar styleClass="day-mode-toolbar" prefHeight="60">
+        <Label text="📋 Appointments Management" styleClass="day-mode-toolbar-title" />
+        <Region HBox.hgrow="ALWAYS" />
+        <ToggleButton fx:id="btnManagement" text="Management List" styleClass="day-mode-tab-button" selected="true" onAction="#handleManagementTab" />
+        <ToggleButton fx:id="btnCalendar" text="Schedule Calendar" styleClass="day-mode-tab-button" onAction="#handleCalendarTab" />
+    </ToolBar>
+
+    <StackPane VBox.vgrow="ALWAYS" styleClass="day-mode-content">
+        <!-- Management Tab -->
+        <VBox fx:id="managementTab" spacing="10" style="-fx-padding: 15;" styleClass="day-mode-management">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Filter by Status:" />
+                <ComboBox fx:id="statusFilter" promptText="All Statuses" styleClass="day-mode-combo" />
+                <Button text="Refresh" onAction="#loadAppointments" styleClass="day-mode-button-secondary" />
+                <Region HBox.hgrow="ALWAYS" />
+                <TextField fx:id="searchField" promptText="Search patient name..." styleClass="day-mode-search-field" />
+            </HBox>
+
+            <TableView fx:id="appointmentsTable" VBox.vgrow="ALWAYS" styleClass="day-mode-table">
+                <columns>
+                    <TableColumn text="ID" prefWidth="50">
+                        <cellValueFactory><PropertyValueFactory property="id" /></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Patient" prefWidth="150">
+                        <cellValueFactory><PropertyValueFactory property="patient_name" /></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Date &amp; Time" prefWidth="150">
+                        <cellValueFactory><PropertyValueFactory property="appointment_date" /></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Status" prefWidth="100">
+                        <cellValueFactory><PropertyValueFactory property="status" /></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn text="Notes" prefWidth="200">
+                        <cellValueFactory><PropertyValueFactory property="notes" /></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="250" sortable="false" />
+                </columns>
+            </TableView>
+        </VBox>
+
+        <!-- Calendar Tab -->
+        <VBox fx:id="calendarTab" spacing="10" style="-fx-padding: 15;" managed="false" visible="false" styleClass="day-mode-calendar">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="Previous Month" onAction="#previousMonth" styleClass="day-mode-button-secondary" />
+                <Label fx:id="monthLabel" text="Month View" styleClass="day-mode-calendar-title" />
+                <Button text="Next Month" onAction="#nextMonth" styleClass="day-mode-button-secondary" />
+                <Region HBox.hgrow="ALWAYS" />
+            </HBox>
+
+            <GridPane fx:id="calendarGrid" hgap="5" vgap="5" VBox.vgrow="ALWAYS" styleClass="day-mode-calendar-grid" />
+        </VBox>
+    </StackPane>
+</VBox>
+

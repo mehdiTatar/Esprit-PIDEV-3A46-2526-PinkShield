@@ -24,15 +24,19 @@ import javafx.scene.layout.VBox;
 import tn.esprit.entities.Parapharmacy;
 import tn.esprit.entities.User;
 import tn.esprit.services.ParapharmacyService;
+import tn.esprit.services.UserService;
 import tn.esprit.utils.FormValidator;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class ProductListController {
     @FXML private TextField searchField;
     @FXML private ComboBox<String> categoryFilter;
+    @FXML private ComboBox<String> sortCombo;
     @FXML private FlowPane productsContainer;
     @FXML private Button manageProductsBtn;
 
@@ -59,166 +63,68 @@ public class ProductListController {
     @FXML
     public void initialize() {
         if (productsContainer != null) {
-            loadShopData();
             setupShopFilters();
+            loadShopData();
         }
 
         if (productTable != null) {
             setupAdminTable();
             setupAdminForm();
             loadAdminData();
-            FormValidator.attachClearOnInput(feedbackLabel, nameField, priceField, stockField);
-            FormValidator.attachClearOnInput(feedbackLabel, formCategoryCombo);
-            descArea.textProperty().addListener((obs, oldValue, newValue) -> FormValidator.setMessage(feedbackLabel, "", true));
+            FormValidator.attachClearOnInput(feedbackLabel, nameField, priceField, stockField, formCategoryCombo);
+            if (descArea != null) {
+                descArea.textProperty().addListener((obs, oldValue, newValue) -> FormValidator.setMessage(feedbackLabel, "", true));
+            }
         }
     }
 
     public void setCurrentUser(User user) {
-        this.currentUser = user;
-        if (user != null && user.getRole().equals("admin") && manageProductsBtn != null) {
-            manageProductsBtn.setVisible(true);
-            manageProductsBtn.setManaged(true);
+        currentUser = user;
+        if (manageProductsBtn != null) {
+            boolean isAdmin = user != null && UserService.ROLE_ADMIN.equals(user.getRole());
+            manageProductsBtn.setVisible(isAdmin);
+            manageProductsBtn.setManaged(isAdmin);
         }
-    }
-
-    private void loadShopData() {
-        allProducts.setAll(productService.getAllProducts());
-        renderProductCards(allProducts);
-    }
-
-    private void setupShopFilters() {
-        ObservableList<String> categories = FXCollections.observableArrayList("All", "Supplements", "Skincare", "Haircare", "Hygiene", "Baby", "Wellness");
-        categoryFilter.setItems(categories);
-        categoryFilter.setValue("All");
-
-        searchField.textProperty().addListener((obs, oldV, newV) -> filterShop());
-        categoryFilter.valueProperty().addListener((obs, oldV, newV) -> filterShop());
-    }
-
-    private void filterShop() {
-        String query = searchField.getText() == null ? "" : searchField.getText().toLowerCase();
-        String cat = categoryFilter.getValue();
-
-        List<Parapharmacy> filtered = allProducts.stream()
-                .filter(p -> query.isEmpty()
-                        || p.getName().toLowerCase().contains(query)
-                        || p.getDescription().toLowerCase().contains(query))
-                .filter(p -> cat == null || cat.equals("All") || p.getCategory().equalsIgnoreCase(cat))
-                .collect(Collectors.toList());
-
-        renderProductCards(filtered);
-    }
-
-    private void renderProductCards(List<Parapharmacy> products) {
-        productsContainer.getChildren().clear();
-        for (Parapharmacy product : products) {
-            productsContainer.getChildren().add(createProductCard(product));
-        }
-    }
-
-    private VBox createProductCard(Parapharmacy product) {
-        VBox card = new VBox(12);
-        card.getStyleClass().add("post-card");
-        card.setPrefWidth(230);
-        card.setPadding(new javafx.geometry.Insets(18));
-
-        Label category = new Label(product.getCategory().toUpperCase());
-        category.getStyleClass().add("auth-status-pill");
-
-        Label name = new Label(product.getName());
-        name.getStyleClass().add("card-title");
-        name.setWrapText(true);
-
-        Label description = new Label(product.getDescription());
-        description.getStyleClass().add("dashboard-copy");
-        description.setWrapText(true);
-        description.setMaxHeight(70);
-
-        Label price = new Label(String.format("%.2f TND", product.getPrice()));
-        price.getStyleClass().add("metric-value");
-        price.setStyle("-fx-font-size: 20;");
-
-        Label stock = new Label("Stock: " + product.getStock());
-        stock.getStyleClass().add("table-meta");
-
-        Button buyBtn = new Button("Add to cart");
-        buyBtn.getStyleClass().add("button");
-        buyBtn.setMaxWidth(Double.MAX_VALUE);
-
-        card.getChildren().addAll(category, name, description, price, stock, buyBtn);
-        return card;
     }
 
     @FXML
     public void handleManageProducts() {
-        if (currentUser == null || !"admin".equals(currentUser.getRole())) {
+        if (currentUser == null || !UserService.ROLE_ADMIN.equals(currentUser.getRole())) {
             showAlert("Access denied", "Only administrators can manage products.", Alert.AlertType.WARNING);
             return;
         }
         loadSubView("/fxml/product_admin.fxml");
     }
 
-    private void setupAdminTable() {
-        idCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getId()));
-        nameCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getName()));
-        priceCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getPrice()));
-        stockCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getStock()));
-        categoryCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getCategory()));
-
-        actionsCol.setCellFactory(column -> new TableCell<>() {
-            private final Button editBtn = new Button("Edit");
-            private final Button deleteBtn = new Button("Delete");
-            private final HBox box = new HBox(8, editBtn, deleteBtn);
-            {
-                editBtn.getStyleClass().add("button");
-                editBtn.setStyle("-fx-font-size: 10; -fx-padding: 6 10;");
-                editBtn.setOnAction(e -> {
-                    selectedProduct = getTableView().getItems().get(getIndex());
-                    fillForm(selectedProduct);
-                });
-
-                deleteBtn.getStyleClass().add("button");
-                deleteBtn.getStyleClass().add("danger-button");
-                deleteBtn.setStyle("-fx-font-size: 10; -fx-padding: 6 10;");
-                deleteBtn.setOnAction(e -> handleDeleteProduct(getTableView().getItems().get(getIndex())));
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : box);
-            }
-        });
-    }
-
-    private void loadAdminData() {
-        allProducts.setAll(productService.getAllProducts());
-        productTable.setItems(allProducts);
-    }
-
-    private void setupAdminForm() {
-        formCategoryCombo.setItems(FXCollections.observableArrayList("Supplements", "Skincare", "Haircare", "Hygiene", "Baby", "Wellness"));
-    }
-
-    private void fillForm(Parapharmacy product) {
-        nameField.setText(product.getName());
-        descArea.setText(product.getDescription());
-        priceField.setText(String.valueOf(product.getPrice()));
-        stockField.setText(String.valueOf(product.getStock()));
-        formCategoryCombo.setValue(product.getCategory());
-        adminTitle.setText("Edit product");
-        FormValidator.setMessage(feedbackLabel, "Editing " + product.getName(), false);
+    @FXML
+    public void handleBackToShop() {
+        loadSubView("/fxml/product_list.fxml");
     }
 
     @FXML
     public void handleClearForm() {
         selectedProduct = null;
-        nameField.clear();
-        descArea.clear();
-        priceField.clear();
-        stockField.clear();
-        formCategoryCombo.setValue(null);
-        adminTitle.setText("Product management");
+        if (nameField != null) {
+            nameField.clear();
+        }
+        if (descArea != null) {
+            descArea.clear();
+        }
+        if (priceField != null) {
+            priceField.clear();
+        }
+        if (stockField != null) {
+            stockField.clear();
+        }
+        if (formCategoryCombo != null) {
+            formCategoryCombo.setValue(null);
+            if (formCategoryCombo.isEditable()) {
+                formCategoryCombo.getEditor().clear();
+            }
+        }
+        if (adminTitle != null) {
+            adminTitle.setText("Product management");
+        }
         FormValidator.setMessage(feedbackLabel, "", true);
         FormValidator.clearStates(nameField, priceField, stockField, formCategoryCombo);
     }
@@ -227,20 +133,20 @@ public class ProductListController {
     public void handleSaveProduct() {
         FormValidator.clearStates(nameField, priceField, stockField, formCategoryCombo);
 
-        String name = nameField.getText().trim();
-        String desc = descArea.getText().trim();
-        String category = formCategoryCombo.getValue();
+        String name = safeText(nameField);
+        String description = safeText(descArea);
+        String category = readCategoryInput();
 
         if (name.length() < 2) {
             FormValidator.markInvalid(nameField);
             FormValidator.setMessage(feedbackLabel, "Product name is required.", true);
             return;
         }
-        if (desc.isEmpty()) {
+        if (description.isEmpty()) {
             FormValidator.setMessage(feedbackLabel, "Description is required.", true);
             return;
         }
-        if (category == null || category.isBlank()) {
+        if (category.isEmpty()) {
             FormValidator.markInvalid(formCategoryCombo);
             FormValidator.setMessage(feedbackLabel, "Category is required.", true);
             return;
@@ -249,7 +155,7 @@ public class ProductListController {
         double price;
         int stock;
         try {
-            price = Double.parseDouble(priceField.getText().trim());
+            price = Double.parseDouble(safeText(priceField));
         } catch (NumberFormatException e) {
             FormValidator.markInvalid(priceField);
             FormValidator.setMessage(feedbackLabel, "Price must be a valid number.", true);
@@ -257,7 +163,7 @@ public class ProductListController {
         }
 
         try {
-            stock = Integer.parseInt(stockField.getText().trim());
+            stock = Integer.parseInt(safeText(stockField));
         } catch (NumberFormatException e) {
             FormValidator.markInvalid(stockField);
             FormValidator.setMessage(feedbackLabel, "Stock must be a whole number.", true);
@@ -276,11 +182,11 @@ public class ProductListController {
         }
 
         Parapharmacy product = selectedProduct == null
-                ? new Parapharmacy(name, desc, price, stock, category, "")
+                ? new Parapharmacy(name, description, price, stock, category, "")
                 : selectedProduct;
 
         product.setName(name);
-        product.setDescription(desc);
+        product.setDescription(description);
         product.setPrice(price);
         product.setStock(stock);
         product.setCategory(category);
@@ -307,6 +213,240 @@ public class ProductListController {
         }
     }
 
+    private void setupShopFilters() {
+        if (sortCombo != null) {
+            sortCombo.setItems(FXCollections.observableArrayList("Name A-Z", "Name Z-A", "Price Low-High", "Price High-Low", "Stock High-Low"));
+            sortCombo.setValue("Name A-Z");
+        }
+
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, oldValue, newValue) -> filterShop());
+        }
+        if (categoryFilter != null) {
+            categoryFilter.valueProperty().addListener((obs, oldValue, newValue) -> filterShop());
+        }
+        if (sortCombo != null) {
+            sortCombo.valueProperty().addListener((obs, oldValue, newValue) -> filterShop());
+        }
+    }
+
+    private void loadShopData() {
+        allProducts.setAll(productService.getAllProducts());
+        refreshShopCategories();
+        filterShop();
+    }
+
+    private void refreshShopCategories() {
+        if (categoryFilter == null) {
+            return;
+        }
+
+        List<String> categories = allProducts.stream()
+                .map(Parapharmacy::getCategory)
+                .filter(value -> value != null && !value.isBlank())
+                .distinct()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .collect(Collectors.toList());
+
+        ObservableList<String> items = FXCollections.observableArrayList();
+        items.add("All");
+        items.addAll(categories);
+        categoryFilter.setItems(items);
+        if (categoryFilter.getValue() == null || !items.contains(categoryFilter.getValue())) {
+            categoryFilter.setValue("All");
+        }
+    }
+
+    private void filterShop() {
+        if (productsContainer == null) {
+            return;
+        }
+
+        String query = safeText(searchField).toLowerCase(Locale.ROOT);
+        String category = categoryFilter == null ? "All" : categoryFilter.getValue();
+        String sortOption = sortCombo == null ? "Name A-Z" : sortCombo.getValue();
+
+        List<Parapharmacy> filtered = allProducts.stream()
+                .filter(product -> matchesSearch(product, query))
+                .filter(product -> category == null || "All".equalsIgnoreCase(category)
+                        || category.equalsIgnoreCase(product.getCategory()))
+                .sorted(resolveShopComparator(sortOption))
+                .collect(Collectors.toList());
+
+        renderProductCards(filtered);
+    }
+
+    private boolean matchesSearch(Parapharmacy product, String query) {
+        if (query.isEmpty()) {
+            return true;
+        }
+
+        return safeValue(product.getName()).toLowerCase(Locale.ROOT).contains(query)
+                || safeValue(product.getDescription()).toLowerCase(Locale.ROOT).contains(query)
+                || safeValue(product.getCategory()).toLowerCase(Locale.ROOT).contains(query);
+    }
+
+    private Comparator<Parapharmacy> resolveShopComparator(String option) {
+        if ("Name Z-A".equalsIgnoreCase(option)) {
+            return Comparator.comparing((Parapharmacy product) -> safeValue(product.getName()), String.CASE_INSENSITIVE_ORDER).reversed();
+        }
+        if ("Price Low-High".equalsIgnoreCase(option)) {
+            return Comparator.comparingDouble(Parapharmacy::getPrice);
+        }
+        if ("Price High-Low".equalsIgnoreCase(option)) {
+            return Comparator.comparingDouble(Parapharmacy::getPrice).reversed();
+        }
+        if ("Stock High-Low".equalsIgnoreCase(option)) {
+            return Comparator.comparingInt(Parapharmacy::getStock).reversed()
+                    .thenComparing(product -> safeValue(product.getName()), String.CASE_INSENSITIVE_ORDER);
+        }
+        return Comparator.comparing(product -> safeValue(product.getName()), String.CASE_INSENSITIVE_ORDER);
+    }
+
+    private void renderProductCards(List<Parapharmacy> products) {
+        productsContainer.getChildren().clear();
+        for (Parapharmacy product : products) {
+            productsContainer.getChildren().add(createProductCard(product));
+        }
+    }
+
+    private VBox createProductCard(Parapharmacy product) {
+        VBox card = new VBox(12);
+        card.getStyleClass().add("post-card");
+        card.setPrefWidth(250);
+        card.setPadding(new javafx.geometry.Insets(18));
+
+        HBox header = new HBox(8);
+        Label category = new Label(safeValue(product.getCategory()).toUpperCase(Locale.ROOT));
+        category.getStyleClass().add("auth-status-pill");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label stockBadge = new Label(product.getStock() <= 0 ? "OUT" : product.getStock() < 5 ? "LOW" : "STOCK");
+        stockBadge.getStyleClass().addAll(
+                "stock-pill",
+                product.getStock() <= 0 ? "stock-pill-out" : product.getStock() < 5 ? "stock-pill-low" : "stock-pill-available"
+        );
+        header.getChildren().addAll(category, spacer, stockBadge);
+
+        Label name = new Label(safeValue(product.getName()));
+        name.getStyleClass().add("card-title");
+        name.setWrapText(true);
+
+        Label description = new Label(safeValue(product.getDescription()));
+        description.getStyleClass().add("dashboard-copy");
+        description.setWrapText(true);
+        description.setMaxHeight(84);
+
+        Label price = new Label(String.format(Locale.ENGLISH, "%.2f TND", product.getPrice()));
+        price.getStyleClass().add("metric-value");
+        price.setStyle("-fx-font-size: 20;");
+
+        Label stock = new Label(product.getStock() <= 0
+                ? "Currently unavailable"
+                : product.getStock() < 5 ? "Low stock: " + product.getStock() + " left" : "In stock: " + product.getStock());
+        stock.getStyleClass().add("table-meta");
+
+        Button detailsButton = new Button("View details");
+        detailsButton.getStyleClass().addAll("button", "secondary");
+        detailsButton.setMaxWidth(Double.MAX_VALUE);
+        detailsButton.setOnAction(event -> showProductDetails(product));
+
+        card.getChildren().addAll(header, name, description, price, stock, detailsButton);
+        return card;
+    }
+
+    private void showProductDetails(Parapharmacy product) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(product.getName());
+        alert.setHeaderText(product.getCategory());
+        alert.setContentText(
+                "Price: " + String.format(Locale.ENGLISH, "%.2f TND", product.getPrice()) + "\n"
+                        + "Stock: " + product.getStock() + "\n\n"
+                        + safeValue(product.getDescription())
+        );
+        alert.showAndWait();
+    }
+
+    private void setupAdminTable() {
+        idCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getId()));
+        nameCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getName()));
+        priceCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getPrice()));
+        stockCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getStock()));
+        categoryCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getCategory()));
+
+        priceCol.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : String.format(Locale.ENGLISH, "%.2f TND", item));
+            }
+        });
+
+        actionsCol.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
+                    setGraphic(null);
+                    return;
+                }
+
+                Parapharmacy product = getTableView().getItems().get(getIndex());
+
+                Button editBtn = new Button("Edit");
+                editBtn.getStyleClass().add("button");
+                editBtn.setStyle("-fx-font-size: 10; -fx-padding: 6 10;");
+                editBtn.setOnAction(e -> {
+                    selectedProduct = product;
+                    fillForm(product);
+                });
+
+                Button deleteBtn = new Button("Delete");
+                deleteBtn.getStyleClass().addAll("button", "danger-button");
+                deleteBtn.setStyle("-fx-font-size: 10; -fx-padding: 6 10;");
+                deleteBtn.setOnAction(e -> handleDeleteProduct(product));
+
+                setGraphic(new HBox(8, editBtn, deleteBtn));
+            }
+        });
+    }
+
+    private void loadAdminData() {
+        allProducts.setAll(productService.getAllProducts());
+        productTable.setItems(allProducts.sorted(Comparator.comparing(Parapharmacy::getName, String.CASE_INSENSITIVE_ORDER)));
+        refreshAdminCategories();
+    }
+
+    private void setupAdminForm() {
+        if (formCategoryCombo == null) {
+            return;
+        }
+        formCategoryCombo.setEditable(true);
+        refreshAdminCategories();
+    }
+
+    private void refreshAdminCategories() {
+        if (formCategoryCombo == null) {
+            return;
+        }
+        formCategoryCombo.setItems(FXCollections.observableArrayList(productService.getAvailableCategories()));
+    }
+
+    private void fillForm(Parapharmacy product) {
+        nameField.setText(product.getName());
+        descArea.setText(product.getDescription());
+        priceField.setText(String.valueOf(product.getPrice()));
+        stockField.setText(String.valueOf(product.getStock()));
+        formCategoryCombo.setValue(product.getCategory());
+        if (formCategoryCombo.isEditable()) {
+            formCategoryCombo.getEditor().setText(product.getCategory());
+        }
+        adminTitle.setText("Edit product");
+        FormValidator.setMessage(feedbackLabel, "Editing " + product.getName(), false);
+    }
+
     private void handleDeleteProduct(Parapharmacy product) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Delete " + product.getName() + "?", ButtonType.YES, ButtonType.NO);
         alert.showAndWait().ifPresent(type -> {
@@ -319,9 +459,27 @@ public class ProductListController {
         });
     }
 
-    @FXML
-    public void handleBackToShop() {
-        loadSubView("/fxml/product_list.fxml");
+    private String readCategoryInput() {
+        if (formCategoryCombo == null) {
+            return "";
+        }
+        String editorText = formCategoryCombo.isEditable() ? safeText(formCategoryCombo.getEditor()) : "";
+        if (!editorText.isBlank()) {
+            return editorText;
+        }
+        return formCategoryCombo.getValue() == null ? "" : formCategoryCombo.getValue().trim();
+    }
+
+    private String safeText(TextField field) {
+        return field == null || field.getText() == null ? "" : field.getText().trim();
+    }
+
+    private String safeText(TextArea area) {
+        return area == null || area.getText() == null ? "" : area.getText().trim();
+    }
+
+    private String safeValue(String value) {
+        return value == null ? "" : value;
     }
 
     private void loadSubView(String fxmlPath) {
@@ -330,8 +488,8 @@ public class ProductListController {
             Parent view = loader.load();
 
             Object controller = loader.getController();
-            if (controller instanceof ProductListController) {
-                ((ProductListController) controller).setCurrentUser(currentUser);
+            if (controller instanceof ProductListController productListController) {
+                productListController.setCurrentUser(currentUser);
             }
 
             StackPane mainContent = null;
