@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -39,107 +40,255 @@ public class DashboardController {
     @FXML
     private Label weatherLabel;
 
+    @FXML
+    private StackPane notificationBellContainer;
+
+    @FXML
+    private Label notificationCountLabel;
+
+    @FXML
+    private StackPane notificationBadge;
+
+    @FXML
+    private VBox notificationDropdown;
+
+    @FXML
+    private ListView<String> notificationsList;
+
+    @FXML
+    private Label zenQuoteLabel;
+
+    @FXML
+    private HBox zenAdviceBox;
+
     private boolean darkModeEnabled;
-    private final AirQualityService airQualityService = new AirQualityService();
+    private final WeatherService weatherService = new WeatherService();
 
     @FXML
     public void initialize() {
-        NavigationManager.getInstance().registerContentArea(contentArea);
-        NavigationManager.getInstance().setDarkMode(darkModeEnabled);
-        loadWelcomeDashboard();
-        applyThemeClass(rootPane);
-        
-        // Initialize air quality widget
-        loadAirQualityWidget();
+        try {
+            System.out.println("🔄 DashboardController initializing...");
+            
+            NavigationManager.getInstance().registerContentArea(contentArea);
+            NavigationManager.getInstance().setDarkMode(darkModeEnabled);
+            loadWelcomeDashboard();
+            applyThemeClass(rootPane);
+            
+            // Initialize weather widget with real-time data
+            try {
+                loadWeatherWidget();
+                System.out.println("✅ Weather widget loaded");
+            } catch (Exception e) {
+                System.err.println("⚠️ Weather widget error: " + e.getMessage());
+                // Don't crash app if weather fails
+            }
+            
+            // Initialize notification center
+            try {
+                initializeNotificationCenter();
+                System.out.println("✅ Notification center loaded");
+            } catch (Exception e) {
+                System.err.println("⚠️ Notification center error: " + e.getMessage());
+                // Don't crash app if notifications fail
+            }
+            
+            // Initialize zen advice widget with wellness tips
+            try {
+                loadZenAdvice();
+                System.out.println("✅ Zen advice widget loaded");
+            } catch (Exception e) {
+                System.err.println("⚠️ Zen advice widget error: " + e.getMessage());
+                // Don't crash app if zen advice fails
+            }
+            
+            System.out.println("✅ DashboardController initialized successfully");
+        } catch (Exception e) {
+            System.err.println("❌ CRITICAL ERROR in DashboardController.initialize(): " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to initialize DashboardController", e);
+        }
     }
 
     /**
-     * Load air quality widget asynchronously
-     * Fetches data from OpenWeatherMap API and updates UI on success
+     * Initialize notification center with bindings
      */
-    private void loadAirQualityWidget() {
+    private void initializeNotificationCenter() {
+        NotificationManager notificationManager = NotificationManager.getInstance();
+
+        // Safely bind the unread count label
+        if (notificationCountLabel != null) {
+            notificationCountLabel.textProperty().bind(
+                    notificationManager.getUnreadCountProperty().asString()
+            );
+        }
+
+        // Hide badge if count is 0
+        if (notificationBadge != null) {
+            notificationBadge.managedProperty().bind(
+                    notificationManager.getUnreadCountProperty().greaterThan(0)
+            );
+            notificationBadge.visibleProperty().bind(
+                    notificationManager.getUnreadCountProperty().greaterThan(0)
+            );
+        }
+
+        // Safely bind the notifications list
+        if (notificationsList != null) {
+            notificationsList.setItems(notificationManager.getNotifications());
+            notificationsList.setStyle("-fx-font-size: 12px; -fx-padding: 5;");
+        } else {
+            System.out.println("⚠️ notificationsList is null - ListView not found in FXML");
+        }
+        
+        System.out.println("✅ Notification Center Initialized");
+    }
+
+    /**
+     * Toggle the notification dropdown visibility
+     */
+    @FXML
+    public void handleToggleNotifications() {
+        try {
+            if (notificationDropdown == null) {
+                System.out.println("⚠️ notificationDropdown is null");
+                return;
+            }
+            
+            boolean isVisible = notificationDropdown.isVisible();
+            notificationDropdown.setVisible(!isVisible);
+            notificationDropdown.setManaged(!isVisible);
+
+            if (!isVisible) {
+                // User opened the notifications - mark as read
+                NotificationManager.getInstance().markAsRead();
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error in handleToggleNotifications: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Load weather widget asynchronously
+     * Fetches real-time weather from OpenWeatherMap API and updates UI
+     */
+    private void loadWeatherWidget() {
         if (weatherLabel == null || weatherWarningBox == null) {
             System.out.println("⚠️ Weather widget elements not found in FXML");
             return;
         }
 
         // Set default message while loading
-        weatherLabel.setText("🌍 Loading air quality data...");
-        weatherWarningBox.setStyle("-fx-background-color: #e2e3e5; -fx-border-color: #6c757d; -fx-border-radius: 5; -fx-padding: 15;");
+        weatherLabel.setText("🌍 Loading weather data...");
+        weatherWarningBox.setStyle("-fx-background-color: #e8f5e9; -fx-border-color: #4caf50; -fx-border-radius: 8; -fx-padding: 12 18;");
 
-        // Fetch air quality asynchronously (non-blocking)
-        airQualityService.fetchAirQualityAsync()
-                .thenAccept(airQualityData -> {
+        // Fetch weather asynchronously (non-blocking)
+        weatherService.fetchWeatherAsync()
+                .thenAccept(weatherText -> {
                     // Update UI on JavaFX thread
                     Platform.runLater(() -> {
-                        if (airQualityData != null) {
-                            updateWeatherWidget(airQualityData);
-                        } else {
-                            handleAirQualityError();
-                        }
+                        updateWeatherWidget(weatherText);
                     });
                 })
                 .exceptionally(throwable -> {
-                    System.err.println("❌ Error in air quality async call: " + throwable.getMessage());
-                    Platform.runLater(this::handleAirQualityError);
+                    System.err.println("❌ Error in weather async call: " + throwable.getMessage());
+                    Platform.runLater(this::handleWeatherError);
                     return null;
                 });
     }
 
     /**
-     * Update weather widget with air quality data
+     * Update weather widget with real-time weather data
      */
-    private void updateWeatherWidget(AirQualityService.AirQualityData data) {
+    private void updateWeatherWidget(String weatherText) {
         try {
-            // Get health warning message and colors based on AQI
-            String message = airQualityService.getHealthWarning(data.aqi);
-            String boxStyle = airQualityService.getWarningBoxColor(data.aqi);
-            String textStyle = airQualityService.getWarningTextColor(data.aqi);
+            // Update label with weather info
+            weatherLabel.setText(weatherText);
+            
+            // Style based on the weather condition
+            String style = "-fx-text-fill: #1b5e20; -fx-font-size: 13px; -fx-font-weight: 600;";
+            weatherLabel.setStyle(style);
 
-            // Add border radius and padding to the style
-            boxStyle += " -fx-border-radius: 5; -fx-padding: 15;";
+            // Update box background with a pleasant green
+            weatherWarningBox.setStyle("-fx-background-color: #e8f5e9; -fx-border-color: #4caf50; -fx-border-radius: 8; -fx-padding: 12 18;");
 
-            // Add emoji based on AQI level
-            String emoji = getAqiEmoji(data.aqi);
-            String fullMessage = emoji + " " + message;
-
-            // Update label
-            weatherLabel.setText(fullMessage);
-            weatherLabel.setStyle(textStyle);
-
-            // Update box background
-            weatherWarningBox.setStyle(boxStyle);
-
-            System.out.println("✅ Weather widget updated: " + data);
+            System.out.println("✅ Weather widget updated: " + weatherText);
         } catch (Exception e) {
             System.err.println("❌ Error updating weather widget: " + e.getMessage());
-            handleAirQualityError();
+            handleWeatherError();
         }
     }
 
     /**
-     * Handle air quality service errors
+     * Handle weather service errors
      */
-    private void handleAirQualityError() {
+    private void handleWeatherError() {
         try {
-            weatherLabel.setText("⚠️ Unable to fetch air quality data. Please try again later.");
-            weatherWarningBox.setStyle("-fx-background-color: #fff3cd; -fx-border-color: #ffc107; -fx-border-radius: 5; -fx-padding: 15;");
-            weatherLabel.setStyle("-fx-text-fill: #856404;");
+            weatherLabel.setText("🌍 Unable to fetch weather data");
+            weatherWarningBox.setStyle("-fx-background-color: #fff3cd; -fx-border-color: #ffc107; -fx-border-radius: 8; -fx-padding: 12 18;");
+            weatherLabel.setStyle("-fx-text-fill: #856404; -fx-font-size: 13px;");
         } catch (Exception e) {
-            System.err.println("❌ Error handling air quality error: " + e.getMessage());
+            System.err.println("❌ Error handling weather error: " + e.getMessage());
         }
     }
 
     /**
-     * Get emoji representation of AQI level
+     * Load zen advice widget asynchronously
+     * Fetches wellness tips from AdviceSlip API and updates UI
+     * Uses CompletableFuture for non-blocking operations
      */
-    private String getAqiEmoji(int aqi) {
-        return switch (aqi) {
-            case 1, 2 -> "😊"; // Good/Fair
-            case 3 -> "😐"; // Moderate
-            case 4, 5 -> "😷"; // Poor/Hazardous
-            default -> "🌍";
-        };
+    private void loadZenAdvice() {
+        if (zenQuoteLabel == null || zenAdviceBox == null) {
+            System.out.println("⚠️ Zen advice widget elements not found in FXML");
+            return;
+        }
+
+        // Set default message while loading
+        zenQuoteLabel.setText("🧘 Loading wellness tip...");
+        zenAdviceBox.setStyle("-fx-padding: 15 18; -fx-background-radius: 12; -fx-border-radius: 12; -fx-background-color: #f0f4ff; -fx-border-color: #7c3aed; -fx-border-width: 1.5;");
+
+        // Fetch zen advice asynchronously using CompletableFuture (non-blocking)
+        ZenAdviceService.fetchZenAdviceAsync()
+                .thenAccept(advice -> {
+                    // Update UI on JavaFX thread using Platform.runLater()
+                    Platform.runLater(() -> {
+                        updateZenAdvice(advice);
+                    });
+                })
+                .exceptionally(throwable -> {
+                    System.err.println("❌ Error in zen advice async call: " + throwable.getMessage());
+                    Platform.runLater(this::handleZenAdviceError);
+                    return null;
+                });
+    }
+
+    /**
+     * Update zen advice widget with fetched wellness tip
+     */
+    private void updateZenAdvice(String advice) {
+        try {
+            zenQuoteLabel.setText(advice);
+            zenQuoteLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #6d28d9;");
+            zenAdviceBox.setStyle("-fx-padding: 15 18; -fx-background-radius: 12; -fx-border-radius: 12; -fx-background-color: #f0f4ff; -fx-border-color: #7c3aed; -fx-border-width: 1.5;");
+
+            System.out.println("✅ Zen advice widget updated: " + advice);
+        } catch (Exception e) {
+            System.err.println("❌ Error updating zen advice widget: " + e.getMessage());
+            handleZenAdviceError();
+        }
+    }
+
+    /**
+     * Handle zen advice service errors with fallback message
+     */
+    private void handleZenAdviceError() {
+        try {
+            zenQuoteLabel.setText("💡 Prenez un moment pour respirer profondément aujourd'hui.");
+            zenAdviceBox.setStyle("-fx-padding: 15 18; -fx-background-radius: 12; -fx-border-radius: 12; -fx-background-color: #fef3c7; -fx-border-color: #f59e0b; -fx-border-width: 1.5;");
+            zenQuoteLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #92400e;");
+        } catch (Exception e) {
+            System.err.println("❌ Error handling zen advice error: " + e.getMessage());
+        }
     }
     
     private void loadWelcomeDashboard() {

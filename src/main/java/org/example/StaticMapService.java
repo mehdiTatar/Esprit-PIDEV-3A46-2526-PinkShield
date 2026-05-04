@@ -1,8 +1,7 @@
 package org.example;
 
 import javafx.scene.image.Image;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -14,16 +13,15 @@ import java.util.concurrent.CompletableFuture;
  * 2. Geoapify Static Maps (free tier available)
  * 3. OpenStreetMap + Nominatim (completely free)
  * 
- * Default clinic location: Centre Urbain Nord, Tunis, Tunisia
- * Coordinates: 36.8444°N, 10.1985°E
+ * Default clinic locations: Grand Tunis and Ariana, Tunisia
  */
 public class StaticMapService {
 
     // Clinic location details
-    private static final double CLINIC_LATITUDE = 36.8444;
-    private static final double CLINIC_LONGITUDE = 10.1985;
-    private static final String CLINIC_NAME = "Centre Urbain Nord";
-    private static final String CLINIC_CITY = "Tunis";
+    private static final List<ClinicLocation> CLINIC_LOCATIONS = List.of(
+            new ClinicLocation("Centre Urbain Nord", "Tunis", 36.8444, 10.1985),
+            new ClinicLocation("Ariana Centre", "Ariana", 36.8665, 10.1647)
+    );
 
     // Map provider configuration
     private static final MapProvider DEFAULT_PROVIDER = MapProvider.GEOAPIFY_FREE;
@@ -102,14 +100,14 @@ public class StaticMapService {
             return buildGeoapifyUrl(width, height, zoom);
         }
 
-        String markerLocation = CLINIC_LATITUDE + "," + CLINIC_LONGITUDE;
-        String marker = "color:red%7Clabel:C%7C" + markerLocation;
+        String markerString = buildGoogleMarkers();
+        ClinicLocation center = getMapCenter();
 
         return "https://maps.googleapis.com/maps/api/staticmap?" +
-                "center=" + CLINIC_LATITUDE + "," + CLINIC_LONGITUDE +
+                "center=" + center.latitude + "," + center.longitude +
                 "&zoom=" + zoom +
                 "&size=" + width + "x" + height +
-                "&markers=" + marker +
+                markerString +
                 "&style=feature:all%7Celement:labels%7Cvisibility:off" +
                 "&style=feature:water%7Ccolor:0xcccccc" +
                 "&style=feature:land%7Ccolor:0xf2f2f2" +
@@ -133,15 +131,16 @@ public class StaticMapService {
             return buildOpenStreetMapUrl(width, height, zoom);
         }
 
+        ClinicLocation center = getMapCenter();
+
         // Build Geoapify URL with provided API key
         return "https://maps.geoapify.com/v1/staticmap?" +
                 "style=osm-bright" +
                 "&width=" + width +
                 "&height=" + height +
-                "&center=lonlat:" + CLINIC_LONGITUDE + "," + CLINIC_LATITUDE +
+                "&center=lonlat:" + center.longitude + "," + center.latitude +
                 "&zoom=" + zoom +
-                "&marker=lonlat:" + CLINIC_LONGITUDE + "," + CLINIC_LATITUDE +
-                ";color:%23ff0000;size:medium" +
+                buildGeoapifyMarkers() +
                 "&apiKey=" + apiKey;
     }
 
@@ -151,9 +150,10 @@ public class StaticMapService {
      */
     private static String buildOpenStreetMapUrl(int width, int height, int zoom) {
         // Using tile.openstreetmap.org directly with simple URL scheme
-        int tileX = (int) Math.floor((CLINIC_LONGITUDE + 180) / 360 * (1 << zoom));
-        int tileY = (int) Math.floor((1 - Math.log(Math.tan(Math.toRadians(CLINIC_LATITUDE)) + 
-                1 / Math.cos(Math.toRadians(CLINIC_LATITUDE))) / Math.PI) / 2 * (1 << zoom));
+        ClinicLocation center = getMapCenter();
+        int tileX = (int) Math.floor((center.longitude + 180) / 360 * (1 << zoom));
+        int tileY = (int) Math.floor((1 - Math.log(Math.tan(Math.toRadians(center.latitude)) + 
+                1 / Math.cos(Math.toRadians(center.latitude))) / Math.PI) / 2 * (1 << zoom));
 
         // Fallback to a simple web tile service URL
         return "https://a.tile.openstreetmap.org/" + zoom + "/" + tileX + "/" + tileY + ".png";
@@ -176,11 +176,19 @@ public class StaticMapService {
      * Get clinic location details
      */
     public static class ClinicLocation {
-        public final double latitude = CLINIC_LATITUDE;
-        public final double longitude = CLINIC_LONGITUDE;
-        public final String name = CLINIC_NAME;
-        public final String city = CLINIC_CITY;
-        public final String fullAddress = CLINIC_NAME + ", " + CLINIC_CITY + ", Tunisia";
+        public final String name;
+        public final String city;
+        public final double latitude;
+        public final double longitude;
+        public final String fullAddress;
+
+        public ClinicLocation(String name, String city, double latitude, double longitude) {
+            this.name = name;
+            this.city = city;
+            this.latitude = latitude;
+            this.longitude = longitude;
+            this.fullAddress = name + ", " + city + ", Tunisia";
+        }
 
         @Override
         public String toString() {
@@ -192,7 +200,64 @@ public class StaticMapService {
      * Get clinic location
      */
     public static ClinicLocation getClinicLocation() {
-        return new ClinicLocation();
+        return CLINIC_LOCATIONS.getFirst();
+    }
+
+    /**
+     * Get all clinic locations displayed on the map.
+     */
+    public static List<ClinicLocation> getClinicLocations() {
+        return CLINIC_LOCATIONS;
+    }
+
+    private static ClinicLocation getMapCenter() {
+        double latitude = 0.0;
+        double longitude = 0.0;
+
+        for (ClinicLocation location : CLINIC_LOCATIONS) {
+            latitude += location.latitude;
+            longitude += location.longitude;
+        }
+
+        int count = CLINIC_LOCATIONS.size();
+        return new ClinicLocation("Map Center", "Tunis", latitude / count, longitude / count);
+    }
+
+    private static String buildGoogleMarkers() {
+        StringBuilder markers = new StringBuilder();
+        String[] labels = {"T", "A"};
+
+        for (int i = 0; i < CLINIC_LOCATIONS.size(); i++) {
+            ClinicLocation location = CLINIC_LOCATIONS.get(i);
+            markers.append("&markers=")
+                    .append("color:")
+                    .append(i == 0 ? "red" : "blue")
+                    .append("%7Clabel:")
+                    .append(labels[Math.min(i, labels.length - 1)])
+                    .append("%7C")
+                    .append(location.latitude)
+                    .append(",")
+                    .append(location.longitude);
+        }
+
+        return markers.toString();
+    }
+
+    private static String buildGeoapifyMarkers() {
+        StringBuilder markers = new StringBuilder();
+
+        for (int i = 0; i < CLINIC_LOCATIONS.size(); i++) {
+            ClinicLocation location = CLINIC_LOCATIONS.get(i);
+            markers.append("&marker=lonlat:")
+                    .append(location.longitude)
+                    .append(",")
+                    .append(location.latitude)
+                    .append(";color:%23")
+                    .append(i == 0 ? "ff0000" : "0057ff")
+                    .append(";size:medium");
+        }
+
+        return markers.toString();
     }
 }
 

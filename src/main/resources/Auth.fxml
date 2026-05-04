@@ -13,7 +13,6 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <StackPane fx:id="authRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.example.AuthController" stylesheets="@style.css" styleClass="auth-root">
@@ -52,12 +51,12 @@
                         <Label text="Sign in to continue your PinkShield experience" styleClass="auth-subtitle" />
 
                         <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-envelope" iconSize="14" styleClass="auth-field-icon" />
+                            <Label text="📧" styleClass="auth-field-icon" />
                             <TextField fx:id="txtLoginEmail" promptText="Email address" styleClass="auth-field" HBox.hgrow="ALWAYS" />
                         </HBox>
 
                         <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-lock" iconSize="14" styleClass="auth-field-icon" />
+                            <Label text="🔒" styleClass="auth-field-icon" />
                             <StackPane HBox.hgrow="ALWAYS">
                                 <PasswordField fx:id="txtLoginPassword" promptText="Password" styleClass="auth-field" maxWidth="1.7976931348623157E308" />
                                 <TextField fx:id="txtLoginPasswordVisible" promptText="Password" styleClass="auth-field" maxWidth="1.7976931348623157E308" />
@@ -87,34 +86,34 @@
                         <Label text="Join PinkShield and manage your health smarter" styleClass="auth-subtitle" />
 
                         <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-user" iconSize="14" styleClass="auth-field-icon" />
+                            <Label text="👤" styleClass="auth-field-icon" />
                             <TextField fx:id="txtRegisterFullName" promptText="Full Name" styleClass="auth-field" HBox.hgrow="ALWAYS" />
                         </HBox>
 
                         <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-envelope" iconSize="14" styleClass="auth-field-icon" />
+                            <Label text="📧" styleClass="auth-field-icon" />
                             <TextField fx:id="txtRegisterEmail" promptText="Email address" styleClass="auth-field" HBox.hgrow="ALWAYS" />
                         </HBox>
 
                         <VBox fx:id="doctorFieldsBox" spacing="12" managed="false" visible="false">
                             <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
-                                <FontIcon iconLiteral="fas-stethoscope" iconSize="14" styleClass="auth-field-icon" />
+                                <Label text="⚕️" styleClass="auth-field-icon" />
                                 <ComboBox fx:id="cmbRegisterSpecialty" promptText="Specialty" styleClass="auth-field auth-combo" HBox.hgrow="ALWAYS" />
                             </HBox>
 
                             <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
-                                <FontIcon iconLiteral="fas-id-badge" iconSize="14" styleClass="auth-field-icon" />
+                                <Label text="🆔" styleClass="auth-field-icon" />
                                 <TextField fx:id="txtRegisterLicenseId" promptText="Medical License ID" styleClass="auth-field" HBox.hgrow="ALWAYS" />
                             </HBox>
                         </VBox>
 
                         <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-lock" iconSize="14" styleClass="auth-field-icon" />
+                            <Label text="🔒" styleClass="auth-field-icon" />
                             <PasswordField fx:id="txtRegisterPassword" promptText="Password" styleClass="auth-field" HBox.hgrow="ALWAYS" />
                         </HBox>
 
                         <HBox spacing="10" styleClass="auth-input-row" alignment="CENTER_LEFT">
-                            <FontIcon iconLiteral="fas-key" iconSize="14" styleClass="auth-field-icon" />
+                            <Label text="🔑" styleClass="auth-field-icon" />
                             <PasswordField fx:id="txtRegisterConfirmPassword" promptText="Confirm Password" styleClass="auth-field" HBox.hgrow="ALWAYS" />
                         </HBox>
 

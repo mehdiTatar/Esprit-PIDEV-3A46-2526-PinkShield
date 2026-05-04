@@ -9,6 +9,7 @@ USE pinkshield_db;
 
 -- Drop existing tables to start fresh
 DROP TABLE IF EXISTS wishlist;
+DROP TABLE IF EXISTS transaction_history;
 DROP TABLE IF EXISTS parapharmacie;
 DROP TABLE IF EXISTS appointment;
 
@@ -58,6 +59,20 @@ CREATE TABLE wishlist (
   KEY idx_user (user_id),
   KEY idx_product (parapharmacie_id),
   FOREIGN KEY (parapharmacie_id) REFERENCES parapharmacie(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================================
+-- Transaction History Table (stores user purchases)
+-- ============================================================================
+CREATE TABLE transaction_history (
+  id INT(11) NOT NULL AUTO_INCREMENT,
+  user_id INT(11) NOT NULL,
+  amount DOUBLE NOT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'Completed',
+  transaction_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY user_id (user_id),
+  KEY idx_date (transaction_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================

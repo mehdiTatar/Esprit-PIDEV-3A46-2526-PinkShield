@@ -7,7 +7,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -116,11 +115,8 @@ public class ParapharmacieUserController {
         Label stockLabel = new Label("📊 Stock: " + product.getStock());
         stockLabel.getStyleClass().add("para-product-meta");
 
-        Button wishlistButton = new Button("Add to Wishlist");
+        Button wishlistButton = new Button("❤️ Add to Wishlist");
         wishlistButton.getStyleClass().addAll("btn-primary", "para-wishlist-button");
-        wishlistButton.setGraphic(new FontIcon("fas-heart"));
-        wishlistButton.getGraphic().getStyleClass().add("sidebar-icon");
-        wishlistButton.setGraphicTextGap(15);
         wishlistButton.setOnAction(e -> addToWishlist(product));
         wishlistButton.setMaxWidth(Double.MAX_VALUE);
 

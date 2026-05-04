@@ -10,11 +10,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.application.Platform;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,6 +43,7 @@ public class AppointmentUserController {
     @FXML private ImageView clinicMapView;
 
     private ServiceAppointment service = new ServiceAppointment();
+    private final TwilioSmsService smsService = new TwilioSmsService();
     private final ServiceParapharmacie parapharmacieService = new ServiceParapharmacie();
     private final ServiceWishlist wishlistService = new ServiceWishlist();
     private final AppointmentPdfService appointmentPdfService = new AppointmentPdfService();
@@ -376,16 +380,64 @@ public class AppointmentUserController {
         addToWishlistButton.getStyleClass().add("btn-primary");
         addToWishlistButton.setOnAction(event -> {
             try {
+                // Ensure user is logged in
+                if (!UserSession.getInstance().isLoggedIn()) {
+                    showWarningAlert("Authentication Required", "Please sign in to add items to wishlist.");
+                    return;
+                }
+
                 Parapharmacie product = parapharmacieService.findByName(productName);
                 if (product == null) {
                     showWarningAlert("Wishlist", "Product not found in parapharmacie inventory.");
                     return;
                 }
 
-                wishlistService.add(new Product(product.getNom(), product.getPrix(), product.getDescription()));
+                // Validate product ID before adding to wishlist
+                if (product.getId() <= 0) {
+                    showErrorAlert("Database Error", "Product has an invalid ID. Please contact support.");
+                    return;
+                }
+
+                int userId = UserSession.getInstance().getUserId();
+                if (userId <= 0) {
+                    showErrorAlert("Authentication Error", "User session is invalid. Please log in again.");
+                    return;
+                }
+
+                // Check if item already exists in wishlist
+                if (wishlistService.wishlistItemExists(userId, product.getId())) {
+                    showWarningAlert("Already in Wishlist", productName + " is already in your wishlist.");
+                    return;
+                }
+
+                // Create a proper Wishlist object with user_id and parapharmacie_id
+                Wishlist wishlistItem = new Wishlist();
+                wishlistItem.setUser_id(userId);
+                wishlistItem.setParapharmacie_id(product.getId());
+                wishlistItem.setAdded_at(new java.sql.Timestamp(System.currentTimeMillis()));
+
+                // Add to wishlist using the service (use ajouter which accepts a Wishlist)
+                wishlistService.ajouter(wishlistItem);
+                
+                // Send notification
+                NotificationManager.getInstance().addNotification(
+                        "💚 Added " + productName + " to your wishlist!"
+                );
+                
+                showInfoAlert("Added to Wishlist", productName + " has been added to your wishlist successfully!");
                 NavigationManager.getInstance().showWishlist();
+            } catch (SQLException sqlEx) {
+                System.err.println("❌ Database Error adding to wishlist: " + sqlEx.getMessage());
+                sqlEx.printStackTrace();
+                if (sqlEx.getMessage().contains("foreign key")) {
+                    showErrorAlert("Database Error", "The product data is incomplete or corrupted. Please try another product.");
+                } else {
+                    showErrorAlert("Wishlist Error", "Database error: " + sqlEx.getMessage());
+                }
             } catch (Exception ex) {
-                showErrorAlert("Wishlist Error", ex.getMessage());
+                System.err.println("❌ Error adding to wishlist: " + ex.getMessage());
+                ex.printStackTrace();
+                showErrorAlert("Wishlist Error", "Could not add product to wishlist: " + ex.getMessage());
             }
         });
 
@@ -464,6 +516,11 @@ public class AppointmentUserController {
 
             // EVENT SUCCESS
             showInfoAlert("Appointment Booked", "Succès ! Rendez-vous enregistré pour " + txtPatientName.getText());
+
+            // 🚀 Send notification to notification center
+            NotificationManager.getInstance().addNotification(
+                    "📅 Your appointment with Dr. " + doctorName + " has been booked for " + bookingDatePicker.getValue()
+            );
 
             // 🚀 SEND SMS NOTIFICATION ASYNCHRONOUSLY (Background Thread)
             sendAppointmentConfirmationSms(patientEmail, patientName, ts.toString());
@@ -615,6 +672,11 @@ public class AppointmentUserController {
                 // 🚀 SEND SMS CANCELLATION NOTIFICATION (Background Thread)
                 sendAppointmentCancellationSms(s.getPatient_email(), s.getPatient_name());
                 
+                // Send notification about cancellation
+                NotificationManager.getInstance().addNotification(
+                        "❌ Your appointment with Dr. " + s.getDoctor_name() + " has been cancelled."
+                );
+                
                 service.supprimer(s.getId());
                 loadAppointments();
             } catch (Exception e) { e.printStackTrace(); }
@@ -696,6 +758,55 @@ public class AppointmentUserController {
         } catch (Exception e) {
             showErrorAlert("PDF Error", "Unexpected error while creating invoice PDF: " + String.valueOf(e));
         }
+    }
+
+    /**
+     * Handle download appointment proof button click
+     * Generates and downloads a PDF proof for the selected appointment
+     * Uses CompletableFuture for background processing
+     */
+    @FXML
+    public void handleDownloadAppointmentPdf() {
+        if (!ensureLoggedIn()) {
+            return;
+        }
+
+        Appointment selected = table.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showWarningAlert("No Selection", "Please select an appointment from the table to download its proof.");
+            return;
+        }
+
+        // Find the download button in the actions section to update its text
+        Button downloadBtn = null;
+        // Since we can't easily access the button from FXML, we'll use a variable to track state
+        
+        System.out.println("🔄 Starting appointment proof download for appointment ID: " + selected.getId());
+
+        // Execute PDF generation asynchronously (non-blocking)
+        AppointmentProofService.generateAndDownloadAppointmentProofAsync(selected)
+                .thenAccept(success -> {
+                    // Update UI on JavaFX thread using Platform.runLater()
+                    Platform.runLater(() -> {
+                        if (success) {
+                            showInfoAlert("Appointment Proof Generated", 
+                                "Your appointment proof PDF has been generated and opened in your browser.");
+                            System.out.println("✅ Appointment proof successfully generated and opened");
+                        } else {
+                            showErrorAlert("PDF Generation Failed", 
+                                "Could not generate the appointment proof PDF. Please try again.");
+                            System.err.println("❌ Failed to generate appointment proof PDF");
+                        }
+                    });
+                })
+                .exceptionally(throwable -> {
+                    Platform.runLater(() -> {
+                        showErrorAlert("Error", "An unexpected error occurred: " + throwable.getMessage());
+                        System.err.println("❌ Error: " + throwable.getMessage());
+                        throwable.printStackTrace();
+                    });
+                    return null;
+                });
     }
 
 
@@ -859,5 +970,40 @@ public class AppointmentUserController {
     private void showInfoAlert(String t, String c) { Alert a = new Alert(Alert.AlertType.INFORMATION); a.setTitle(t); a.setHeaderText(null); a.setContentText(c); a.showAndWait(); }
     private void showWarningAlert(String t, String c) { Alert a = new Alert(Alert.AlertType.WARNING); a.setTitle(t); a.setHeaderText(null); a.setContentText(c); a.showAndWait(); }
     private void showErrorAlert(String t, String c) { Alert a = new Alert(Alert.AlertType.ERROR); a.setTitle(t); a.setHeaderText(null); a.setContentText(c); a.showAndWait(); }
-}
 
+    /**
+     * Example: Send various notification types from appointments
+     * These examples show how to use the NotificationManager from anywhere in the app
+     */
+    public void demonstrateNotifications() {
+        // Example 1: Doctor confirms appointment
+        NotificationManager.getInstance().addNotification(
+                "📅 Dr. Asma Jaziri confirmed your appointment."
+        );
+
+        // Example 2: Appointment canceled
+        NotificationManager.getInstance().addNotification(
+                "❌ Your appointment was canceled."
+        );
+
+        // Example 3: Health alert
+        NotificationManager.getInstance().addNotification(
+                "🌡️ Health Alert: High pollen in Medenine today. Don't forget your medication!"
+        );
+
+        // Example 4: New medicine available
+        NotificationManager.getInstance().addNotification(
+                "💊 A new medicine matching your symptoms was added to the Parapharmacy."
+        );
+
+        // Example 5: Appointment reminder
+        NotificationManager.getInstance().addNotification(
+                "⏰ Reminder: Your appointment with Dr. Walid Trabelsi is in 1 hour."
+        );
+
+        // Example 6: Prescription ready
+        NotificationManager.getInstance().addNotification(
+                "💉 Your prescription from Dr. Mouna Khelifi is ready for pickup!"
+        );
+    }
+}

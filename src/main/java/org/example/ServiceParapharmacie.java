@@ -11,6 +11,9 @@ public class ServiceParapharmacie {
 
     private Connection cnx;
     private boolean catalogSeeded;
+    private boolean columnsResolved;
+    private String nameColumn = "nom";
+    private String priceColumn = "prix";
 
     public ServiceParapharmacie() {
         try {
@@ -26,6 +29,7 @@ public class ServiceParapharmacie {
     }
 
     public ArrayList<Parapharmacie> afficherAll() throws SQLException {
+        resolveColumnNames();
         ensureCatalogInventorySeeded();
 
         ArrayList<Parapharmacie> list = new ArrayList<>();
@@ -36,9 +40,9 @@ public class ServiceParapharmacie {
         while (rs.next()) {
             Parapharmacie p = new Parapharmacie();
             p.setId(rs.getInt("id"));
-            p.setNom(rs.getString("name"));
+            p.setNom(rs.getString(nameColumn));
             p.setDescription(rs.getString("description"));
-            p.setPrix(rs.getDouble("price"));
+            p.setPrix(rs.getDouble(priceColumn));
             p.setStock(rs.getInt("stock"));
             list.add(p);
         }
@@ -46,15 +50,16 @@ public class ServiceParapharmacie {
     }
 
     private void ensureCatalogInventorySeeded() throws SQLException {
+        resolveColumnNames();
         if (cnx == null || catalogSeeded) {
             return;
         }
 
         Set<String> existingNames = new HashSet<>();
-        String existingQuery = "SELECT name FROM parapharmacie";
+        String existingQuery = "SELECT " + nameColumn + " FROM parapharmacie";
         try (Statement statement = cnx.createStatement(); ResultSet rs = statement.executeQuery(existingQuery)) {
             while (rs.next()) {
-                String name = rs.getString("name");
+                String name = rs.getString(nameColumn);
                 if (name != null) {
                     existingNames.add(normalizeName(name));
                 }
@@ -67,7 +72,7 @@ public class ServiceParapharmacie {
             return;
         }
 
-        String insertSql = "INSERT INTO parapharmacie (name, description, price, stock) VALUES (?, ?, ?, ?)";
+        String insertSql = "INSERT INTO parapharmacie (" + nameColumn + ", description, " + priceColumn + ", stock) VALUES (?, ?, ?, ?)";
         try (PreparedStatement insert = cnx.prepareStatement(insertSql)) {
             int index = 0;
             for (Product product : catalog) {
@@ -111,7 +116,8 @@ public class ServiceParapharmacie {
     }
 
     public Parapharmacie findByName(String productName) throws SQLException {
-        String req = "SELECT * FROM parapharmacie WHERE name = ? LIMIT 1";
+        resolveColumnNames();
+        String req = "SELECT * FROM parapharmacie WHERE " + nameColumn + " = ? LIMIT 1";
         PreparedStatement ps = cnx.prepareStatement(req);
         ps.setString(1, productName);
 
@@ -119,9 +125,9 @@ public class ServiceParapharmacie {
         if (rs.next()) {
             Parapharmacie p = new Parapharmacie();
             p.setId(rs.getInt("id"));
-            p.setNom(rs.getString("name"));
+            p.setNom(rs.getString(nameColumn));
             p.setDescription(rs.getString("description"));
-            p.setPrix(rs.getDouble("price"));
+            p.setPrix(rs.getDouble(priceColumn));
             p.setStock(rs.getInt("stock"));
             return p;
         }
@@ -129,7 +135,8 @@ public class ServiceParapharmacie {
     }
 
     public void ajouter(Parapharmacie p) throws SQLException {
-        String req = "INSERT INTO parapharmacie (name, description, price, stock) VALUES (?, ?, ?, ?)";
+        resolveColumnNames();
+        String req = "INSERT INTO parapharmacie (" + nameColumn + ", description, " + priceColumn + ", stock) VALUES (?, ?, ?, ?)";
         PreparedStatement ps = cnx.prepareStatement(req);
         ps.setString(1, p.getNom());
         ps.setString(2, p.getDescription());
@@ -139,7 +146,8 @@ public class ServiceParapharmacie {
     }
 
     public void modifier(Parapharmacie p) throws SQLException {
-        String req = "UPDATE parapharmacie SET name = ?, description = ?, price = ?, stock = ? WHERE id = ?";
+        resolveColumnNames();
+        String req = "UPDATE parapharmacie SET " + nameColumn + " = ?, description = ?, " + priceColumn + " = ?, stock = ? WHERE id = ?";
         PreparedStatement ps = cnx.prepareStatement(req);
         ps.setString(1, p.getNom());
         ps.setString(2, p.getDescription());
@@ -160,7 +168,8 @@ public class ServiceParapharmacie {
     // MÉTHODE MANQUANTE AJOUTÉE ICI : productExists
     // ==========================================================
     public boolean productExists(String nomProduit) throws SQLException {
-        String req = "SELECT COUNT(*) FROM parapharmacie WHERE name = ?";
+        resolveColumnNames();
+        String req = "SELECT COUNT(*) FROM parapharmacie WHERE " + nameColumn + " = ?";
         PreparedStatement ps = cnx.prepareStatement(req);
         ps.setString(1, nomProduit);
 
@@ -169,6 +178,39 @@ public class ServiceParapharmacie {
         if (rs.next()) {
             int count = rs.getInt(1);
             return count > 0;
+        }
+        return false;
+    }
+
+    private void resolveColumnNames() throws SQLException {
+        if (columnsResolved || cnx == null) {
+            return;
+        }
+
+        boolean hasNom = hasColumn("parapharmacie", "nom");
+        boolean hasName = hasColumn("parapharmacie", "name");
+        if (hasNom) {
+            nameColumn = "nom";
+            priceColumn = hasColumn("parapharmacie", "prix") ? "prix" : "price";
+        } else if (hasName) {
+            nameColumn = "name";
+            priceColumn = hasColumn("parapharmacie", "price") ? "price" : "prix";
+        } else {
+            throw new SQLException("Parapharmacie table is missing a name column (expected nom or name).");
+        }
+
+        columnsResolved = true;
+    }
+
+    private boolean hasColumn(String tableName, String columnName) throws SQLException {
+        DatabaseMetaData metaData = cnx.getMetaData();
+        try (ResultSet rs = metaData.getColumns(null, null, tableName, null)) {
+            while (rs.next()) {
+                String existing = rs.getString("COLUMN_NAME");
+                if (existing != null && existing.equalsIgnoreCase(columnName)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

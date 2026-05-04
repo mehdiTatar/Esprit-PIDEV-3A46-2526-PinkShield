@@ -12,6 +12,10 @@ public class SimpleLauncher extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         try {
+            // Setup mock user session for testing-------------------------------------------------------------------------------------------------------------------------------
+            UserSession.getInstance().setCurrentUser(1, "test@example.com", "Test User", "USER");
+            System.out.println("Mock user session created: Test User (ID: 1)");
+            
             // Load the main dashboard
             javafx.scene.Parent root = loadFXML("Dashboard.fxml");
 

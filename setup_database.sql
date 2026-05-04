@@ -38,6 +38,17 @@ CREATE TABLE IF NOT EXISTS wishlist (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Create transaction_history table (stores user purchases)
+CREATE TABLE IF NOT EXISTS transaction_history (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_id int(11) NOT NULL,
+  amount double NOT NULL,
+  status varchar(50) NOT NULL DEFAULT 'Completed',
+  transaction_date timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (id),
+  KEY user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Insert some sample data
 INSERT INTO parapharmacie (nom, prix, stock, description) VALUES
 ('Aspirin 500mg', 5.99, 100, 'Pain relief medication'),
