@@ -63,6 +63,7 @@ public class UserDashboardController {
     @FXML private Button navProfileEdit;
     @FXML private Button navBlog;
     @FXML private Button navProducts;
+    @FXML private Button navWishlist;
     @FXML private Button navDailyCheckIn;
     @FXML private Button chatLauncherButton;
     @FXML private Button chatSendButton;
@@ -128,6 +129,12 @@ public class UserDashboardController {
     public void showProducts() {
         updateNavStyles(navProducts);
         loadView("/fxml/product_list.fxml");
+    }
+
+    @FXML
+    public void showWishlist() {
+        updateNavStyles(navWishlist);
+        loadView("/fxml/wishlist.fxml");
     }
 
     @FXML
@@ -448,6 +455,8 @@ public class UserDashboardController {
                 ((AppointmentListController) controller).setCurrentUser(loggedInUser);
             } else if (controller instanceof ProductListController) {
                 ((ProductListController) controller).setCurrentUser(loggedInUser);
+            } else if (controller instanceof WishlistController) {
+                ((WishlistController) controller).setCurrentUser(loggedInUser);
             } else if (controller instanceof DailyTrackingController) {
                 ((DailyTrackingController) controller).setCurrentUser(loggedInUser);
             }
@@ -465,6 +474,7 @@ public class UserDashboardController {
         navProfileEdit.getStyleClass().remove("active");
         navBlog.getStyleClass().remove("active");
         navProducts.getStyleClass().remove("active");
+        navWishlist.getStyleClass().remove("active");
         navDailyCheckIn.getStyleClass().remove("active");
         activeBtn.getStyleClass().add("active");
     }

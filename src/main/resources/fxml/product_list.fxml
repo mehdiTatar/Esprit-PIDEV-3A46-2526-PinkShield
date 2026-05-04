@@ -20,6 +20,7 @@
         <ComboBox fx:id="categoryFilter" promptText="Category" prefWidth="150" styleClass="combo-box" />
         <ComboBox fx:id="sortCombo" promptText="Sort by" prefWidth="170" styleClass="combo-box" />
         <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="wishlistBucketBtn" text="Wishlist Bucket" onAction="#handleOpenWishlist" styleClass="button, secondary" visible="false" managed="false" />
         <Button fx:id="manageProductsBtn" text="Manage Products" onAction="#handleManageProducts" styleClass="button, secondary" visible="false" managed="false" />
     </HBox>
 

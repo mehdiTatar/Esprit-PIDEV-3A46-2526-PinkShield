@@ -140,6 +140,7 @@
             <Button fx:id="navProfileEdit" text="Profile Edit" onAction="#showProfileEdit" styleClass="nav-button" maxWidth="Infinity" />
             <Button fx:id="navBlog" text="Blog" onAction="#showBlog" styleClass="nav-button" maxWidth="Infinity" />
             <Button fx:id="navProducts" text="Parapharmacie" onAction="#showProducts" styleClass="nav-button" maxWidth="Infinity" />
+            <Button fx:id="navWishlist" text="Wishlist" onAction="#showWishlist" styleClass="nav-button" maxWidth="Infinity" />
             <Button fx:id="navDailyCheckIn" text="Daily Check In" onAction="#showDailyCheckIn" styleClass="nav-button" maxWidth="Infinity" />
 
             <Region VBox.vgrow="ALWAYS" />

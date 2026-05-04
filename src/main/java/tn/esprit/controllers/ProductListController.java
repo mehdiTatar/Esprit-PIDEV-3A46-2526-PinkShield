@@ -25,12 +25,15 @@ import tn.esprit.entities.Parapharmacy;
 import tn.esprit.entities.User;
 import tn.esprit.services.ParapharmacyService;
 import tn.esprit.services.UserService;
+import tn.esprit.services.WishlistService;
 import tn.esprit.utils.FormValidator;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ProductListController {
@@ -39,6 +42,7 @@ public class ProductListController {
     @FXML private ComboBox<String> sortCombo;
     @FXML private FlowPane productsContainer;
     @FXML private Button manageProductsBtn;
+    @FXML private Button wishlistBucketBtn;
 
     @FXML private Label adminTitle;
     @FXML private Label feedbackLabel;
@@ -56,7 +60,9 @@ public class ProductListController {
     @FXML private TableColumn<Parapharmacy, Void> actionsCol;
 
     private final ParapharmacyService productService = new ParapharmacyService();
+    private final WishlistService wishlistService = new WishlistService();
     private final ObservableList<Parapharmacy> allProducts = FXCollections.observableArrayList();
+    private final Set<Integer> wishlistedProductIds = new HashSet<>();
     private User currentUser;
     private Parapharmacy selectedProduct;
 
@@ -85,6 +91,15 @@ public class ProductListController {
             manageProductsBtn.setVisible(isAdmin);
             manageProductsBtn.setManaged(isAdmin);
         }
+        if (wishlistBucketBtn != null) {
+            boolean isPatient = isWishlistEnabledForCurrentUser();
+            wishlistBucketBtn.setVisible(isPatient);
+            wishlistBucketBtn.setManaged(isPatient);
+        }
+        refreshWishlistState();
+        if (productsContainer != null) {
+            filterShop();
+        }
     }
 
     @FXML
@@ -99,6 +114,15 @@ public class ProductListController {
     @FXML
     public void handleBackToShop() {
         loadSubView("/fxml/product_list.fxml");
+    }
+
+    @FXML
+    public void handleOpenWishlist() {
+        if (!isWishlistEnabledForCurrentUser()) {
+            showAlert("Access denied", "Wishlist is available only for patient accounts.", Alert.AlertType.WARNING);
+            return;
+        }
+        loadSubView("/fxml/wishlist.fxml");
     }
 
     @FXML
@@ -232,6 +256,7 @@ public class ProductListController {
 
     private void loadShopData() {
         allProducts.setAll(productService.getAllProducts());
+        refreshWishlistState();
         refreshShopCategories();
         filterShop();
     }
@@ -353,7 +378,18 @@ public class ProductListController {
         detailsButton.setMaxWidth(Double.MAX_VALUE);
         detailsButton.setOnAction(event -> showProductDetails(product));
 
-        card.getChildren().addAll(header, name, description, price, stock, detailsButton);
+        VBox actionsBox = new VBox(8);
+        if (isWishlistEnabledForCurrentUser()) {
+            Button wishlistButton = new Button(wishlistedProductIds.contains(product.getId()) ? "Saved to Wishlist" : "Add to Wishlist");
+            wishlistButton.getStyleClass().addAll("button", "secondary");
+            wishlistButton.setMaxWidth(Double.MAX_VALUE);
+            wishlistButton.setDisable(wishlistedProductIds.contains(product.getId()));
+            wishlistButton.setOnAction(event -> handleAddToWishlist(product));
+            actionsBox.getChildren().add(wishlistButton);
+        }
+        actionsBox.getChildren().add(detailsButton);
+
+        card.getChildren().addAll(header, name, description, price, stock, actionsBox);
         return card;
     }
 
@@ -482,6 +518,46 @@ public class ProductListController {
         return value == null ? "" : value;
     }
 
+    private void handleAddToWishlist(Parapharmacy product) {
+        if (!isWishlistEnabledForCurrentUser()) {
+            showAlert("Access denied", "Wishlist is available only for patient accounts.", Alert.AlertType.WARNING);
+            return;
+        }
+        if (!wishlistService.isAvailable()) {
+            showAlert("Database error", "Wishlist storage is unavailable.", Alert.AlertType.ERROR);
+            return;
+        }
+        if (!wishlistService.addItem(currentUser.getId(), product.getId())) {
+            showAlert("Error", "The product could not be added to the wishlist.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        wishlistedProductIds.add(product.getId());
+        updateWishlistBucketLabel();
+        filterShop();
+    }
+
+    private void refreshWishlistState() {
+        wishlistedProductIds.clear();
+        if (isWishlistEnabledForCurrentUser() && wishlistService.isAvailable()) {
+            wishlistedProductIds.addAll(wishlistService.getWishlistedProductIds(currentUser.getId()));
+        }
+        updateWishlistBucketLabel();
+    }
+
+    private void updateWishlistBucketLabel() {
+        if (wishlistBucketBtn == null) {
+            return;
+        }
+        wishlistBucketBtn.setText(isWishlistEnabledForCurrentUser()
+                ? "Wishlist Bucket (" + wishlistedProductIds.size() + ")"
+                : "Wishlist Bucket");
+    }
+
+    private boolean isWishlistEnabledForCurrentUser() {
+        return currentUser != null && UserService.ROLE_USER.equals(currentUser.getRole());
+    }
+
     private void loadSubView(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -490,6 +566,8 @@ public class ProductListController {
             Object controller = loader.getController();
             if (controller instanceof ProductListController productListController) {
                 productListController.setCurrentUser(currentUser);
+            } else if (controller instanceof WishlistController wishlistController) {
+                wishlistController.setCurrentUser(currentUser);
             }
 
             StackPane mainContent = null;
