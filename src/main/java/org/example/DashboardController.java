@@ -1,24 +1,23 @@
 package org.example;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.control.Label;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Optional;
 
 public class DashboardController {
@@ -68,39 +67,35 @@ public class DashboardController {
     public void initialize() {
         try {
             System.out.println("🔄 DashboardController initializing...");
-            
-            NavigationManager.getInstance().registerContentArea(contentArea);
+
+            if (contentArea != null) {
+                NavigationManager.getInstance().registerContentArea(contentArea);
+            }
             NavigationManager.getInstance().setDarkMode(darkModeEnabled);
             loadWelcomeDashboard();
             applyThemeClass(rootPane);
-            
-            // Initialize weather widget with real-time data
+
             try {
                 loadWeatherWidget();
                 System.out.println("✅ Weather widget loaded");
             } catch (Exception e) {
                 System.err.println("⚠️ Weather widget error: " + e.getMessage());
-                // Don't crash app if weather fails
             }
-            
-            // Initialize notification center
+
             try {
                 initializeNotificationCenter();
                 System.out.println("✅ Notification center loaded");
             } catch (Exception e) {
                 System.err.println("⚠️ Notification center error: " + e.getMessage());
-                // Don't crash app if notifications fail
             }
-            
-            // Initialize zen advice widget with wellness tips
+
             try {
                 loadZenAdvice();
                 System.out.println("✅ Zen advice widget loaded");
             } catch (Exception e) {
                 System.err.println("⚠️ Zen advice widget error: " + e.getMessage());
-                // Don't crash app if zen advice fails
             }
-            
+
             System.out.println("✅ DashboardController initialized successfully");
         } catch (Exception e) {
             System.err.println("❌ CRITICAL ERROR in DashboardController.initialize(): " + e.getMessage());
@@ -109,43 +104,28 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Initialize notification center with bindings
-     */
     private void initializeNotificationCenter() {
         NotificationManager notificationManager = NotificationManager.getInstance();
 
-        // Safely bind the unread count label
         if (notificationCountLabel != null) {
-            notificationCountLabel.textProperty().bind(
-                    notificationManager.getUnreadCountProperty().asString()
-            );
+            notificationCountLabel.textProperty().bind(notificationManager.getUnreadCountProperty().asString());
         }
 
-        // Hide badge if count is 0
         if (notificationBadge != null) {
-            notificationBadge.managedProperty().bind(
-                    notificationManager.getUnreadCountProperty().greaterThan(0)
-            );
-            notificationBadge.visibleProperty().bind(
-                    notificationManager.getUnreadCountProperty().greaterThan(0)
-            );
+            notificationBadge.managedProperty().bind(notificationManager.getUnreadCountProperty().greaterThan(0));
+            notificationBadge.visibleProperty().bind(notificationManager.getUnreadCountProperty().greaterThan(0));
         }
 
-        // Safely bind the notifications list
         if (notificationsList != null) {
             notificationsList.setItems(notificationManager.getNotifications());
             notificationsList.setStyle("-fx-font-size: 12px; -fx-padding: 5;");
         } else {
             System.out.println("⚠️ notificationsList is null - ListView not found in FXML");
         }
-        
+
         System.out.println("✅ Notification Center Initialized");
     }
 
-    /**
-     * Toggle the notification dropdown visibility
-     */
     @FXML
     public void handleToggleNotifications() {
         try {
@@ -153,13 +133,12 @@ public class DashboardController {
                 System.out.println("⚠️ notificationDropdown is null");
                 return;
             }
-            
+
             boolean isVisible = notificationDropdown.isVisible();
             notificationDropdown.setVisible(!isVisible);
             notificationDropdown.setManaged(!isVisible);
 
             if (!isVisible) {
-                // User opened the notifications - mark as read
                 NotificationManager.getInstance().markAsRead();
             }
         } catch (Exception e) {
@@ -168,28 +147,17 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Load weather widget asynchronously
-     * Fetches real-time weather from OpenWeatherMap API and updates UI
-     */
     private void loadWeatherWidget() {
         if (weatherLabel == null || weatherWarningBox == null) {
             System.out.println("⚠️ Weather widget elements not found in FXML");
             return;
         }
 
-        // Set default message while loading
         weatherLabel.setText("🌍 Loading weather data...");
         weatherWarningBox.setStyle("-fx-background-color: #e8f5e9; -fx-border-color: #4caf50; -fx-border-radius: 8; -fx-padding: 12 18;");
 
-        // Fetch weather asynchronously (non-blocking)
         weatherService.fetchWeatherAsync()
-                .thenAccept(weatherText -> {
-                    // Update UI on JavaFX thread
-                    Platform.runLater(() -> {
-                        updateWeatherWidget(weatherText);
-                    });
-                })
+                .thenAccept(weatherText -> Platform.runLater(() -> updateWeatherWidget(weatherText)))
                 .exceptionally(throwable -> {
                     System.err.println("❌ Error in weather async call: " + throwable.getMessage());
                     Platform.runLater(this::handleWeatherError);
@@ -197,21 +165,11 @@ public class DashboardController {
                 });
     }
 
-    /**
-     * Update weather widget with real-time weather data
-     */
     private void updateWeatherWidget(String weatherText) {
         try {
-            // Update label with weather info
             weatherLabel.setText(weatherText);
-            
-            // Style based on the weather condition
-            String style = "-fx-text-fill: #1b5e20; -fx-font-size: 13px; -fx-font-weight: 600;";
-            weatherLabel.setStyle(style);
-
-            // Update box background with a pleasant green
+            weatherLabel.setStyle("-fx-text-fill: #1b5e20; -fx-font-size: 13px; -fx-font-weight: 600;");
             weatherWarningBox.setStyle("-fx-background-color: #e8f5e9; -fx-border-color: #4caf50; -fx-border-radius: 8; -fx-padding: 12 18;");
-
             System.out.println("✅ Weather widget updated: " + weatherText);
         } catch (Exception e) {
             System.err.println("❌ Error updating weather widget: " + e.getMessage());
@@ -219,9 +177,6 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Handle weather service errors
-     */
     private void handleWeatherError() {
         try {
             weatherLabel.setText("🌍 Unable to fetch weather data");
@@ -232,29 +187,17 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Load zen advice widget asynchronously
-     * Fetches wellness tips from AdviceSlip API and updates UI
-     * Uses CompletableFuture for non-blocking operations
-     */
     private void loadZenAdvice() {
         if (zenQuoteLabel == null || zenAdviceBox == null) {
             System.out.println("⚠️ Zen advice widget elements not found in FXML");
             return;
         }
 
-        // Set default message while loading
         zenQuoteLabel.setText("🧘 Loading wellness tip...");
         zenAdviceBox.setStyle("-fx-padding: 15 18; -fx-background-radius: 12; -fx-border-radius: 12; -fx-background-color: #f0f4ff; -fx-border-color: #7c3aed; -fx-border-width: 1.5;");
 
-        // Fetch zen advice asynchronously using CompletableFuture (non-blocking)
         ZenAdviceService.fetchZenAdviceAsync()
-                .thenAccept(advice -> {
-                    // Update UI on JavaFX thread using Platform.runLater()
-                    Platform.runLater(() -> {
-                        updateZenAdvice(advice);
-                    });
-                })
+                .thenAccept(advice -> Platform.runLater(() -> updateZenAdvice(advice)))
                 .exceptionally(throwable -> {
                     System.err.println("❌ Error in zen advice async call: " + throwable.getMessage());
                     Platform.runLater(this::handleZenAdviceError);
@@ -262,15 +205,11 @@ public class DashboardController {
                 });
     }
 
-    /**
-     * Update zen advice widget with fetched wellness tip
-     */
     private void updateZenAdvice(String advice) {
         try {
             zenQuoteLabel.setText(advice);
             zenQuoteLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #6d28d9;");
             zenAdviceBox.setStyle("-fx-padding: 15 18; -fx-background-radius: 12; -fx-border-radius: 12; -fx-background-color: #f0f4ff; -fx-border-color: #7c3aed; -fx-border-width: 1.5;");
-
             System.out.println("✅ Zen advice widget updated: " + advice);
         } catch (Exception e) {
             System.err.println("❌ Error updating zen advice widget: " + e.getMessage());
@@ -278,9 +217,6 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Handle zen advice service errors with fallback message
-     */
     private void handleZenAdviceError() {
         try {
             zenQuoteLabel.setText("💡 Prenez un moment pour respirer profondément aujourd'hui.");
@@ -290,8 +226,12 @@ public class DashboardController {
             System.err.println("❌ Error handling zen advice error: " + e.getMessage());
         }
     }
-    
+
     private void loadWelcomeDashboard() {
+        if (contentArea == null) {
+            return;
+        }
+
         VBox welcomeBox = new VBox(30);
         welcomeBox.setAlignment(javafx.geometry.Pos.CENTER);
         welcomeBox.getStyleClass().add("welcome-dashboard");
@@ -311,7 +251,6 @@ public class DashboardController {
         VBox wishlistCard = createFeatureCard("❤️ Wishlist", "View your saved products");
 
         featureBox.getChildren().addAll(appointmentsCard, parapharmacieCard, wishlistCard);
-
         welcomeBox.getChildren().addAll(titleLabel, subtitleLabel, featureBox);
 
         contentArea.getChildren().clear();
@@ -338,7 +277,6 @@ public class DashboardController {
         descLabel.setWrapText(true);
 
         card.getChildren().addAll(iconLabel, titleLabel, descLabel);
-        
         card.setOnMouseClicked(e -> {
             if (title.contains("Appointments")) {
                 handleAppointments();
@@ -348,7 +286,7 @@ public class DashboardController {
                 handleWishlist();
             }
         });
-        
+
         return card;
     }
 
@@ -358,10 +296,12 @@ public class DashboardController {
         if (nightModeToggle != null) {
             nightModeToggle.setText(darkModeEnabled ? "Day Mode" : "Night Mode");
         }
+
         NavigationManager.getInstance().setDarkMode(darkModeEnabled);
         applyThemeClass(rootPane);
-        if (!contentArea.getChildren().isEmpty()) {
-            applyThemeClass(contentArea.getChildren().getFirst());
+
+        if (contentArea != null && !contentArea.getChildren().isEmpty()) {
+            applyThemeClass(contentArea.getChildren().get(0));
         }
     }
 
@@ -419,7 +359,6 @@ public class DashboardController {
     public void handleDashboard() {
         loadWelcomeDashboard();
     }
-
 
     private void applyThemeClass(Node node) {
         if (node == null) {
