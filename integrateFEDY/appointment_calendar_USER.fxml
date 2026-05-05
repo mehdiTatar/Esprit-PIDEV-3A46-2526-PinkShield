@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.AppointmentCalendarController"
+            stylesheets="@style.css" styleClass="module-root">
+    <top>
+        <ToolBar>
+            <Button text="Back to Appointment" onAction="#handleBackToAppointment" styleClass="btn-secondary"/>
+            <Button text="AI Assistant" onAction="#handleAiAssistant" styleClass="btn-primary"/>
+            <Label text="Appointment Calendar" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <VBox spacing="16" style="-fx-padding: 24;">
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="calendar-month-controls">
+                <Button text="←" onAction="#handlePreviousMonth" styleClass="btn-secondary"/>
+                <Label fx:id="monthLabel" text="Month Year" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+                <Button text="→" onAction="#handleNextMonth" styleClass="btn-secondary"/>
+            </HBox>
+
+            <Label text="Booked dates are marked with patient names." styleClass="label-subtitle"/>
+            <GridPane fx:id="calendarGrid" hgap="8" vgap="8" styleClass="appointment-calendar-grid"/>
+        </VBox>
+    </center>
+</BorderPane>
+

@@ -1,0 +1,5 @@
+# Local OpenAI chatbot configuration.
+# Copy this file to openai.properties and fill in your real key.
+
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-5.4-mini

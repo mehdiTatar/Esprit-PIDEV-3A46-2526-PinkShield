@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ParapharmacieUserController" spacing="15" stylesheets="@style.css" styleClass="module-root user-para" style="-fx-padding: 20;">
+    <Label text="🌿 Parapharmacie" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <TextField fx:id="searchBar" promptText="🔍 Rechercher..." prefWidth="250" styleClass="day-mode-input"/>
+        <ComboBox fx:id="sortComboBox" promptText="Trier par..." prefWidth="150" styleClass="day-mode-combo"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <FlowPane fx:id="productFlowPane" hgap="20" vgap="20" styleClass="para-flowpane"/>
+    </ScrollPane>
+</VBox>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.AdminDashboardController"
+            styleClass="root"
+            stylesheets="@../css/style.css">
+    <fx:define>
+        <VBox fx:id="profileEditView" spacing="20" maxWidth="1160">
+            <HBox alignment="CENTER_LEFT" styleClass="hero-panel">
+                <VBox spacing="8">
+                    <Label text="Profile Settings" styleClass="dashboard-title" />
+                    <Label text="Maintain the administrator account details used to manage platform-wide activity and access." styleClass="dashboard-copy" wrapText="true" />
+                </VBox>
+            </HBox>
+
+            <HBox spacing="20" alignment="TOP_LEFT" styleClass="profile-layout">
+                <VBox prefWidth="300" spacing="16" styleClass="panel-card profile-side-card">
+                    <Label text="Profile Guide" styleClass="section-title" />
+                    <Label text="This administrator identity is used whenever you manage users, content, and operational workflows." styleClass="dashboard-copy" wrapText="true" />
+
+                    <Separator style="-fx-opacity: 0.12;" />
+
+                    <VBox spacing="12">
+                        <VBox spacing="4">
+                            <Label text="Account owner" styleClass="profile-side-label" />
+                            <Label text="Keep the administrator name current so management actions remain traceable." styleClass="dashboard-copy" wrapText="true" />
+                        </VBox>
+
+                        <VBox spacing="4">
+                            <Label text="Primary email" styleClass="profile-side-label" />
+                            <Label text="Use a stable email address associated with the administration account." styleClass="dashboard-copy" wrapText="true" />
+                        </VBox>
+                    </VBox>
+                </VBox>
+
+                <VBox spacing="18" styleClass="panel-card profile-card profile-form-card" HBox.hgrow="ALWAYS">
+                    <Label fx:id="profileFeedbackLabel" text="" visible="false" managed="false" styleClass="feedback-label" wrapText="true" />
+
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Administrator Identity" styleClass="profile-section-title" />
+                        <Label text="Update the name and email address associated with this administrator account." styleClass="profile-section-copy" wrapText="true" />
+
+                        <HBox spacing="14" styleClass="profile-field-grid">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="FIRST NAME" styleClass="field-label" />
+                                <TextField fx:id="adminFirstNameField" promptText="First name" styleClass="text-field" />
+                            </VBox>
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="LAST NAME" styleClass="field-label" />
+                                <TextField fx:id="adminLastNameField" promptText="Last name" styleClass="text-field" />
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="6">
+                            <Label text="EMAIL ADDRESS" styleClass="field-label" />
+                            <TextField fx:id="adminEmailField" promptText="admin@example.com" styleClass="text-field" />
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Security" styleClass="profile-section-title" />
+                        <Label text="Leave the password field blank to keep the current administrator password." styleClass="profile-section-copy" wrapText="true" />
+
+                        <VBox spacing="6">
+                            <Label text="NEW PASSWORD" styleClass="field-label" />
+                            <PasswordField fx:id="adminPasswordField" promptText="Leave blank to keep the current password" />
+                        </VBox>
+                    </VBox>
+
+                    <VBox spacing="16" styleClass="profile-section-card">
+                        <Label text="Account Metadata" styleClass="profile-section-title" />
+                        <Label text="This value is loaded directly from the admin table." styleClass="profile-section-copy" wrapText="true" />
+
+                        <VBox spacing="6">
+                            <Label text="ACCOUNT ID" styleClass="field-label" />
+                            <TextField fx:id="adminAccountIdField" editable="false" promptText="Database account id" styleClass="text-field" />
+                        </VBox>
+
+                        <VBox spacing="6">
+                            <Label text="CREATED AT" styleClass="field-label" />
+                            <TextField fx:id="adminCreatedAtField" editable="false" promptText="Account creation timestamp" styleClass="text-field" />
+                        </VBox>
+                    </VBox>
+
+                    <HBox spacing="12" alignment="CENTER_RIGHT" styleClass="profile-action-row">
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="Reset" onAction="#handleResetProfile" styleClass="button secondary" />
+                        <Button text="Save changes" onAction="#handleSaveProfile" styleClass="button" />
+                    </HBox>
+                </VBox>
+            </HBox>
+        </VBox>
+    </fx:define>
+
+    <left>
+        <VBox styleClass="sidebar">
+            <padding>
+                <Insets top="24" right="14" bottom="24" left="14" />
+            </padding>
+
+            <Label text="PinkShield" styleClass="brand-title" />
+            <Label text="Administration" styleClass="subtitle" />
+
+            <Button fx:id="navDashboard" text="Dashboard" onAction="#showDashboard" styleClass="nav-button active" maxWidth="Infinity" />
+            <Button fx:id="navAppointments" text="Appointment" onAction="#showAppointmentManagement" styleClass="nav-button" maxWidth="Infinity" />
+            <Button fx:id="navProfileEdit" text="Profile Edit" onAction="#showProfileEdit" styleClass="nav-button" maxWidth="Infinity" />
+            <Button fx:id="navBlog" text="Blog" onAction="#showBlogManagement" styleClass="nav-button" maxWidth="Infinity" />
+            <Button fx:id="navProducts" text="Parapharmacie" onAction="#showProductManagement" styleClass="nav-button" maxWidth="Infinity" />
+            <Button fx:id="navDailyCheckIn" text="Daily Check In" onAction="#showDailyCheckIn" styleClass="nav-button" maxWidth="Infinity" />
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <Separator />
+            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button logout-button" maxWidth="Infinity" />
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="page-scroll">
+            <content>
+                <StackPane fx:id="mainContent" alignment="TOP_CENTER" styleClass="content-area">
+                    <VBox fx:id="dashboardView" maxWidth="1160" spacing="20">
+                <HBox alignment="CENTER_LEFT" styleClass="hero-panel">
+                    <VBox spacing="8">
+                        <Label fx:id="welcomeLabel" text="Administrator" styleClass="dashboard-title" />
+                        <Label text="Manage the entire platform from one dashboard: accounts, appointments, pharmacy access, and health activity visibility." styleClass="dashboard-copy" wrapText="true" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button text="Refresh" onAction="#handleRefreshUsers" styleClass="button secondary" />
+                    <Button text="Add account" onAction="#handleAddUser" styleClass="button" />
+                </HBox>
+
+                <HBox spacing="16">
+                    <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                        <Label text="TOTAL ACCOUNTS" styleClass="metric-label" />
+                        <Label fx:id="totalUsersLabel" text="0" styleClass="metric-value" />
+                    </VBox>
+                    <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                        <Label text="ADMINS" styleClass="metric-label" />
+                        <Label fx:id="adminsCountLabel" text="0" styleClass="metric-value" />
+                    </VBox>
+                    <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                        <Label text="DOCTORS" styleClass="metric-label" />
+                        <Label fx:id="doctorsCountLabel" text="0" styleClass="metric-value" />
+                    </VBox>
+                    <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                        <Label text="PATIENTS" styleClass="metric-label" />
+                        <Label fx:id="patientsCountLabel" text="0" styleClass="metric-value" />
+                    </VBox>
+                </HBox>
+
+                <VBox spacing="16" styleClass="panel-card" VBox.vgrow="ALWAYS">
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <TextField fx:id="searchField" promptText="Search by name, email, phone, or speciality" styleClass="text-field dashboard-search" HBox.hgrow="ALWAYS" />
+                        <ComboBox fx:id="roleFilterCombo" prefWidth="150" styleClass="dashboard-filter" />
+                        <ComboBox fx:id="sortCombo" prefWidth="160" styleClass="dashboard-filter" />
+                        <Button text="Edit selected" onAction="#handleEditUser" styleClass="button secondary" />
+                        <Button text="Delete selected" onAction="#handleDeleteUser" styleClass="button danger-button" />
+                    </HBox>
+
+                    <Label fx:id="tableInfoLabel" text="0 account(s) displayed" styleClass="table-meta" />
+
+                    <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" styleClass="dashboard-table">
+                        <columns>
+                            <TableColumn fx:id="idColumn" text="ID" prefWidth="70" />
+                            <TableColumn fx:id="nameColumn" text="Name" prefWidth="220" />
+                            <TableColumn fx:id="emailColumn" text="Email" prefWidth="250" />
+                            <TableColumn fx:id="roleColumn" text="Role" prefWidth="120" />
+                            <TableColumn fx:id="detailsColumn" text="Details" prefWidth="320" />
+                        </columns>
+                    </TableView>
+                </VBox>
+                    </VBox>
+                </StackPane>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

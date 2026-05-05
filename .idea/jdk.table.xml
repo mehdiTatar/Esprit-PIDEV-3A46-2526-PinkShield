@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectJdkTable">
+    <jdk version="2">
+      <name>Adoptium-21.0.10</name>
+      <type>JavaSDK</type>
+      <homePath>C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot</homePath>
+      <roots>
+        <classPath>
+          <root url="file:///C:/Program Files/Eclipse Adoptium/jdk-21.0.10.7-hotspot/lib" />
+        </classPath>
+        <sources />
+        <javadoc />
+      </roots>
+    </jdk>
+  </component>
+</project>
+

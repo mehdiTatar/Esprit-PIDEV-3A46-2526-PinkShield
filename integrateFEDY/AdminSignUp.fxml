@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.example.AdminSignUpController" stylesheets="@style.css" styleClass="admin-theme">
+
+    <Region styleClass="admin-gradient-background" />
+
+    <VBox maxWidth="560" prefWidth="560" spacing="16" alignment="CENTER" styleClass="admin-glass-card">
+        <padding>
+            <Insets top="30" right="38" bottom="30" left="38" />
+        </padding>
+
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="🛡️ PinkShield | Professional Portal" styleClass="admin-header-title" />
+        </HBox>
+        <Label text="Admin Account Registration" styleClass="admin-subtitle" />
+
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="admin-input-row">
+            <Label text="👤" styleClass="admin-field-icon" />
+            <TextField fx:id="txtFullName" promptText="Full Name" styleClass="admin-field" HBox.hgrow="ALWAYS" />
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="admin-input-row">
+            <Label text="📧" styleClass="admin-field-icon" />
+            <TextField fx:id="txtProfessionalEmail" promptText="Professional Email" styleClass="admin-field" HBox.hgrow="ALWAYS" />
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="admin-input-row">
+            <Label text="⚕️" styleClass="admin-field-icon" />
+            <ComboBox fx:id="cmbSpecialty" promptText="Specialty" styleClass="admin-field admin-combo" HBox.hgrow="ALWAYS" />
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="admin-input-row">
+            <Label text="🆔" styleClass="admin-field-icon" />
+            <TextField fx:id="txtLicenseId" promptText="Medical License ID" styleClass="admin-field" HBox.hgrow="ALWAYS" />
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="admin-input-row">
+            <Label text="🔒" styleClass="admin-field-icon" />
+            <PasswordField fx:id="txtPassword" promptText="Password" styleClass="admin-field" HBox.hgrow="ALWAYS" />
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="admin-input-row">
+            <Label text="🔑" styleClass="admin-field-icon" />
+            <PasswordField fx:id="txtConfirmPassword" promptText="Confirm Password" styleClass="admin-field" HBox.hgrow="ALWAYS" />
+        </HBox>
+
+        <Button text="Register as Admin" onAction="#handleRegister" styleClass="admin-primary-button" maxWidth="1.7976931348623157E308" />
+        <Label fx:id="lblStatus" text="" styleClass="admin-error-label" />
+
+        <Button text="Login as Patient" onAction="#handleLoginAsPatient" styleClass="patient-login-button" maxWidth="1.7976931348623157E308" />
+    </VBox>
+</StackPane>
+

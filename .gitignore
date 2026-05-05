@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -36,3 +37,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+=======
+mail.properties
+facepp.properties
+images/faces/
+openai.properties
+>>>>>>> origin/GestionUserJava
