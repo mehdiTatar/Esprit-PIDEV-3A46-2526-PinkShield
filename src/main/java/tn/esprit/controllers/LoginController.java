@@ -13,10 +13,12 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -38,10 +40,17 @@ import tn.esprit.utils.WebcamCaptureDialog;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.prefs.Preferences;
 
 public class LoginController {
-    @FXML private TextField emailField;
+    private static final String REMEMBERED_EMAILS_KEY = "rememberedLoginEmails";
+    private static final int MAX_REMEMBERED_EMAILS = 8;
+
+    @FXML private ComboBox<String> emailField;
     @FXML private PasswordField passwordField;
     @FXML private TextField visiblePasswordField;
     @FXML private Button togglePasswordButton;
@@ -83,6 +92,7 @@ public class LoginController {
 
     private final AuthService authService = new AuthService();
     private final RecaptchaWidget loginRecaptchaWidget = new RecaptchaWidget();
+    private final Preferences preferences = Preferences.userNodeForPackage(LoginController.class);
     private boolean passwordVisible;
     private Path selectedFaceLoginImagePath;
 
@@ -111,6 +121,7 @@ public class LoginController {
     @FXML
     public void initialize() {
         visiblePasswordField.textProperty().bindBidirectional(passwordField.textProperty());
+        setupRememberedEmails();
         FormValidator.attachClearOnInput(feedbackLabel, emailField, passwordField, visiblePasswordField);
         FormValidator.attachClearOnInput(
                 forgotPasswordFeedbackLabel,
@@ -128,7 +139,7 @@ public class LoginController {
     public void handleLogin() {
         clearFeedback();
 
-        String email = emailField.getText().trim();
+        String email = getLoginEmail();
         String password = passwordField.getText();
 
         if (email.isEmpty() || password.isEmpty()) {
@@ -188,6 +199,7 @@ public class LoginController {
                 return;
             }
 
+            rememberLoginEmail(email);
             openDashboard(result.user());
         });
 
@@ -221,7 +233,7 @@ public class LoginController {
         clearForgotPasswordFeedback();
         clearFaceLoginFeedback();
 
-        forgotPasswordEmailField.setText(emailField.getText().trim());
+        forgotPasswordEmailField.setText(getLoginEmail());
         forgotPasswordCodeField.clear();
         forgotPasswordField.clear();
         forgotPasswordConfirmField.clear();
@@ -243,7 +255,7 @@ public class LoginController {
         clearForgotPasswordFeedback();
         clearFaceLoginFeedback();
 
-        faceLoginEmailField.setText(emailField.getText().trim());
+        faceLoginEmailField.setText(getLoginEmail());
         resetFaceLoginSelection();
 
         loginContentPane.setManaged(false);
@@ -446,7 +458,7 @@ public class LoginController {
             return;
         }
 
-        emailField.setText(email);
+        setLoginEmail(email);
         passwordField.clear();
         visiblePasswordField.clear();
         forgotPasswordCodeField.clear();
@@ -583,6 +595,59 @@ public class LoginController {
 
         loginButton.setDisable(false);
         loginButton.setText("Authenticate and Enter");
+    }
+
+    private void setupRememberedEmails() {
+        if (emailField == null) {
+            return;
+        }
+        emailField.setEditable(true);
+        emailField.setItems(FXCollections.observableArrayList(loadRememberedEmails()));
+        if (!emailField.getItems().isEmpty()) {
+            emailField.getEditor().setText(emailField.getItems().get(0));
+        }
+    }
+
+    private String getLoginEmail() {
+        return emailField == null || emailField.getEditor() == null
+                ? ""
+                : emailField.getEditor().getText().trim();
+    }
+
+    private void setLoginEmail(String email) {
+        if (emailField != null && emailField.getEditor() != null) {
+            emailField.getEditor().setText(email == null ? "" : email.trim());
+        }
+    }
+
+    private List<String> loadRememberedEmails() {
+        String storedValue = preferences.get(REMEMBERED_EMAILS_KEY, "");
+        List<String> emails = new ArrayList<>();
+        for (String email : storedValue.split("\\|")) {
+            String trimmedEmail = email.trim();
+            if (!trimmedEmail.isEmpty() && !emails.contains(trimmedEmail)) {
+                emails.add(trimmedEmail);
+            }
+        }
+        return emails;
+    }
+
+    private void rememberLoginEmail(String email) {
+        String normalizedEmail = email == null ? "" : email.trim().toLowerCase();
+        if (normalizedEmail.isEmpty()) {
+            return;
+        }
+
+        LinkedHashSet<String> emails = new LinkedHashSet<>();
+        emails.add(normalizedEmail);
+        emails.addAll(loadRememberedEmails());
+
+        List<String> limitedEmails = emails.stream()
+                .limit(MAX_REMEMBERED_EMAILS)
+                .toList();
+        preferences.put(REMEMBERED_EMAILS_KEY, String.join("|", limitedEmails));
+        emailField.setItems(FXCollections.observableArrayList(limitedEmails));
+        setLoginEmail(normalizedEmail);
     }
 
     private void openDashboard(User user) {

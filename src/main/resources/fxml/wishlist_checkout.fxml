@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.WishlistCheckoutController"
+      alignment="TOP_CENTER"
+      spacing="20"
+      style="-fx-padding: 20 40 20 40;">
+
+    <!-- Header -->
+    <VBox spacing="16" style="-fx-padding: 20; -fx-background-color: #f5f7fb; -fx-border-radius: 10;">
+        <HBox alignment="CENTER_LEFT" spacing="14">
+            <VBox spacing="6">
+                <Label text="💳 Wishlist Checkout" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+                <Label text="Review your items and complete your purchase" style="-fx-font-size: 13; -fx-text-fill: #636e72;" wrapText="true"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Refresh" onAction="#handleRefresh" style="-fx-padding: 8 16; -fx-font-size: 12;"/>
+            <Button text="📥 Download PDF" onAction="#handleDownloadWishlistPdf" style="-fx-padding: 8 16; -fx-font-size: 12; -fx-background-color: #0984e3; -fx-text-fill: white;"/>
+        </HBox>
+    </VBox>
+
+    <!-- Main Content: Wishlist Table + Payment Form -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+        <!-- LEFT SIDE: Wishlist Table -->
+        <VBox spacing="14" style="-fx-padding: 20; -fx-background-color: white; -fx-border-radius: 10;" HBox.hgrow="ALWAYS">
+            <Label text="📋 Your Items" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+
+            <!-- Search Bar -->
+            <TextField fx:id="searchBar" promptText="Search products..." style="-fx-padding: 10; -fx-font-size: 12;"/>
+
+            <!-- Items Summary -->
+            <HBox spacing="16">
+                <VBox style="-fx-padding: 12; -fx-background-color: #ffeaf4; -fx-border-radius: 8;" HBox.hgrow="ALWAYS">
+                    <Label text="ITEMS IN CART" style="-fx-font-size: 11; -fx-text-fill: #636e72;"/>
+                    <Label fx:id="orderItemsLabel" text="0 items" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
+                </VBox>
+                <VBox style="-fx-padding: 12; -fx-background-color: #e3f2fd; -fx-border-radius: 8;" HBox.hgrow="ALWAYS">
+                    <Label text="TOTAL PRICE" style="-fx-font-size: 11; -fx-text-fill: #636e72;"/>
+                    <Label fx:id="totalPriceLabel" text="0.00 TND" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #0984e3;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Wishlist Table -->
+            <TableView fx:id="wishlistTable" VBox.vgrow="ALWAYS" minHeight="250">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="colProductName" text="Product Name" prefWidth="250"/>
+                    <TableColumn fx:id="colPrice" text="Price" prefWidth="100"/>
+                    <TableColumn fx:id="colAddedDate" text="Added On" prefWidth="120"/>
+                    <TableColumn fx:id="colActions" text="Actions" prefWidth="150"/>
+                </columns>
+            </TableView>
+        </VBox>
+
+        <!-- RIGHT SIDE: Payment Form -->
+        <VBox spacing="16" style="-fx-padding: 20; -fx-background-color: white; -fx-border-radius: 10;" prefWidth="380" minWidth="350">
+            <Label text="💳 Payment Information" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+
+            <!-- Order Summary -->
+            <VBox spacing="10" style="-fx-padding: 12; -fx-background-color: #f5f7fb; -fx-border-radius: 8;">
+                <Label text="Order Summary" style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+                <Separator style="-fx-padding: 5 0 5 0;"/>
+                <HBox spacing="10">
+                    <Label text="Items:" style="-fx-font-size: 12;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="orderItemsLabel" text="0" style="-fx-font-size: 12; -fx-font-weight: bold;"/>
+                </HBox>
+                <HBox spacing="10">
+                    <Label text="Total:" style="-fx-font-size: 12;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="orderTotalLabel" text="0.00 TND" style="-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
+                </HBox>
+            </VBox>
+
+            <!-- Cardholder Name -->
+            <VBox spacing="6">
+                <Label text="Cardholder Name" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+                <TextField fx:id="cardholderNameField" promptText="John Doe" style="-fx-padding: 10; -fx-font-size: 12;"/>
+            </VBox>
+
+            <!-- Card Number -->
+            <VBox spacing="6">
+                <Label text="Card Number" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+                <TextField fx:id="cardNumberField" promptText="1234 5678 9012 3456" style="-fx-padding: 10; -fx-font-size: 12;"/>
+            </VBox>
+
+            <!-- Expiry Date and CVV -->
+            <HBox spacing="12">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Expiry Date" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+                    <TextField fx:id="expiryDateField" promptText="MM/YY" style="-fx-padding: 10; -fx-font-size: 12;"/>
+                </VBox>
+                <VBox spacing="6" prefWidth="100">
+                    <Label text="CVV" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+                    <TextField fx:id="cvvField" promptText="123" style="-fx-padding: 10; -fx-font-size: 12;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Security Info -->
+            <HBox spacing="8" alignment="CENTER_LEFT" style="-fx-padding: 10; -fx-background-color: #e8f5e9; -fx-border-radius: 6;">
+                <Label text="🔒" style="-fx-font-size: 14;"/>
+                <Label text="Your payment information is secure and encrypted" style="-fx-font-size: 11; -fx-text-fill: #2e7d32;" wrapText="true"/>
+            </HBox>
+
+            <!-- Feedback Label -->
+            <Label fx:id="feedbackLabel" text="" visible="false" managed="false" wrapText="true" style="-fx-font-size: 11; -fx-text-fill: #d32f2f;"/>
+
+            <!-- Pay Button -->
+            <Button text="✅ Complete Payment" onAction="#handlePayment" style="-fx-padding: 12 16; -fx-font-size: 13; -fx-font-weight: bold; -fx-background-color: #00c853; -fx-text-fill: white; -fx-border-radius: 6;" prefHeight="45"/>
+
+            <!-- Additional Info -->
+            <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: #ffeaf4; -fx-border-radius: 8;">
+                <Label text="💡 Test Card" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
+                <Label text="4532015112830366" style="-fx-font-size: 12; -fx-text-fill: #2d3436;" wrapText="true"/>
+                <Label text="Any future date • Any 3 digits" style="-fx-font-size: 10; -fx-text-fill: #636e72;" wrapText="true"/>
+            </VBox>
+        </VBox>
+
+    </HBox>
+
+</VBox>
+

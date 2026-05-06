@@ -18,10 +18,10 @@
         <TableView fx:id="table" VBox.vgrow="ALWAYS" styleClass="table-view" prefHeight="350">
             <columns>
                 <TableColumn fx:id="colId" text="Item ID" prefWidth="80"/>
-                <TableColumn fx:id="colParapharmacieId" text="Product" prefWidth="210"/>
-                <TableColumn fx:id="colPrice" text="Price" prefWidth="120"/>
-                <TableColumn fx:id="colAddedAt" text="Added On" prefWidth="150"/>
-                <TableColumn fx:id="colAction" text="Action" prefWidth="100"/>
+                <TableColumn fx:id="colParapharmacieId" text="Product" prefWidth="180"/>
+                <TableColumn fx:id="colPrice" text="Price" prefWidth="100"/>
+                <TableColumn fx:id="colAddedAt" text="Added On" prefWidth="130"/>
+                <TableColumn fx:id="colAction" text="Actions" prefWidth="150"/>
             </columns>
         </TableView>
 

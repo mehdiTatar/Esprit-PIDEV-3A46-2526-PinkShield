@@ -93,8 +93,8 @@ public class AppointmentCalendarController {
                 pageSubtitleLabel.setText("Track the full appointment schedule and spot busy days quickly.");
             }
             case UserService.ROLE_DOCTOR -> {
-                pageTitleLabel.setText("Doctor Schedule");
-                pageSubtitleLabel.setText("Review your upcoming patient bookings month by month.");
+                pageTitleLabel.setText("Doctor Appointment Calendar");
+                pageSubtitleLabel.setText("Review every patient booking month by month.");
             }
             default -> {
                 pageTitleLabel.setText("My Appointment Calendar");
@@ -111,8 +111,8 @@ public class AppointmentCalendarController {
 
         List<Appointment> appointments = switch (currentUser.getRole()) {
             case UserService.ROLE_ADMIN -> appointmentService.getAllAppointments();
-            case UserService.ROLE_DOCTOR -> appointmentService.getAppointmentsByDoctor(currentUser.getId());
-            default -> appointmentService.getAppointmentsByPatient(currentUser.getId());
+            case UserService.ROLE_DOCTOR -> appointmentService.getAllAppointments();
+            default -> appointmentService.getAppointmentsByPatient(currentUser.getEmail());
         };
 
         for (Appointment appointment : appointments) {

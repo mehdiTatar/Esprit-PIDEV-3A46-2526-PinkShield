@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -216,7 +215,7 @@ public class FaceRecognitionService {
 
     private FaceApiResponse callFaceApi(String url, Map<String, String> textFields, Map<String, Path> fileFields) throws IOException {
         String boundary = "----PinkShieldFaceBoundary" + UUID.randomUUID();
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) java.net.URI.create(url).toURL().openConnection();
         connection.setConnectTimeout(30000);
         connection.setReadTimeout(30000);
         connection.setRequestMethod("POST");

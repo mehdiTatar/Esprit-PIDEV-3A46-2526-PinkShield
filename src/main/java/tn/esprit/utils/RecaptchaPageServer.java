@@ -112,7 +112,7 @@ public final class RecaptchaPageServer {
                             widgetId = grecaptcha.render('recaptcha-container', {
                                 sitekey: '__SITE_KEY__',
                                 theme: 'dark',
-                                size: 'compact',
+                                size: 'normal',
                                 callback: onToken,
                                 'expired-callback': onExpired,
                                 'error-callback': onError
@@ -138,15 +138,17 @@ public final class RecaptchaPageServer {
                             margin: 0;
                             width: 100%;
                             height: 100%;
-                            overflow: hidden;
+                            overflow: auto;
                             background: #0f1726;
                             font-family: Arial, sans-serif;
                         }
 
                         body {
                             display: flex;
-                            align-items: center;
+                            align-items: flex-start;
                             justify-content: center;
+                            box-sizing: border-box;
+                            padding-top: 18px;
                         }
 
                         #recaptcha-shell {

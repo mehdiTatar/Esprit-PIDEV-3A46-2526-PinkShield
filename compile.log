@@ -1,3 +1,0 @@
-error: Invalid filename: src\main\java\org\example\**\*.java
-Usage: javac <options> <source files>
-use --help for a list of possible options

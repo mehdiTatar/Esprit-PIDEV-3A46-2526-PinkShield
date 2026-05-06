@@ -42,6 +42,7 @@
             <Label text="TOTAL VALUE" styleClass="metric-label" />
             <Label fx:id="totalValueLabel" text="0.00 TND" styleClass="metric-value" />
         </VBox>
+        <Button text="🛒 Go to Checkout" onAction="#handleGoToCheckout" styleClass="button, primary" />
     </HBox>
 
     <VBox fx:id="patientOnlyNotice" spacing="10" managed="false" visible="false" styleClass="panel-card">
@@ -64,6 +65,37 @@
                 <TableColumn fx:id="priceCol" text="Price" prefWidth="140" />
                 <TableColumn fx:id="addedAtCol" text="Added On" prefWidth="140" />
                 <TableColumn fx:id="actionsCol" text="Actions" prefWidth="140" />
+            </columns>
+        </TableView>
+    </VBox>
+
+    <VBox spacing="14" styleClass="panel-card" VBox.vgrow="ALWAYS">
+        <HBox spacing="16" alignment="CENTER_LEFT">
+            <VBox spacing="4">
+                <Label text="Transaction History" styleClass="section-title" />
+                <Label text="Past wishlist checkouts for this patient." styleClass="dashboard-copy" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <VBox styleClass="metric-card metric-card-user">
+                <Label text="TRANSACTIONS" styleClass="metric-label" />
+                <Label fx:id="transactionCountLabel" text="0" styleClass="metric-value" />
+            </VBox>
+            <VBox styleClass="metric-card metric-card-user">
+                <Label text="TOTAL SPENT" styleClass="metric-label" />
+                <Label fx:id="transactionTotalLabel" text="0.00 TND" styleClass="metric-value" />
+            </VBox>
+        </HBox>
+
+        <Label fx:id="transactionFeedbackLabel" text="" visible="false" managed="false" wrapText="true" styleClass="chat-status-label" />
+
+        <TableView fx:id="transactionsTable" VBox.vgrow="ALWAYS" styleClass="dashboard-table">
+            <columns>
+                <TableColumn fx:id="transactionIdCol" text="Transaction" prefWidth="150" />
+                <TableColumn fx:id="transactionDateCol" text="Date" prefWidth="120" />
+                <TableColumn fx:id="transactionAmountCol" text="Amount" prefWidth="130" />
+                <TableColumn fx:id="transactionItemsCol" text="Items" prefWidth="90" />
+                <TableColumn fx:id="transactionStatusCol" text="Status" prefWidth="120" />
+                <TableColumn fx:id="transactionActionsCol" text="Receipt" prefWidth="170" />
             </columns>
         </TableView>
     </VBox>

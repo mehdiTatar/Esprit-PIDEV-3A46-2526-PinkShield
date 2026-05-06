@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 
 public class Appointment {
     private int id;
+    private String patientEmail;
+    private String doctorEmail;
     private int patientId;
     private int doctorId;
     private String patientName;
@@ -13,6 +15,27 @@ public class Appointment {
     private String notes;
 
     public Appointment() {}
+
+    public Appointment(int id, String patientEmail, String doctorEmail, String patientName, String doctorName, Timestamp appointmentDate, String status, String notes) {
+        this.id = id;
+        this.patientEmail = patientEmail;
+        this.doctorEmail = doctorEmail;
+        this.patientName = patientName;
+        this.doctorName = doctorName;
+        this.appointmentDate = appointmentDate;
+        this.status = status;
+        this.notes = notes;
+    }
+
+    public Appointment(String patientName, String doctorName, String patientEmail, String doctorEmail, Timestamp appointmentDate, String status, String notes) {
+        this.patientEmail = patientEmail;
+        this.doctorEmail = doctorEmail;
+        this.patientName = patientName;
+        this.doctorName = doctorName;
+        this.appointmentDate = appointmentDate;
+        this.status = status;
+        this.notes = notes;
+    }
 
     public Appointment(int id, int patientId, int doctorId, String patientName, String doctorName, Timestamp appointmentDate, String status, String notes) {
         this.id = id;
@@ -38,6 +61,12 @@ public class Appointment {
     // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+
+    public String getPatientEmail() { return patientEmail; }
+    public void setPatientEmail(String patientEmail) { this.patientEmail = patientEmail; }
+
+    public String getDoctorEmail() { return doctorEmail; }
+    public void setDoctorEmail(String doctorEmail) { this.doctorEmail = doctorEmail; }
 
     public int getPatientId() { return patientId; }
     public void setPatientId(int patientId) { this.patientId = patientId; }

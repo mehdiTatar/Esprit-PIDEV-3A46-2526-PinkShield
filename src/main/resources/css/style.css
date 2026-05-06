@@ -390,6 +390,8 @@
     -fx-background-radius: 20;
     -fx-font-size: 11;
     -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
 }
 
 .status-pending {
@@ -2041,6 +2043,97 @@
     -fx-background-color: linear-gradient(to right, #d24583 0%, #316fce 100%);
 }
 
+/* Notifications */
+.notification-bell-button {
+    -fx-background-color: rgba(9,18,31,0.92);
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-text-fill: #f8fbff;
+    -fx-font-size: 18;
+    -fx-font-weight: 900;
+    -fx-padding: 8 11;
+    -fx-min-width: 42;
+    -fx-min-height: 42;
+    -fx-pref-width: 42;
+    -fx-pref-height: 42;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 14, 0.15, 0, 6);
+}
+
+.notification-badge {
+    -fx-background-color: #fb7185;
+    -fx-background-radius: 999;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 10;
+    -fx-font-weight: 900;
+    -fx-padding: 2 5;
+    -fx-translate-x: 6;
+    -fx-translate-y: -6;
+}
+
+.notification-bell-button:hover {
+    -fx-background-color: rgba(20,184,166,0.92);
+}
+
+.notification-panel {
+    -fx-background-color: rgba(9,18,31,0.96);
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 24, 0.2, 0, 12);
+}
+
+.notification-panel-title {
+    -fx-text-fill: #f8fbff;
+    -fx-font-size: 16;
+    -fx-font-weight: 900;
+}
+
+.notification-mark-read-button {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #d7e4f2;
+    -fx-font-size: 11;
+    -fx-font-weight: 800;
+    -fx-padding: 7 10;
+}
+
+.notification-item {
+    -fx-background-color: rgba(255,255,255,0.045);
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 10;
+}
+
+.notification-unread {
+    -fx-border-color: rgba(45,212,191,0.55);
+    -fx-background-color: rgba(45,212,191,0.10);
+}
+
+.notification-title {
+    -fx-text-fill: #f8fbff;
+    -fx-font-size: 13;
+    -fx-font-weight: 900;
+}
+
+.notification-message,
+.notification-empty {
+    -fx-text-fill: #bfd0e4;
+    -fx-font-size: 12;
+    -fx-font-weight: 700;
+}
+
+.notification-meta {
+    -fx-text-fill: #86a3c3;
+    -fx-font-size: 10;
+    -fx-font-weight: 800;
+}
+
 .chat-widget {
     -fx-background-color: linear-gradient(to bottom, rgba(15,24,39,0.98), rgba(10,18,31,0.98));
     -fx-border-color: rgba(132,156,186,0.20);
@@ -2348,9 +2441,11 @@
     -fx-border-radius: 14;
     -fx-background-radius: 14;
     -fx-padding: 0;
-    -fx-pref-height: 112;
-    -fx-min-height: 112;
-    -fx-max-height: 112;
+    -fx-pref-width: 500;
+    -fx-min-width: 500;
+    -fx-pref-height: 560;
+    -fx-min-height: 560;
+    -fx-max-height: 560;
 }
 
 #captchaWebView .page-corner {
@@ -2359,13 +2454,84 @@
 
 #captchaWebView .scroll-bar:horizontal,
 #captchaWebView .scroll-bar:vertical {
-    -fx-opacity: 0;
-    -fx-pref-width: 0;
-    -fx-pref-height: 0;
+    -fx-opacity: 0.85;
 }
 
 .captcha-status-label {
     -fx-text-fill: #9eb6d3;
     -fx-font-size: 11;
     -fx-font-weight: 600;
+}
+
+/* Risk Analyser */
+.risk-workspace {
+    -fx-fill-width: true;
+}
+
+.risk-input-card {
+    -fx-min-height: 430;
+}
+
+.risk-notes-area {
+    -fx-font-size: 14;
+    -fx-min-height: 230;
+}
+
+.risk-analysis-card {
+    -fx-background-color: rgba(255,255,255,0.035);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(255,255,255,0.09);
+    -fx-border-radius: 14;
+    -fx-padding: 16;
+}
+
+.risk-report-title {
+    -fx-text-fill: #f8fbff;
+    -fx-font-size: 16;
+    -fx-font-weight: 900;
+}
+
+.risk-analysis-summary,
+.risk-analysis-signals {
+    -fx-text-fill: #bfd0e4;
+    -fx-font-size: 13;
+    -fx-font-weight: 700;
+}
+
+.risk-analysis-signals {
+    -fx-text-fill: #d7e4f2;
+}
+
+.risk-level-low,
+.risk-level-moderate,
+.risk-level-extreme {
+    -fx-font-size: 18;
+    -fx-font-weight: 900;
+}
+
+.risk-level-low {
+    -fx-text-fill: #34d399;
+}
+
+.risk-level-moderate {
+    -fx-text-fill: #fbbf24;
+}
+
+.risk-level-extreme {
+    -fx-text-fill: #fb7185;
+}
+
+.risk-low {
+    -fx-border-color: rgba(52,211,153,0.45);
+    -fx-background-color: rgba(52,211,153,0.08);
+}
+
+.risk-moderate {
+    -fx-border-color: rgba(251,191,36,0.5);
+    -fx-background-color: rgba(251,191,36,0.09);
+}
+
+.risk-extreme {
+    -fx-border-color: rgba(251,113,133,0.55);
+    -fx-background-color: rgba(251,113,133,0.10);
 }

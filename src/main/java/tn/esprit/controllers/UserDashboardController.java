@@ -20,6 +20,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import tn.esprit.entities.User;
 import tn.esprit.services.AppointmentService;
+import tn.esprit.services.NotificationCenter;
+import tn.esprit.services.NotificationService;
 import tn.esprit.services.OpenAiChatService;
 import tn.esprit.services.UserService;
 import tn.esprit.utils.AppNavigator;
@@ -27,9 +29,11 @@ import tn.esprit.utils.FormValidator;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class UserDashboardController {
     private static final DateTimeFormatter PROFILE_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter NOTIFICATION_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd/MM HH:mm");
 
     @FXML private Label welcomeLabel;
     @FXML private Label feedbackLabel;
@@ -64,14 +68,20 @@ public class UserDashboardController {
     @FXML private Button navBlog;
     @FXML private Button navProducts;
     @FXML private Button navWishlist;
+    @FXML private Button navRiskAnalyser;
     @FXML private Button navDailyCheckIn;
     @FXML private Button chatLauncherButton;
     @FXML private Button chatSendButton;
+    @FXML private Button notificationBellButton;
+    @FXML private Label notificationBadgeLabel;
+    @FXML private VBox notificationPanel;
+    @FXML private VBox notificationListBox;
     @FXML private ScrollPane chatMessagesScrollPane;
 
     private final UserService userService = new UserService();
     private final AppointmentService appointmentService = new AppointmentService();
     private final OpenAiChatService openAiChatService = new OpenAiChatService();
+    private final NotificationService notificationService = new NotificationService();
     private User loggedInUser;
     private String previousChatResponseId;
     private boolean chatRequestInFlight;
@@ -80,6 +90,8 @@ public class UserDashboardController {
     public void initialize() {
         FormValidator.attachClearOnInput(feedbackLabel, fullNameField, emailField, phoneField, addressField, passwordField);
         showChatWidget(false);
+        showNotificationPanel(false);
+        NotificationCenter.subscribe(this::refreshNotificationBell);
         setChatStatus("", false);
     }
 
@@ -95,6 +107,7 @@ public class UserDashboardController {
         populateDashboardSummary();
         updateAppointmentCards();
         initializeChatbotConversation();
+        refreshNotificationBell();
     }
 
     @FXML
@@ -135,6 +148,12 @@ public class UserDashboardController {
     public void showWishlist() {
         updateNavStyles(navWishlist);
         loadView("/fxml/wishlist.fxml");
+    }
+
+    @FXML
+    public void showRiskAnalyser() {
+        updateNavStyles(navRiskAnalyser);
+        loadView("/fxml/risk_analyser.fxml");
     }
 
     @FXML
@@ -261,6 +280,23 @@ public class UserDashboardController {
     }
 
     @FXML
+    public void handleToggleNotifications() {
+        boolean shouldShow = notificationPanel != null && !notificationPanel.isVisible();
+        showNotificationPanel(shouldShow);
+        if (shouldShow) {
+            renderNotifications();
+            refreshNotificationBell();
+        }
+    }
+
+    @FXML
+    public void handleMarkNotificationsRead() {
+        notificationService.markAllRead(loggedInUser);
+        renderNotifications();
+        refreshNotificationBell();
+    }
+
+    @FXML
     public void handleSendChatMessage() {
         if (chatRequestInFlight) {
             return;
@@ -363,8 +399,71 @@ public class UserDashboardController {
     }
 
     private void updateAppointmentCards() {
-        totalAppointmentsLabel.setText(String.valueOf(appointmentService.countAppointmentsByPatient(loggedInUser.getId())));
-        upcomingAppointmentsLabel.setText(String.valueOf(appointmentService.countUpcomingAppointmentsByPatient(loggedInUser.getId())));
+        totalAppointmentsLabel.setText(String.valueOf(appointmentService.countAppointmentsByPatient(loggedInUser.getEmail())));
+        upcomingAppointmentsLabel.setText(String.valueOf(appointmentService.countUpcomingAppointmentsByPatient(loggedInUser.getEmail())));
+    }
+
+    private void refreshNotificationBell() {
+        if (notificationBellButton == null || loggedInUser == null) {
+            return;
+        }
+        int unread = notificationService.countUnread(loggedInUser);
+        notificationBellButton.setText("🔔");
+        if (notificationBadgeLabel != null) {
+            notificationBadgeLabel.setText(unread > 99 ? "99+" : String.valueOf(unread));
+            notificationBadgeLabel.setVisible(unread > 0);
+            notificationBadgeLabel.setManaged(unread > 0);
+        }
+    }
+
+    private void showNotificationPanel(boolean visible) {
+        if (notificationPanel == null) {
+            return;
+        }
+        notificationPanel.setVisible(visible);
+        notificationPanel.setManaged(visible);
+    }
+
+    private void renderNotifications() {
+        if (notificationListBox == null) {
+            return;
+        }
+        notificationListBox.getChildren().clear();
+
+        if (loggedInUser == null) {
+            notificationListBox.getChildren().add(notificationText("Sign in to see notifications.", "notification-empty"));
+            return;
+        }
+
+        List<NotificationService.NotificationItem> notifications = notificationService.getNotificationsForUser(loggedInUser, 12);
+        if (notifications.isEmpty()) {
+            notificationListBox.getChildren().add(notificationText("No notifications yet.", "notification-empty"));
+            return;
+        }
+
+        for (NotificationService.NotificationItem notification : notifications) {
+            VBox card = new VBox(4);
+            card.getStyleClass().add("notification-item");
+            if (!notification.read()) {
+                card.getStyleClass().add("notification-unread");
+            }
+
+            Label title = notificationText(notification.title(), "notification-title");
+            Label message = notificationText(notification.message(), "notification-message");
+            String createdAt = notification.createdAt() == null
+                    ? ""
+                    : notification.createdAt().toLocalDateTime().format(NOTIFICATION_TIMESTAMP_FORMAT);
+            Label meta = notificationText(notification.type().toUpperCase() + " - " + createdAt, "notification-meta");
+            card.getChildren().addAll(title, message, meta);
+            notificationListBox.getChildren().add(card);
+        }
+    }
+
+    private Label notificationText(String text, String styleClass) {
+        Label label = new Label(text);
+        label.setWrapText(true);
+        label.getStyleClass().add(styleClass);
+        return label;
     }
 
     private void initializeChatbotConversation() {
@@ -457,6 +556,8 @@ public class UserDashboardController {
                 ((ProductListController) controller).setCurrentUser(loggedInUser);
             } else if (controller instanceof WishlistController) {
                 ((WishlistController) controller).setCurrentUser(loggedInUser);
+            } else if (controller instanceof RiskAnalyserController) {
+                ((RiskAnalyserController) controller).setCurrentUser(loggedInUser);
             } else if (controller instanceof DailyTrackingController) {
                 ((DailyTrackingController) controller).setCurrentUser(loggedInUser);
             }
@@ -475,6 +576,7 @@ public class UserDashboardController {
         navBlog.getStyleClass().remove("active");
         navProducts.getStyleClass().remove("active");
         navWishlist.getStyleClass().remove("active");
+        navRiskAnalyser.getStyleClass().remove("active");
         navDailyCheckIn.getStyleClass().remove("active");
         activeBtn.getStyleClass().add("active");
     }

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="tn.esprit.controllers.TransactionHistoryController"
+      spacing="15" style="-fx-padding: 25; -fx-background-color: #f8f9fa;">
+
+    <!-- Header Section -->
+    <VBox style="-fx-border-radius: 8; -fx-background-color: white; -fx-border-color: #e9edf3; -fx-border-width: 1;">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        <spacing>10</spacing>
+
+        <Label text="💳 Transaction History" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
+
+        <HBox spacing="30">
+            <VBox>
+                <Label text="Total Spent" style="-fx-font-size: 12; -fx-text-fill: #636e72; -fx-font-weight: bold;"/>
+                <Label fx:id="totalSpentLabel" text="0.00 TND"
+                       style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
+            </VBox>
+
+            <VBox>
+                <Label text="Total Transactions" style="-fx-font-size: 12; -fx-text-fill: #636e72; -fx-font-weight: bold;"/>
+                <Label fx:id="totalTransactionsLabel" text="0 transactions"
+                       style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Action Buttons -->
+    <HBox spacing="10" style="-fx-padding: 10;">
+        <Button text="🔄 Refresh" onAction="#handleRefresh"
+                style="-fx-font-size: 12; -fx-padding: 8 16; -fx-background-color: #0984e3; -fx-text-fill: white; -fx-border-radius: 6; -fx-background-radius: 6;"/>
+
+        <Button text="📥 Export All" onAction="#handleExportAll"
+                style="-fx-font-size: 12; -fx-padding: 8 16; -fx-background-color: #27ae60; -fx-text-fill: white; -fx-border-radius: 6; -fx-background-radius: 6;"/>
+    </HBox>
+
+    <!-- Transactions Table -->
+    <ScrollPane style="-fx-border-color: #e9edf3; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-color: white;" fitToWidth="true">
+        <VBox.vgrow>
+            <Priority fx:value="ALWAYS"/>
+        </VBox.vgrow>
+
+        <TableView fx:id="transactionTable" style="-fx-font-size: 12;" editable="false">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                <TableColumn fx:id="colTransactionId" text="Transaction ID" prefWidth="120"/>
+                <TableColumn fx:id="colCardholderName" text="Cardholder" prefWidth="130"/>
+                <TableColumn fx:id="colCardLastFour" text="Card" prefWidth="80"/>
+                <TableColumn fx:id="colAmount" text="Amount (TND)" prefWidth="100"/>
+                <TableColumn fx:id="colItems" text="Items" prefWidth="60"/>
+                <TableColumn fx:id="colStatus" text="Status" prefWidth="90"/>
+                <TableColumn fx:id="colDate" text="Date" prefWidth="100"/>
+                <TableColumn fx:id="colActions" text="Actions" prefWidth="150"/>
+            </columns>
+
+            <style>
+                .table-view { -fx-font-family: 'Segoe UI'; }
+                .table-view .column-header {
+                    -fx-background-color: #e84393;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                }
+                .table-row-cell { -fx-padding: 8; }
+                .table-row-cell:hover { -fx-background-color: #f0f0f0; }
+            </style>
+        </TableView>
+    </ScrollPane>
+
+    <!-- Empty State Message -->
+    <VBox style="-fx-border-radius: 8; -fx-background-color: #e8f4f8; -fx-border-color: #0984e3; -fx-border-width: 1;" alignment="CENTER">
+        <padding>
+            <Insets top="30" right="20" bottom="30" left="20"/>
+        </padding>
+        <Label text="📊 No transactions found" style="-fx-font-size: 14; -fx-text-fill: #0984e3; -fx-font-weight: bold;"/>
+        <Label text="Your transaction history will appear here after you make a payment"
+               style="-fx-font-size: 12; -fx-text-fill: #636e72; -fx-padding: 10 0 0 0;"/>
+    </VBox>
+
+</VBox>
+

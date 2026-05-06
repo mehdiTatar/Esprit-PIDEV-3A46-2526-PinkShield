@@ -70,7 +70,7 @@
                             <Label text="E-ticket QR" styleClass="section-title" />
                             <Label fx:id="selectedAppointmentTitleLabel" text="Select an appointment" styleClass="dashboard-title appointment-mini-title" wrapText="true" />
                             <Label fx:id="selectedAppointmentMetaLabel" text="Pick a row to generate the e-ticket QR code and review the visit details." styleClass="dashboard-copy" wrapText="true" />
-                            <Label fx:id="selectedAppointmentStatusLabel" text="QR preview ready after selection" styleClass="table-meta" wrapText="true" />
+                            <Label fx:id="selectedAppointmentStatusLabel" text="QR preview ready after selection" alignment="CENTER" maxWidth="1.7976931348623157E308" styleClass="table-meta" wrapText="true" />
                             <ImageView fx:id="qrCodeImageView" fitWidth="220" fitHeight="220" pickOnBounds="true" preserveRatio="true" styleClass="appointment-qr-image" />
                             <Label text="The QR code is generated from the selected appointment details." styleClass="table-meta" wrapText="true" />
                         </VBox>

@@ -228,8 +228,8 @@ public class DoctorDashboardController {
     }
 
     private void updateAppointmentCards() {
-        totalAppointmentsLabel.setText(String.valueOf(appointmentService.countAppointmentsByDoctor(loggedInUser.getId())));
-        upcomingAppointmentsLabel.setText(String.valueOf(appointmentService.countUpcomingAppointmentsByDoctor(loggedInUser.getId())));
+        totalAppointmentsLabel.setText(String.valueOf(appointmentService.countAllAppointments()));
+        upcomingAppointmentsLabel.setText(String.valueOf(appointmentService.countAllUpcomingAppointments()));
     }
 
     private void loadView(String fxmlPath) {

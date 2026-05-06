@@ -41,29 +41,31 @@ public class UserService {
 
         try {
             if (ROLE_ADMIN.equals(role)) {
-                String query = "INSERT INTO admin (first_name, last_name, email, password) VALUES (?, ?, ?, ?)";
+                String query = "INSERT INTO admin (first_name, last_name, email, password, roles) VALUES (?, ?, ?, ?, ?)";
                 try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                     stmt.setString(1, user.getFirstName());
                     stmt.setString(2, user.getLastName());
                     stmt.setString(3, user.getEmail());
                     stmt.setString(4, user.getPassword());
+                    stmt.setString(5, "[\"ROLE_ADMIN\"]");
                     return executeCreateStatement(user, stmt);
                 }
             }
 
             if (ROLE_DOCTOR.equals(role)) {
-                String query = "INSERT INTO doctor (first_name, last_name, email, password, speciality) VALUES (?, ?, ?, ?, ?)";
+                String query = "INSERT INTO doctor (first_name, last_name, email, password, speciality, roles) VALUES (?, ?, ?, ?, ?, ?)";
                 try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                     stmt.setString(1, user.getFirstName());
                     stmt.setString(2, user.getLastName());
                     stmt.setString(3, user.getEmail());
                     stmt.setString(4, user.getPassword());
                     stmt.setString(5, defaultString(user.getSpeciality()));
+                    stmt.setString(6, "[\"ROLE_DOCTOR\"]");
                     return executeCreateStatement(user, stmt);
                 }
             }
 
-            String query = "INSERT INTO user (full_name, email, password, phone, address, face_image_path, face_token) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO user (full_name, email, password, phone, address, face_image_path, face_token, roles) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, user.getFullName());
                 stmt.setString(2, user.getEmail());
@@ -72,6 +74,7 @@ public class UserService {
                 stmt.setString(5, defaultString(user.getAddress()));
                 stmt.setString(6, blankToNull(user.getFaceImagePath()));
                 stmt.setString(7, blankToNull(user.getFaceToken()));
+                stmt.setString(8, "[\"ROLE_USER\"]");
                 return executeCreateStatement(user, stmt);
             }
         } catch (SQLException e) {

@@ -141,6 +141,7 @@
             <Button fx:id="navBlog" text="Blog" onAction="#showBlog" styleClass="nav-button" maxWidth="Infinity" />
             <Button fx:id="navProducts" text="Parapharmacie" onAction="#showProducts" styleClass="nav-button" maxWidth="Infinity" />
             <Button fx:id="navWishlist" text="Wishlist" onAction="#showWishlist" styleClass="nav-button" maxWidth="Infinity" />
+            <Button fx:id="navRiskAnalyser" text="Risk Analyser" onAction="#showRiskAnalyser" styleClass="nav-button" maxWidth="Infinity" />
             <Button fx:id="navDailyCheckIn" text="Daily Check In" onAction="#showDailyCheckIn" styleClass="nav-button" maxWidth="Infinity" />
 
             <Region VBox.vgrow="ALWAYS" />
@@ -191,6 +192,24 @@
                     </StackPane>
                 </content>
             </ScrollPane>
+
+            <VBox alignment="TOP_RIGHT" maxWidth="-Infinity" pickOnBounds="false" StackPane.alignment="TOP_RIGHT">
+                <StackPane.margin>
+                    <Insets top="18" right="28" />
+                </StackPane.margin>
+                <StackPane>
+                    <Button fx:id="notificationBellButton" text="🔔" onAction="#handleToggleNotifications" styleClass="notification-bell-button" />
+                    <Label fx:id="notificationBadgeLabel" text="0" visible="false" managed="false" styleClass="notification-badge" StackPane.alignment="TOP_RIGHT" />
+                </StackPane>
+                <VBox fx:id="notificationPanel" visible="false" managed="false" prefWidth="360" maxWidth="360" spacing="12" styleClass="notification-panel">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Notifications" styleClass="notification-panel-title" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="Mark read" onAction="#handleMarkNotificationsRead" styleClass="notification-mark-read-button" />
+                    </HBox>
+                    <VBox fx:id="notificationListBox" spacing="10" />
+                </VBox>
+            </VBox>
 
             <VBox fx:id="chatLauncherBox" alignment="BOTTOM_RIGHT" maxWidth="-Infinity" pickOnBounds="false" StackPane.alignment="BOTTOM_RIGHT">
                 <StackPane.margin>

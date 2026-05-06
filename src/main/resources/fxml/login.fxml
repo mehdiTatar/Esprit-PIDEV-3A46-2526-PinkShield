@@ -47,7 +47,7 @@
         <Region layoutX="1186" layoutY="582" prefWidth="4" prefHeight="4" styleClass="star-dot star-dot-secondary" />
     </Pane>
 
-    <HBox alignment="CENTER" spacing="56" maxWidth="1180" styleClass="login-template-layout">
+    <HBox alignment="CENTER" spacing="56" maxWidth="1320" styleClass="login-template-layout">
         <VBox prefWidth="520" alignment="CENTER" spacing="22" styleClass="login-hero-side">
             <Label text="PinkShield" styleClass="login-brand-title" />
             <Label text="ADVANCED HEALTH INTELLIGENCE" styleClass="login-brand-tagline" />
@@ -85,7 +85,7 @@
             </Pane>
         </VBox>
 
-        <VBox prefWidth="430" maxWidth="430" maxHeight="Infinity" styleClass="login-form-side">
+        <VBox prefWidth="560" maxWidth="560" maxHeight="Infinity" styleClass="login-form-side">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
                         pannable="true" VBox.vgrow="ALWAYS"
                         styleClass="login-form-scroll">
@@ -114,8 +114,8 @@
 
                         <VBox spacing="7">
                             <Label text="EMAIL ADDRESS" styleClass="login-field-label" />
-                            <TextField fx:id="emailField" promptText="you@example.com"
-                                       styleClass="login-field-input" />
+                            <ComboBox fx:id="emailField" promptText="you@example.com"
+                                      maxWidth="Infinity" styleClass="login-field-input" />
                         </VBox>
 
                         <VBox spacing="7">
@@ -142,7 +142,7 @@
                                 <Label text="reCAPTCHA" styleClass="login-bio-badge" />
                             </HBox>
                             <WebView id="captchaWebView" fx:id="recaptchaWebView"
-                                     prefHeight="112" minHeight="112" maxHeight="112" />
+                                     prefWidth="500" minWidth="500" prefHeight="560" minHeight="560" maxHeight="560" />
                             <Label fx:id="recaptchaStatusLabel" text="" visible="false" managed="false"
                                    wrapText="true" styleClass="captcha-status-label" />
                         </VBox>

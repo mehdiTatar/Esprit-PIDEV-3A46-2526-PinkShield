@@ -4,27 +4,29 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.HealthAnalysisController"
+            fx:controller="org.example.RiskAnalyserUserController"
             stylesheets="@style.css" styleClass="module-root">
     <top>
         <ToolBar>
-            <Button text="← Back to Wishlist" onAction="#handleBackToWishlist" styleClass="btn-secondary"/>
-            <Label text="Risk Analyser" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
+            <Button text="← Back" onAction="#handleBackToWishlist" styleClass="btn-secondary"/>
+            <Label text="🔬 Risk Analyzer" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #e84393;"/>
         </ToolBar>
     </top>
 
     <center>
         <VBox spacing="16" style="-fx-padding: 24;">
-            <Label text="Enter patient notes to evaluate the symptom risk level." styleClass="label-subtitle" wrapText="true"/>
+            <Label text="Enter patient medical information to assess health risk level." styleClass="label-subtitle" wrapText="true"/>
             <Label fx:id="statusLabel" text="Ready to scan." styleClass="label-subtitle" wrapText="true"/>
 
-            <TextArea fx:id="notesArea" promptText="Example: fever, cough, chest pain, rash..." prefRowCount="8" wrapText="true"/>
+            <Label text="Symptoms & Medical Notes:" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
+            <TextArea fx:id="notesArea" promptText="Example: fever, cough, chest pain, rash, difficulty breathing..." prefRowCount="8" wrapText="true" style="-fx-font-size: 13;"/>
 
             <HBox spacing="10">
-                <Button fx:id="analyzeButton" text="Analyse" onAction="#handleAnalyze" styleClass="btn-primary"/>
+                <Button fx:id="analyzeButton" text="🔬 Analyse Risk" onAction="#handleAnalyze" styleClass="btn-primary" style="-fx-padding: 10 20; -fx-font-size: 13;"/>
+                <Button text="Clear" onAction="#clearNotes" styleClass="btn-secondary"/>
             </HBox>
 
-            <VBox fx:id="resultBox" spacing="8" styleClass="risk-analysis-card"/>
+            <VBox fx:id="resultBox" spacing="8" styleClass="risk-analysis-card" style="-fx-border-color: #e84393; -fx-border-width: 2; -fx-padding: 16; -fx-border-radius: 8;"/>
         </VBox>
     </center>
 </BorderPane>

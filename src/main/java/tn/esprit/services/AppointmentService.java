@@ -18,10 +18,10 @@ public class AppointmentService {
         if (conn == null) {
             return false;
         }
-        String query = "INSERT INTO appointment (patient_id, doctor_id, patient_name, doctor_name, appointment_date, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO appointment (patient_email, doctor_email, patient_name, doctor_name, appointment_date, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, appt.getPatientId());
-            ps.setInt(2, appt.getDoctorId());
+            ps.setString(1, appt.getPatientEmail());
+            ps.setString(2, appt.getDoctorEmail());
             ps.setString(3, appt.getPatientName());
             ps.setString(4, appt.getDoctorName());
             ps.setTimestamp(5, appt.getAppointmentDate());
@@ -44,8 +44,8 @@ public class AppointmentService {
             while (rs.next()) {
                 list.add(new Appointment(
                         rs.getInt("id"),
-                        rs.getInt("patient_id"),
-                        rs.getInt("doctor_id"),
+                        rs.getString("patient_email"),
+                        rs.getString("doctor_email"),
                         rs.getString("patient_name"),
                         rs.getString("doctor_name"),
                         rs.getTimestamp("appointment_date"),
@@ -59,20 +59,20 @@ public class AppointmentService {
         return list;
     }
 
-    public List<Appointment> getAppointmentsByPatient(int patientId) {
+    public List<Appointment> getAppointmentsByPatient(String patientEmail) {
         List<Appointment> list = new ArrayList<>();
         if (conn == null) {
             return list;
         }
-        String query = "SELECT * FROM appointment WHERE patient_id = ? ORDER BY appointment_date ASC";
+        String query = "SELECT * FROM appointment WHERE patient_email = ? ORDER BY appointment_date ASC";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, patientId);
+            ps.setString(1, patientEmail);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(new Appointment(
                             rs.getInt("id"),
-                            rs.getInt("patient_id"),
-                            rs.getInt("doctor_id"),
+                            rs.getString("patient_email"),
+                            rs.getString("doctor_email"),
                             rs.getString("patient_name"),
                             rs.getString("doctor_name"),
                             rs.getTimestamp("appointment_date"),
@@ -87,20 +87,20 @@ public class AppointmentService {
         return list;
     }
 
-    public List<Appointment> getAppointmentsByDoctor(int doctorId) {
+    public List<Appointment> getAppointmentsByDoctor(String doctorEmail) {
         List<Appointment> list = new ArrayList<>();
         if (conn == null) {
             return list;
         }
-        String query = "SELECT * FROM appointment WHERE doctor_id = ? ORDER BY appointment_date ASC";
+        String query = "SELECT * FROM appointment WHERE doctor_email = ? ORDER BY appointment_date ASC";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, doctorId);
+            ps.setString(1, doctorEmail);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(new Appointment(
                             rs.getInt("id"),
-                            rs.getInt("patient_id"),
-                            rs.getInt("doctor_id"),
+                            rs.getString("patient_email"),
+                            rs.getString("doctor_email"),
                             rs.getString("patient_name"),
                             rs.getString("doctor_name"),
                             rs.getTimestamp("appointment_date"),
@@ -144,13 +144,13 @@ public class AppointmentService {
         }
     }
 
-    public int countAppointmentsByDoctor(int doctorId) {
+    public int countAppointmentsByDoctor(String doctorEmail) {
         if (conn == null) {
             return 0;
         }
-        String query = "SELECT COUNT(*) as count FROM appointment WHERE doctor_id = ?";
+        String query = "SELECT COUNT(*) as count FROM appointment WHERE doctor_email = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, doctorId);
+            ps.setString(1, doctorEmail);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("count");
@@ -162,13 +162,29 @@ public class AppointmentService {
         return 0;
     }
 
-    public int countUpcomingAppointmentsByDoctor(int doctorId) {
+    public int countAllAppointments() {
         if (conn == null) {
             return 0;
         }
-        String query = "SELECT COUNT(*) as count FROM appointment WHERE doctor_id = ? AND appointment_date > NOW()";
+        String query = "SELECT COUNT(*) as count FROM appointment";
+        try (PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countUpcomingAppointmentsByDoctor(String doctorEmail) {
+        if (conn == null) {
+            return 0;
+        }
+        String query = "SELECT COUNT(*) as count FROM appointment WHERE doctor_email = ? AND appointment_date > NOW()";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, doctorId);
+            ps.setString(1, doctorEmail);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("count");
@@ -180,13 +196,29 @@ public class AppointmentService {
         return 0;
     }
 
-    public int countAppointmentsByPatient(int patientId) {
+    public int countAllUpcomingAppointments() {
         if (conn == null) {
             return 0;
         }
-        String query = "SELECT COUNT(*) as count FROM appointment WHERE patient_id = ?";
+        String query = "SELECT COUNT(*) as count FROM appointment WHERE appointment_date > NOW()";
+        try (PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countAppointmentsByPatient(String patientEmail) {
+        if (conn == null) {
+            return 0;
+        }
+        String query = "SELECT COUNT(*) as count FROM appointment WHERE patient_email = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, patientId);
+            ps.setString(1, patientEmail);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("count");
@@ -198,13 +230,13 @@ public class AppointmentService {
         return 0;
     }
 
-    public int countUpcomingAppointmentsByPatient(int patientId) {
+    public int countUpcomingAppointmentsByPatient(String patientEmail) {
         if (conn == null) {
             return 0;
         }
-        String query = "SELECT COUNT(*) as count FROM appointment WHERE patient_id = ? AND appointment_date > NOW()";
+        String query = "SELECT COUNT(*) as count FROM appointment WHERE patient_email = ? AND appointment_date > NOW()";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, patientId);
+            ps.setString(1, patientEmail);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("count");
@@ -216,17 +248,17 @@ public class AppointmentService {
         return 0;
     }
 
-    public boolean hasAppointmentConflict(int doctorId, Timestamp appointmentDateTime, Integer excludeAppointmentId) {
+    public boolean hasAppointmentConflict(String doctorEmail, Timestamp appointmentDateTime, Integer excludeAppointmentId) {
         if (conn == null) {
             return false;
         }
-        String query = "SELECT COUNT(*) as count FROM appointment WHERE doctor_id = ? AND appointment_date = ? AND status != 'cancelled'";
+        String query = "SELECT COUNT(*) as count FROM appointment WHERE doctor_email = ? AND appointment_date = ? AND status != 'cancelled'";
         if (excludeAppointmentId != null) {
             query += " AND id != ?";
         }
 
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, doctorId);
+            ps.setString(1, doctorEmail);
             ps.setTimestamp(2, appointmentDateTime);
             if (excludeAppointmentId != null) {
                 ps.setInt(3, excludeAppointmentId);
@@ -242,18 +274,18 @@ public class AppointmentService {
         return false;
     }
 
-    public boolean hasPatientDuplicate(int patientId, int doctorId, Timestamp appointmentDateTime, Integer excludeAppointmentId) {
+    public boolean hasPatientDuplicate(String patientEmail, String doctorEmail, Timestamp appointmentDateTime, Integer excludeAppointmentId) {
         if (conn == null) {
             return false;
         }
-        String query = "SELECT COUNT(*) as count FROM appointment WHERE patient_id = ? AND doctor_id = ? AND appointment_date = ? AND status != 'cancelled'";
+        String query = "SELECT COUNT(*) as count FROM appointment WHERE patient_email = ? AND doctor_email = ? AND appointment_date = ? AND status != 'cancelled'";
         if (excludeAppointmentId != null) {
             query += " AND id != ?";
         }
 
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, patientId);
-            ps.setInt(2, doctorId);
+            ps.setString(1, patientEmail);
+            ps.setString(2, doctorEmail);
             ps.setTimestamp(3, appointmentDateTime);
             if (excludeAppointmentId != null) {
                 ps.setInt(4, excludeAppointmentId);

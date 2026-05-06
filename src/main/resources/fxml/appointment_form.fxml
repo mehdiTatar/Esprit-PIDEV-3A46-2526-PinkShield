@@ -43,11 +43,18 @@
 
                     <HBox alignment="TOP_LEFT" spacing="20">
                         <VBox spacing="18" styleClass="panel-card appointment-form-card" HBox.hgrow="ALWAYS">
-                            <VBox spacing="8">
-                                <Label text="Doctor / specialist" styleClass="section-title" />
-                                <ComboBox fx:id="doctorCombo" promptText="Choose a doctor" maxWidth="1.7976931348623157E308" />
-                                <Label text="Only active doctors are available for booking." styleClass="table-meta" />
-                            </VBox>
+                            <HBox spacing="16">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="Speciality" styleClass="section-title" />
+                                    <ComboBox fx:id="specialtyCombo" promptText="Choose a speciality" maxWidth="1.7976931348623157E308" />
+                                    <Label text="Choose the consultation type first." styleClass="table-meta" />
+                                </VBox>
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="Doctor" styleClass="section-title" />
+                                    <ComboBox fx:id="doctorCombo" promptText="Choose a doctor" maxWidth="1.7976931348623157E308" />
+                                    <Label text="Each speciality has Tunisian doctors ready to book." styleClass="table-meta" />
+                                </VBox>
+                            </HBox>
 
                             <HBox spacing="16">
                                 <VBox spacing="8" HBox.hgrow="ALWAYS">

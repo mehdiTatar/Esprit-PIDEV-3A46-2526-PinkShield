@@ -26,7 +26,7 @@
 
     <VBox spacing="8" styleClass="hero-panel">
         <Label fx:id="adminTitle" text="Product management" styleClass="dashboard-title" />
-        <Label text="Administrators can create, edit, delete, and validate products from this dedicated inventory view." styleClass="dashboard-copy" wrapText="true" />
+        <Label text="Doctors and administrators can create, edit, delete, and validate products from this dedicated inventory view." styleClass="dashboard-copy" wrapText="true" />
     </VBox>
 
     <HBox spacing="20">

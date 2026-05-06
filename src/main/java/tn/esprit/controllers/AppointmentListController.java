@@ -29,10 +29,13 @@ import javafx.util.StringConverter;
 import tn.esprit.entities.Appointment;
 import tn.esprit.entities.User;
 import tn.esprit.services.AppointmentLocationService;
+import tn.esprit.services.AppointmentDoctorDirectory;
 import tn.esprit.services.AppointmentPdfService;
 import tn.esprit.services.AppointmentQrCodeService;
 import tn.esprit.services.AppointmentService;
 import tn.esprit.services.AppointmentWeatherService;
+import tn.esprit.services.GiphyService;
+import tn.esprit.services.NotificationService;
 import tn.esprit.services.UserService;
 import tn.esprit.utils.FormValidator;
 
@@ -45,9 +48,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AppointmentListController {
@@ -76,6 +82,7 @@ public class AppointmentListController {
 
     @FXML private Label formTitle;
     @FXML private Label feedbackLabel;
+    @FXML private ComboBox<String> specialtyCombo;
     @FXML private ComboBox<User> doctorCombo;
     @FXML private DatePicker datePicker;
     @FXML private TextField timeField;
@@ -90,6 +97,8 @@ public class AppointmentListController {
     private final AppointmentWeatherService weatherService = new AppointmentWeatherService();
     private final AppointmentQrCodeService qrCodeService = new AppointmentQrCodeService();
     private final AppointmentPdfService appointmentPdfService = new AppointmentPdfService();
+    private final GiphyService giphyService = new GiphyService();
+    private final NotificationService notificationService = new NotificationService();
     private final ObservableList<Appointment> allAppointments = FXCollections.observableArrayList();
     private User currentUser;
 
@@ -105,7 +114,7 @@ public class AppointmentListController {
         }
 
         if (doctorCombo != null) {
-            loadDoctors();
+            setupSpecialtyDoctorChoices();
             datePicker.setDayCellFactory(picker -> new DateCell() {
                 @Override
                 public void updateItem(LocalDate item, boolean empty) {
@@ -113,7 +122,7 @@ public class AppointmentListController {
                     setDisable(empty || item.isBefore(LocalDate.now()));
                 }
             });
-            FormValidator.attachClearOnInput(feedbackLabel, timeField, doctorCombo);
+            FormValidator.attachClearOnInput(feedbackLabel, timeField, specialtyCombo, doctorCombo);
             if (notesArea != null) {
                 notesArea.textProperty().addListener((obs, oldValue, newValue) -> FormValidator.setMessage(feedbackLabel, "", true));
             }
@@ -225,10 +234,16 @@ public class AppointmentListController {
         }
 
         User doctor = doctorCombo.getValue();
+        String specialty = specialtyCombo == null ? "" : safeValue(specialtyCombo.getValue());
         LocalDate date = datePicker.getValue();
         String timeText = timeField.getText().trim();
         String notes = notesArea.getText().trim();
 
+        if (specialty.isBlank()) {
+            FormValidator.markInvalid(specialtyCombo);
+            FormValidator.setMessage(feedbackLabel, "Speciality selection is required.", true);
+            return;
+        }
         if (doctor == null) {
             FormValidator.markInvalid(doctorCombo);
             FormValidator.setMessage(feedbackLabel, "Doctor selection is required.", true);
@@ -264,27 +279,33 @@ public class AppointmentListController {
         }
 
         Timestamp appointmentTimestamp = Timestamp.valueOf(dateTime);
-        if (appointmentService.hasAppointmentConflict(doctor.getId(), appointmentTimestamp, null)) {
+        if (appointmentService.hasAppointmentConflict(doctor.getEmail(), appointmentTimestamp, null)) {
             FormValidator.setMessage(feedbackLabel, "This doctor already has an appointment at the selected date and time.", true);
             return;
         }
-        if (appointmentService.hasPatientDuplicate(currentUser.getId(), doctor.getId(), appointmentTimestamp, null)) {
+        if (appointmentService.hasPatientDuplicate(currentUser.getEmail(), doctor.getEmail(), appointmentTimestamp, null)) {
             FormValidator.setMessage(feedbackLabel, "This appointment already exists for the same doctor, patient, and time.", true);
             return;
         }
 
         Appointment appointment = new Appointment(
-                currentUser.getId(),
-                doctor.getId(),
                 currentUser.getFullName(),
-                buildDoctorDisplayName(doctor),
+                doctor.getFullName(),
+                currentUser.getEmail(),
+                doctor.getEmail(),
                 appointmentTimestamp,
                 "pending",
                 notes
         );
 
         if (appointmentService.addAppointment(appointment)) {
-            Appointment savedAppointment = findMatchingAppointment(currentUser.getId(), doctor.getId(), appointmentTimestamp);
+            Appointment savedAppointment = findMatchingAppointment(currentUser.getEmail(), doctor.getEmail(), appointmentTimestamp);
+            notificationService.notifyUser(
+                    currentUser,
+                    "appointment",
+                    "Appointment booked",
+                    "Your " + specialty + " appointment with " + doctor.getFullName() + " is pending approval."
+            );
             Alert downloadPrompt = new Alert(
                     Alert.AlertType.CONFIRMATION,
                     "Appointment booked successfully. Download the PDF proof now?",
@@ -297,6 +318,7 @@ public class AppointmentListController {
                     exportAppointmentPdf(savedAppointment);
                 }
             });
+            showCelebrationGif("Appointment booked!");
             handleBackToList();
         } else {
             showAlert("Error", "Failed to book appointment.", Alert.AlertType.ERROR);
@@ -325,8 +347,8 @@ public class AppointmentListController {
                 pageSubtitleLabel.setText("Review, confirm, reschedule, complete, or cancel appointments across the platform.");
             }
             case UserService.ROLE_DOCTOR -> {
-                pageTitleLabel.setText("Doctor Appointments");
-                pageSubtitleLabel.setText("Manage your patient bookings, confirmations, reschedules, and completions.");
+                pageTitleLabel.setText("Doctor Appointment Management");
+                pageSubtitleLabel.setText("Review every patient booking and confirm, postpone, complete, or cancel appointments.");
             }
             default -> {
                 pageTitleLabel.setText("My Appointments");
@@ -349,6 +371,7 @@ public class AppointmentListController {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
+                setAlignment(javafx.geometry.Pos.CENTER);
                 getStyleClass().removeAll(
                         "status-pill",
                         "status-pending",
@@ -419,6 +442,7 @@ public class AppointmentListController {
 
         if (UserService.ROLE_USER.equals(role)) {
             if (!isCancelled && !isCompleted) {
+                actions.getChildren().add(createActionButton("Reschedule", false, event -> openRescheduleDialog(appointment)));
                 actions.getChildren().add(createActionButton("Cancel", true, event -> handleCancelAppointment(appointment)));
             }
             return actions;
@@ -458,8 +482,8 @@ public class AppointmentListController {
 
         List<Appointment> appointments = switch (currentUser.getRole()) {
             case UserService.ROLE_ADMIN -> appointmentService.getAllAppointments();
-            case UserService.ROLE_DOCTOR -> appointmentService.getAppointmentsByDoctor(currentUser.getId());
-            default -> appointmentService.getAppointmentsByPatient(currentUser.getId());
+            case UserService.ROLE_DOCTOR -> appointmentService.getAllAppointments();
+            default -> appointmentService.getAppointmentsByPatient(currentUser.getEmail());
         };
 
         allAppointments.setAll(appointments);
@@ -473,8 +497,8 @@ public class AppointmentListController {
 
         List<Appointment> appointments = switch (currentUser.getRole()) {
             case UserService.ROLE_ADMIN -> appointmentService.getAllAppointments();
-            case UserService.ROLE_DOCTOR -> appointmentService.getAppointmentsByDoctor(currentUser.getId());
-            default -> appointmentService.getAppointmentsByPatient(currentUser.getId());
+            case UserService.ROLE_DOCTOR -> appointmentService.getAllAppointments();
+            default -> appointmentService.getAppointmentsByPatient(currentUser.getEmail());
         };
 
         return appointments.stream()
@@ -482,9 +506,9 @@ public class AppointmentListController {
                 .orElse(null);
     }
 
-    private Appointment findMatchingAppointment(int patientId, int doctorId, Timestamp appointmentTimestamp) {
-        return appointmentService.getAppointmentsByPatient(patientId).stream()
-                .filter(item -> item.getDoctorId() == doctorId)
+    private Appointment findMatchingAppointment(String patientEmail, String doctorEmail, Timestamp appointmentTimestamp) {
+        return appointmentService.getAppointmentsByPatient(patientEmail).stream()
+                .filter(item -> doctorEmail.equals(item.getDoctorEmail()))
                 .filter(item -> appointmentTimestamp.equals(item.getAppointmentDate()))
                 .findFirst()
                 .orElseGet(this::findLatestAppointmentForCurrentUser);
@@ -535,13 +559,9 @@ public class AppointmentListController {
                 || safeValue(appointment.getNotes()).toLowerCase(Locale.ROOT).contains(query);
     }
 
-    private void loadDoctors() {
-        List<User> doctors = userService.getAllUsers().stream()
-                .filter(user -> UserService.ROLE_DOCTOR.equals(user.getRole()))
-                .sorted(Comparator.comparing(user -> safeValue(user.getFullName()), String.CASE_INSENSITIVE_ORDER))
-                .collect(Collectors.toList());
-
-        doctorCombo.setItems(FXCollections.observableArrayList(doctors));
+    private void setupSpecialtyDoctorChoices() {
+        specialtyCombo.setItems(FXCollections.observableArrayList(AppointmentDoctorDirectory.getSpecialties()));
+        specialtyCombo.valueProperty().addListener((obs, oldValue, newValue) -> loadDoctorsForSpecialty(newValue));
         doctorCombo.setConverter(new StringConverter<>() {
             @Override
             public String toString(User user) {
@@ -559,6 +579,104 @@ public class AppointmentListController {
                 return null;
             }
         });
+        specialtyCombo.getSelectionModel().selectFirst();
+    }
+
+    private void loadDoctorsForSpecialty(String specialty) {
+        List<User> doctors = getBookableDoctorsForSpecialty(safeValue(specialty));
+        doctorCombo.setItems(FXCollections.observableArrayList(doctors));
+        if (!doctors.isEmpty()) {
+            doctorCombo.getSelectionModel().selectFirst();
+        }
+    }
+
+    private List<User> getBookableDoctorsForSpecialty(String specialty) {
+        Map<String, User> doctorsByEmail = new LinkedHashMap<>();
+
+        for (User doctor : getRealDoctorsForSpecialty(specialty)) {
+            doctorsByEmail.put(doctor.getEmail().toLowerCase(Locale.ROOT), doctor);
+        }
+
+        for (User doctor : AppointmentDoctorDirectory.getDoctorsForSpecialty(specialty)) {
+            doctorsByEmail.putIfAbsent(doctor.getEmail().toLowerCase(Locale.ROOT), doctor);
+        }
+
+        return doctorsByEmail.values().stream()
+                .sorted(Comparator
+                        .comparing((User user) -> isDatabaseDoctor(user) ? 0 : 1)
+                        .thenComparing(user -> safeValue(user.getFullName()), String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+    }
+
+    private List<User> getRealDoctorsForSpecialty(String specialty) {
+        String selectedSpecialty = normalizeSpecialty(specialty);
+        List<User> doctors = new ArrayList<>();
+
+        for (User user : userService.getUsers("", UserService.ROLE_DOCTOR, "name-asc")) {
+            String doctorSpecialty = normalizeSpecialty(user.getSpeciality());
+            if (specialtyMatches(selectedSpecialty, doctorSpecialty)) {
+                doctors.add(user);
+            }
+        }
+
+        return doctors;
+    }
+
+    private boolean isDatabaseDoctor(User doctor) {
+        return doctor != null && doctor.getId() > 0;
+    }
+
+    private String normalizeSpecialty(String value) {
+        return safeValue(value)
+                .toLowerCase(Locale.ROOT)
+                .replace("specialist", "")
+                .replace("consultation", "")
+                .replace("speciality", "")
+                .replace("specialty", "")
+                .replaceAll("[^a-z]", "")
+                .trim();
+    }
+
+    private boolean specialtyMatches(String selectedSpecialty, String doctorSpecialty) {
+        if (doctorSpecialty.isEmpty() || selectedSpecialty.isEmpty()) {
+            return true;
+        }
+        if (doctorSpecialty.contains(selectedSpecialty) || selectedSpecialty.contains(doctorSpecialty)) {
+            return true;
+        }
+
+        return specialtyRoot(selectedSpecialty).equals(specialtyRoot(doctorSpecialty));
+    }
+
+    private String specialtyRoot(String value) {
+        if (value.contains("cardio")) {
+            return "cardio";
+        }
+        if (value.contains("derm")) {
+            return "derm";
+        }
+        if (value.contains("pedia")) {
+            return "pedia";
+        }
+        if (value.contains("ortho")) {
+            return "ortho";
+        }
+        if (value.contains("pulmo") || value.contains("pneumo")) {
+            return "pulmo";
+        }
+        if (value.contains("neuro")) {
+            return "neuro";
+        }
+        if (value.contains("ophthal") || value.contains("eye")) {
+            return "ophthal";
+        }
+        if (value.contains("emergency") || value.contains("urgent")) {
+            return "emergency";
+        }
+        if (value.contains("general")) {
+            return "general";
+        }
+        return value;
     }
 
     private void populateClinicCopy() {
@@ -627,9 +745,14 @@ public class AppointmentListController {
         }
 
         selectedAppointmentTitleLabel.setText(buildCounterpartLabel(appointment));
+        String proofUrl = qrCodeService.buildProofUrl(appointment);
         selectedAppointmentMetaLabel.setText(
                 appointment.getAppointmentDate().toLocalDateTime().format(TABLE_DATE_FORMAT)
                         + " • " + locationService.getClinicAddress()
+        );
+        selectedAppointmentMetaLabel.setText(
+                appointment.getAppointmentDate().toLocalDateTime().format(TABLE_DATE_FORMAT)
+                        + " - Scan QR on same Wi-Fi: " + proofUrl
         );
         applyStatusBadge(selectedAppointmentStatusLabel, appointment.getStatus());
 
@@ -668,6 +791,24 @@ public class AppointmentListController {
         }
     }
 
+    private void showCelebrationGif(String title) {
+        try {
+            ImageView imageView = new ImageView(new Image(giphyService.getRandomCelebrationGifUrl(), 420, 260, true, true, true));
+            imageView.setFitWidth(420);
+            imageView.setFitHeight(260);
+            imageView.setPreserveRatio(true);
+
+            Dialog<Void> dialog = new Dialog<>();
+            dialog.setTitle("Celebration");
+            dialog.setHeaderText(title);
+            dialog.getDialogPane().setContent(imageView);
+            dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+            dialog.showAndWait();
+        } catch (Exception e) {
+            System.err.println("Could not load celebration GIF: " + e.getMessage());
+        }
+    }
+
     private String buildPdfFileName(Appointment appointment) {
         String datePart = appointment.getAppointmentDate() == null
                 ? "appointment"
@@ -676,6 +817,8 @@ public class AppointmentListController {
     }
 
     private void applyStatusBadge(Label label, String status) {
+        label.setAlignment(javafx.geometry.Pos.CENTER);
+        label.setMaxWidth(Double.MAX_VALUE);
         label.getStyleClass().removeAll(
                 "table-meta",
                 "status-pill",
@@ -737,6 +880,12 @@ public class AppointmentListController {
 
     private void updateStatus(Appointment appointment, String status) {
         if (appointmentService.updateStatus(appointment.getId(), status)) {
+            notificationService.notifyByEmail(
+                    appointment.getPatientEmail(),
+                    "appointment",
+                    "Appointment " + status,
+                    "Your appointment with " + appointment.getDoctorName() + " is now " + status + "."
+            );
             loadAppointments();
         } else {
             showAlert("Error", "The appointment status could not be updated.", Alert.AlertType.ERROR);
@@ -796,16 +945,23 @@ public class AppointmentListController {
             }
 
             Timestamp newTimestamp = Timestamp.valueOf(newDateTime);
-            if (appointmentService.hasAppointmentConflict(appointment.getDoctorId(), newTimestamp, appointment.getId())) {
+            if (appointmentService.hasAppointmentConflict(appointment.getDoctorEmail(), newTimestamp, appointment.getId())) {
                 showAlert("Conflict", "This doctor already has an appointment at the selected date and time.", Alert.AlertType.WARNING);
                 return;
             }
-            if (appointmentService.hasPatientDuplicate(appointment.getPatientId(), appointment.getDoctorId(), newTimestamp, appointment.getId())) {
+            if (appointmentService.hasPatientDuplicate(appointment.getPatientEmail(), appointment.getDoctorEmail(), newTimestamp, appointment.getId())) {
                 showAlert("Duplicate", "An appointment already exists for the same patient, doctor, and time.", Alert.AlertType.WARNING);
                 return;
             }
 
             if (appointmentService.rescheduleAppointment(appointment.getId(), newTimestamp, "postponed")) {
+                notificationService.notifyByEmail(
+                        appointment.getPatientEmail(),
+                        "appointment",
+                        "Appointment postponed",
+                        "Your appointment with " + appointment.getDoctorName() + " was moved to "
+                                + newDateTime.format(TABLE_DATE_FORMAT) + "."
+                );
                 loadAppointments();
             } else {
                 showAlert("Error", "The appointment could not be rescheduled.", Alert.AlertType.ERROR);

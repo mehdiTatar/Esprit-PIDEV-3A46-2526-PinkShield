@@ -6,6 +6,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -76,13 +77,24 @@ public class WishlistUserController {
 
         colAction.setCellFactory(column -> new TableCell<WishlistDisplayItem, String>() {
             private final Button deleteButton = new Button("Delete");
+            private final Button downloadButton = new Button("PDF");
+            private final HBox container = new HBox(5);
 
             {
-                deleteButton.setStyle("-fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-font-size: 12; -fx-padding: 5 10;");
+                deleteButton.setStyle("-fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-font-size: 11; -fx-padding: 5 8;");
+                downloadButton.setStyle("-fx-background-color: #0984e3; -fx-text-fill: white; -fx-font-size: 11; -fx-padding: 5 8;");
+                
                 deleteButton.setOnAction(event -> {
                     WishlistDisplayItem item = getTableView().getItems().get(getIndex());
                     handleDelete(item);
                 });
+                
+                downloadButton.setOnAction(event -> {
+                    WishlistDisplayItem item = getTableView().getItems().get(getIndex());
+                    handleDownloadPdf(item);
+                });
+                
+                container.getChildren().addAll(downloadButton, deleteButton);
             }
 
             @Override
@@ -91,7 +103,7 @@ public class WishlistUserController {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    setGraphic(deleteButton);
+                    setGraphic(container);
                 }
             }
         });
@@ -223,6 +235,21 @@ public class WishlistUserController {
     public void handleRefresh() {
         loadWishlist();
         showInfoAlert("Refreshed", "Wishlist reloaded!");
+    }
+
+    private void handleDownloadPdf(WishlistDisplayItem item) {
+        if (!UserSession.getInstance().isLoggedIn()) {
+            showWarningAlert("Authentication Required", "Please sign in to download PDF.");
+            return;
+        }
+
+        try {
+            WishlistPdfService pdfService = new WishlistPdfService();
+            pdfService.exportWishlistItemPdf(item);
+            showInfoAlert("Success", "PDF downloaded successfully for: " + item.getProductName());
+        } catch (Exception e) {
+            showErrorAlert("Download Error", "Could not download PDF: " + e.getMessage());
+        }
     }
 
     @FXML

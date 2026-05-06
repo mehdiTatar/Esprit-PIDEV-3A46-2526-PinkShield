@@ -87,9 +87,9 @@ public class ProductListController {
     public void setCurrentUser(User user) {
         currentUser = user;
         if (manageProductsBtn != null) {
-            boolean isAdmin = user != null && UserService.ROLE_ADMIN.equals(user.getRole());
-            manageProductsBtn.setVisible(isAdmin);
-            manageProductsBtn.setManaged(isAdmin);
+            boolean canManage = canManageProducts();
+            manageProductsBtn.setVisible(canManage);
+            manageProductsBtn.setManaged(canManage);
         }
         if (wishlistBucketBtn != null) {
             boolean isPatient = isWishlistEnabledForCurrentUser();
@@ -104,8 +104,8 @@ public class ProductListController {
 
     @FXML
     public void handleManageProducts() {
-        if (currentUser == null || !UserService.ROLE_ADMIN.equals(currentUser.getRole())) {
-            showAlert("Access denied", "Only administrators can manage products.", Alert.AlertType.WARNING);
+        if (!canManageProducts()) {
+            showAlert("Access denied", "Only doctors and administrators can manage products.", Alert.AlertType.WARNING);
             return;
         }
         loadSubView("/fxml/product_admin.fxml");
@@ -155,6 +155,11 @@ public class ProductListController {
 
     @FXML
     public void handleSaveProduct() {
+        if (!canManageProducts()) {
+            showAlert("Access denied", "Only doctors and administrators can save products.", Alert.AlertType.WARNING);
+            return;
+        }
+
         FormValidator.clearStates(nameField, priceField, stockField, formCategoryCombo);
 
         String name = safeText(nameField);
@@ -484,6 +489,11 @@ public class ProductListController {
     }
 
     private void handleDeleteProduct(Parapharmacy product) {
+        if (!canManageProducts()) {
+            showAlert("Access denied", "Only doctors and administrators can delete products.", Alert.AlertType.WARNING);
+            return;
+        }
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Delete " + product.getName() + "?", ButtonType.YES, ButtonType.NO);
         alert.showAndWait().ifPresent(type -> {
             if (type == ButtonType.YES && productService.deleteProduct(product.getId())) {
@@ -556,6 +566,12 @@ public class ProductListController {
 
     private boolean isWishlistEnabledForCurrentUser() {
         return currentUser != null && UserService.ROLE_USER.equals(currentUser.getRole());
+    }
+
+    private boolean canManageProducts() {
+        return currentUser != null
+                && (UserService.ROLE_ADMIN.equals(currentUser.getRole())
+                || UserService.ROLE_DOCTOR.equals(currentUser.getRole()));
     }
 
     private void loadSubView(String fxmlPath) {
