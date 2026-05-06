@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.MainController"
+            prefWidth="1280" prefHeight="800">
+    <top>
+        <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="16">
+            <Label text="PinkShield" styleClass="brand-logo" />
+            <Label text="Blog"       styleClass="brand-logo-accent" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Blog"         onAction="#showFrontOffice" styleClass="nav-btn" />
+            <Button fx:id="adminPanelBtn"
+                    text="Admin Panel"  onAction="#showBackOffice"  styleClass="nav-btn"
+                    visible="false" managed="false" />
+            <!-- Vertical divider -->
+            <Region styleClass="nav-divider" />
+            <!-- Logged-in user name -->
+            <Label fx:id="userNameLabel" styleClass="nav-user-label" />
+            <!-- Logout -->
+            <Button text="Logout" onAction="#handleLogout" styleClass="nav-btn-logout" />
+        </HBox>
+    </top>
+    <center>
+        <StackPane fx:id="mainContent" />
+    </center>
+</BorderPane>

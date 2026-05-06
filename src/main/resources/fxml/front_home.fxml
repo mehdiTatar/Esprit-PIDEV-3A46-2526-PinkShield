@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<ScrollPane fitToWidth="true"
+            xmlns="http://javafx.com/javafx/21.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.FrontHomeController"
+            styleClass="main-scroll">
+    <VBox spacing="20" styleClass="page-container">
+
+        <!-- Hero Banner -->
+        <VBox styleClass="hero-panel" alignment="CENTER" spacing="10">
+            <Label text="PinkShield Health Blog" styleClass="hero-title" />
+            <Label text="Insights and news from our medical professionals" styleClass="hero-subtitle" />
+        </VBox>
+
+        <!-- Search Bar -->
+        <HBox styleClass="search-bar" spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="searchField"
+                       promptText="Search articles by title, content or author..."
+                       styleClass="search-field"
+                       HBox.hgrow="ALWAYS"
+                       onAction="#handleSearch" />
+            <Button text="Search" onAction="#handleSearch" styleClass="btn-primary" />
+        </HBox>
+
+        <!-- Sort + Filter bar -->
+        <HBox styleClass="filter-bar" spacing="14" alignment="CENTER_LEFT">
+            <Label text="Sort:" styleClass="filter-label" />
+            <ComboBox fx:id="sortCombo" styleClass="filter-combo" prefWidth="160" />
+
+            <Label text="Role:" styleClass="filter-label" />
+            <ComboBox fx:id="roleCombo" styleClass="filter-combo" prefWidth="130" />
+
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Reset" onAction="#handleReset" styleClass="btn-secondary" />
+        </HBox>
+
+        <!-- Post Count -->
+        <Label fx:id="postCountLabel" styleClass="card-meta" />
+
+        <!-- Posts FlowPane -->
+        <FlowPane fx:id="postsContainer"
+                  hgap="20" vgap="20"
+                  styleClass="posts-grid" />
+
+    </VBox>
+</ScrollPane>

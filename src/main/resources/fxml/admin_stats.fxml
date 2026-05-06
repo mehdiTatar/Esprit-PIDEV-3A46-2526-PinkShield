@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<ScrollPane fitToWidth="true"
+            xmlns="http://javafx.com/javafx/21.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.AdminStatsController"
+            styleClass="main-scroll"
+            maxHeight="Infinity" maxWidth="Infinity">
+
+    <VBox styleClass="admin-content" spacing="24">
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="admin-header">
+            <Label text="Statistics" styleClass="admin-page-title" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Refresh" onAction="#handleRefresh" styleClass="btn-secondary" />
+        </HBox>
+
+        <!-- All stat sections built programmatically -->
+        <VBox fx:id="statsContainer" spacing="20" />
+
+    </VBox>
+</ScrollPane>

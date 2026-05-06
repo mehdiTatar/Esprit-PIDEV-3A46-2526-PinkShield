@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+
+<ScrollPane fitToWidth="true"
+            xmlns="http://javafx.com/javafx/21.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.AdminBlogFormController"
+            styleClass="main-scroll"
+            maxHeight="Infinity" maxWidth="Infinity">
+
+    <VBox spacing="20" styleClass="page-container">
+
+        <!-- Top Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="admin-header">
+            <Button text="← Cancel" onAction="#handleCancel" styleClass="btn-secondary" />
+            <Label fx:id="formTitle" text="Add New Post" styleClass="admin-page-title" />
+        </HBox>
+
+        <!-- Form Card -->
+        <VBox styleClass="panel-card" spacing="10">
+
+            <!-- Title -->
+            <VBox spacing="3">
+                <Label text="Title *" styleClass="field-label" />
+                <TextField fx:id="titleField"
+                           promptText="Enter post title (5–200 characters)"
+                           styleClass="input-field" />
+                <Label fx:id="errTitle" text="" styleClass="field-error"
+                       visible="false" managed="false" />
+            </VBox>
+
+            <!-- Content -->
+            <VBox spacing="3">
+                <Label text="Content *" styleClass="field-label" />
+                <TextArea fx:id="contentField"
+                          promptText="Write your article content here (min. 20 characters)..."
+                          styleClass="input-textarea"
+                          prefHeight="220"
+                          wrapText="true" />
+                <Label fx:id="errContent" text="" styleClass="field-error"
+                       visible="false" managed="false" />
+            </VBox>
+
+            <!-- Author Name + Email (side by side) -->
+            <HBox spacing="16">
+                <VBox spacing="3" HBox.hgrow="ALWAYS">
+                    <Label text="Author Name *" styleClass="field-label" />
+                    <TextField fx:id="authorNameField"
+                               promptText="Full name (letters only)"
+                               styleClass="input-field" />
+                    <Label fx:id="errAuthorName" text="" styleClass="field-error"
+                           visible="false" managed="false" />
+                </VBox>
+                <VBox spacing="3" HBox.hgrow="ALWAYS">
+                    <Label text="Author Email *" styleClass="field-label" />
+                    <TextField fx:id="authorEmailField"
+                               promptText="author@example.com"
+                               styleClass="input-field" />
+                    <Label fx:id="errAuthorEmail" text="" styleClass="field-error"
+                           visible="false" managed="false" />
+                </VBox>
+            </HBox>
+
+            <!-- Author Role (ComboBox — constrained to valid values) -->
+            <VBox spacing="3">
+                <Label text="Author Role *" styleClass="field-label" />
+                <ComboBox fx:id="authorRoleCombo"
+                          promptText="Select a role…"
+                          styleClass="filter-combo"
+                          prefWidth="260" />
+                <Label fx:id="errAuthorRole" text="" styleClass="field-error"
+                       visible="false" managed="false" />
+            </VBox>
+
+            <!-- Image (optional) -->
+            <VBox spacing="3">
+                <Label text="Image (optional)" styleClass="field-label" />
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <TextField fx:id="imagePathField"
+                               promptText="No image selected"
+                               styleClass="input-field"
+                               editable="false"
+                               HBox.hgrow="ALWAYS" />
+                    <Button text="Browse…" onAction="#handleBrowseImage" styleClass="btn-secondary" />
+                    <Button text="Remove"  onAction="#handleRemoveImage" styleClass="btn-secondary" />
+                </HBox>
+                <Label fx:id="imageStatusLabel" text="" styleClass="card-meta" />
+            </VBox>
+
+            <!-- Image preview thumbnail -->
+            <ImageView fx:id="imagePreviewView"
+                       fitWidth="260" fitHeight="140"
+                       preserveRatio="true"
+                       visible="false"
+                       styleClass="image-preview" />
+
+            <!-- Global save feedback -->
+            <Label fx:id="feedbackLabel" text="" styleClass="feedback-hidden" />
+
+            <Button text="Save Post" onAction="#handleSave"
+                    styleClass="btn-primary" prefWidth="160" />
+
+        </VBox>
+    </VBox>
+</ScrollPane>

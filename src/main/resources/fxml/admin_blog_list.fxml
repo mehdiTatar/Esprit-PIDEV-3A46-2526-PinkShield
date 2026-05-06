@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21.0.1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.AdminBlogListController"
+      styleClass="admin-content"
+      spacing="12"
+      maxHeight="Infinity" maxWidth="Infinity">
+
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="admin-header">
+        <Label text="Blog Posts" styleClass="admin-page-title" />
+        <Region HBox.hgrow="ALWAYS" />
+        <TextField fx:id="searchField"
+                   promptText="Search…"
+                   styleClass="search-field"
+                   prefWidth="190"
+                   onAction="#handleSearch" />
+        <Button text="Search" onAction="#handleSearch" styleClass="btn-secondary" />
+        <ComboBox fx:id="roleFilterCombo" styleClass="filter-combo" prefWidth="120" />
+        <Button text="+ Add Post" onAction="#handleAdd" styleClass="btn-primary" />
+    </HBox>
+
+    <!-- ── Inline stats strip ─────────────────────────────── -->
+    <HBox fx:id="statsStrip" spacing="12" alignment="CENTER_LEFT" />
+
+    <!-- ── Table (click column headers to sort) ──────────── -->
+    <TableView fx:id="postsTable" VBox.vgrow="ALWAYS" styleClass="data-table">
+        <columns>
+            <TableColumn fx:id="colTitle"  text="Title"   prefWidth="330" />
+            <TableColumn fx:id="colAuthor" text="Author"  prefWidth="150" />
+            <TableColumn fx:id="colRole"   text="Role"    prefWidth="100" />
+            <TableColumn fx:id="colDate"   text="Date"    prefWidth="110" />
+        </columns>
+        <placeholder>
+            <Label text="No blog posts found." styleClass="no-content-label" />
+        </placeholder>
+    </TableView>
+
+    <!-- ── Footer: status · pagination · actions ─────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="table-footer">
+        <Label fx:id="statusLabel" styleClass="status-label" />
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Pagination -->
+        <Button fx:id="btnFirst" text="«" onAction="#handleFirst" styleClass="page-btn" />
+        <Button fx:id="btnPrev"  text="‹" onAction="#handlePrev"  styleClass="page-btn" />
+        <Label  fx:id="pageLabel"          styleClass="page-label" />
+        <Button fx:id="btnNext"  text="›" onAction="#handleNext"  styleClass="page-btn" />
+        <Button fx:id="btnLast"  text="»" onAction="#handleLast"  styleClass="page-btn" />
+
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Row actions -->
+        <Button text="Edit Selected"   onAction="#handleEdit"   styleClass="btn-secondary" />
+        <Button text="Delete Selected" onAction="#handleDelete" styleClass="btn-danger" />
+    </HBox>
+
+</VBox>

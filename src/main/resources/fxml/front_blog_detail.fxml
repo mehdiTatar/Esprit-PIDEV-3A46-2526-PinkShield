@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+
+<ScrollPane fitToWidth="true"
+            xmlns="http://javafx.com/javafx/21.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.controllers.FrontBlogDetailController"
+            styleClass="main-scroll">
+    <VBox spacing="20" styleClass="page-container detail-container">
+
+        <!-- Back Button -->
+        <Button text="← Back to Blog" onAction="#handleBack" styleClass="btn-secondary" />
+
+        <!-- Hero Image -->
+        <ImageView fx:id="postImageView"
+                   fitWidth="860" fitHeight="420"
+                   preserveRatio="true"
+                   visible="false" managed="false"
+                   styleClass="post-hero-image" />
+
+        <!-- Post Header -->
+        <VBox styleClass="post-detail-header" spacing="10">
+            <Label fx:id="postTitle"  styleClass="post-detail-title" wrapText="true" />
+            <Label fx:id="postAuthor" styleClass="post-detail-meta" />
+            <Label fx:id="postDate"   styleClass="card-meta" />
+        </VBox>
+
+        <!-- Post Content -->
+        <VBox styleClass="post-detail-body">
+            <Label fx:id="postContent" styleClass="post-content-text" wrapText="true" />
+        </VBox>
+
+        <!-- Comments list -->
+        <HBox alignment="CENTER_LEFT" spacing="16">
+            <Label text="Comments" styleClass="section-title" />
+            <Label fx:id="commentCount" styleClass="comment-count-badge" />
+        </HBox>
+        <VBox fx:id="commentsContainer" spacing="12" />
+
+        <!-- Add Comment Form -->
+        <VBox styleClass="panel-card" spacing="12">
+            <Label text="Leave a Comment" styleClass="card-title" />
+
+            <!-- Shown when user IS logged in -->
+            <HBox fx:id="commentAsPanel" styleClass="comment-as-panel" spacing="8"
+                  alignment="CENTER_LEFT" visible="false" managed="false">
+                <Label text="Commenting as" styleClass="card-meta" />
+                <Label fx:id="commentAsLabel" styleClass="comment-author" />
+            </HBox>
+
+            <!-- Shown when user is NOT logged in -->
+            <HBox fx:id="commentInputsPanel" spacing="12" visible="false" managed="false">
+                <VBox spacing="3" HBox.hgrow="ALWAYS">
+                    <TextField fx:id="commentAuthorName"
+                               promptText="Your name"
+                               styleClass="input-field" />
+                    <Label fx:id="errCommentName" text="" styleClass="field-error"
+                           visible="false" managed="false" />
+                </VBox>
+                <VBox spacing="3" HBox.hgrow="ALWAYS">
+                    <TextField fx:id="commentAuthorEmail"
+                               promptText="your@email.com"
+                               styleClass="input-field" />
+                    <Label fx:id="errCommentEmail" text="" styleClass="field-error"
+                           visible="false" managed="false" />
+                </VBox>
+            </HBox>
+
+            <!-- Comment textarea (always shown) -->
+            <VBox spacing="3">
+                <TextArea fx:id="commentContentArea"
+                          promptText="Share your thoughts… (5–500 characters)"
+                          styleClass="input-textarea"
+                          prefHeight="100"
+                          wrapText="true" />
+                <Label fx:id="errCommentContent" text="" styleClass="field-error"
+                       visible="false" managed="false" />
+            </VBox>
+
+            <Label fx:id="feedbackLabel" text="" styleClass="feedback-hidden" />
+            <Button fx:id="postCommentBtn" text="Post Comment"
+                    onAction="#handleAddComment" styleClass="btn-primary" />
+        </VBox>
+
+    </VBox>
+</ScrollPane>

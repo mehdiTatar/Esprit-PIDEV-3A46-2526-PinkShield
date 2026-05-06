@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21.0.1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.controllers.AdminCommentListController"
+      styleClass="admin-content"
+      spacing="12"
+      maxHeight="Infinity" maxWidth="Infinity">
+
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="admin-header">
+        <Label text="Comments" styleClass="admin-page-title" />
+        <Region HBox.hgrow="ALWAYS" />
+        <TextField fx:id="searchField"
+                   promptText="Search by author, email or content…"
+                   styleClass="search-field"
+                   prefWidth="270"
+                   onAction="#handleSearch" />
+        <Button text="Search" onAction="#handleSearch" styleClass="btn-secondary" />
+    </HBox>
+
+    <!-- ── Inline stats strip ─────────────────────────────── -->
+    <HBox fx:id="statsStrip" spacing="12" alignment="CENTER_LEFT" />
+
+    <!-- ── Table (click column headers to sort) ──────────── -->
+    <TableView fx:id="commentsTable" VBox.vgrow="ALWAYS" styleClass="data-table">
+        <columns>
+            <TableColumn fx:id="colPost"    text="Post"    prefWidth="75"  />
+            <TableColumn fx:id="colAuthor"  text="Author"  prefWidth="130" />
+            <TableColumn fx:id="colEmail"   text="Email"   prefWidth="170" />
+            <TableColumn fx:id="colContent" text="Content" prefWidth="300" />
+            <TableColumn fx:id="colDate"    text="Date"    prefWidth="140" />
+        </columns>
+        <placeholder>
+            <Label text="No comments found." styleClass="no-content-label" />
+        </placeholder>
+    </TableView>
+
+    <!-- ── Footer: status · pagination · delete ──────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="table-footer">
+        <Label fx:id="statusLabel" styleClass="status-label" />
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Pagination -->
+        <Button fx:id="btnFirst" text="«" onAction="#handleFirst" styleClass="page-btn" />
+        <Button fx:id="btnPrev"  text="‹" onAction="#handlePrev"  styleClass="page-btn" />
+        <Label  fx:id="pageLabel"          styleClass="page-label" />
+        <Button fx:id="btnNext"  text="›" onAction="#handleNext"  styleClass="page-btn" />
+        <Button fx:id="btnLast"  text="»" onAction="#handleLast"  styleClass="page-btn" />
+
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Row action -->
+        <Button text="Delete Selected" onAction="#handleDelete" styleClass="btn-danger" />
+    </HBox>
+
+</VBox>
