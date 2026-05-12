@@ -33,6 +33,21 @@ class DoctorRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return Doctor[]
+     */
+    public function findAvailableForBooking(): array
+    {
+        return $this->createQueryBuilder('d')
+            ->andWhere('d.status = :active OR d.status IS NULL')
+            ->setParameter('active', 'active')
+            ->orderBy('d.speciality', 'ASC')
+            ->addOrderBy('d.lastName', 'ASC')
+            ->addOrderBy('d.firstName', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Find doctors by full name (partial match)
      */
     public function findByFullName(string $name): array

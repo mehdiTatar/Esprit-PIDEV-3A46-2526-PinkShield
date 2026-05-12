@@ -1,0 +1,173 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Wishlist Checkout - PinkShield{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-1">Wishlist Checkout</h1>
+            <p class="text-muted mb-0">Review your wishlist, process a mock payment, and download receipts.</p>
+        </div>
+        <a href="{{ path('wishlist_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-heart me-1"></i> Back to Wishlist
+        </a>
+    </div>
+
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'danger' ? 'danger' : 'success' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                    <h2 class="h5 mb-0">Order Items</h2>
+                    <span class="badge text-bg-primary">{{ itemCount }} item{{ itemCount == 1 ? '' : 's' }}</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if wishlistItems|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th class="text-end">Amount</th>
+                                        <th>Added</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in wishlistItems %}
+                                        <tr>
+                                            <td>
+                                                <div class="fw-semibold">{{ item.product ? item.product.name : 'Product removed' }}</div>
+                                                <div class="text-muted small">{{ item.product ? item.product.description|default('')|slice(0, 80) : '' }}</div>
+                                            </td>
+                                            <td class="text-end fw-semibold">
+                                                {{ item.product ? item.product.price|number_format(2, '.', ',') : '0.00' }} TND
+                                            </td>
+                                            <td class="text-muted small">{{ item.addedAt|date('M d, Y') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Total</th>
+                                        <th class="text-end">{{ total|number_format(2, '.', ',') }} TND</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-heart-broken text-muted mb-3" style="font-size: 2.4rem;"></i>
+                            <h3 class="h5">Your wishlist is empty</h3>
+                            <p class="text-muted">Add parapharmacy products before checkout.</p>
+                            <a href="{{ path('parapharmacy_index') }}" class="btn btn-primary">
+                                <i class="fas fa-shopping-bag me-1"></i> Browse Products
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">Transaction History</h2>
+                </div>
+                <div class="card-body p-0">
+                    {% if transactions|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Amount</th>
+                                        <th>Items</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in transactions %}
+                                        <tr>
+                                            <td class="fw-semibold">{{ transaction.total_amount|number_format(2, '.', ',') }} TND</td>
+                                            <td>{{ transaction.item_count }}</td>
+                                            <td>
+                                                <span class="badge {{ transaction.status == 'SUCCESSFUL' ? 'text-bg-success' : 'text-bg-secondary' }}">
+                                                    {{ transaction.status|default('UNKNOWN') }}
+                                                </span>
+                                            </td>
+                                            <td class="text-muted small">{{ transaction.created_at|date('M d, Y H:i') }}</td>
+                                            <td class="text-end">
+                                                <a href="{{ path('wishlist_checkout_receipt', {transactionId: transaction.transaction_id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-file-pdf me-1"></i> Receipt
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-receipt text-muted mb-3" style="font-size: 2.4rem;"></i>
+                            <h3 class="h5">No transactions yet</h3>
+                            <p class="text-muted mb-0">Completed wishlist payments will appear here.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">Mock Payment</h2>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Items</span>
+                        <strong>{{ itemCount }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="text-muted">Total</span>
+                        <strong>{{ total|number_format(2, '.', ',') }} TND</strong>
+                    </div>
+
+                    <form method="post" action="{{ path('wishlist_checkout_pay') }}">
+                        <div class="mb-3">
+                            <label for="cardholder_name" class="form-label">Cardholder Name</label>
+                            <input type="text" name="cardholder_name" id="cardholder_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="card_number" class="form-label">Card Number</label>
+                            <input type="text" name="card_number" id="card_number" class="form-control" inputmode="numeric" placeholder="4242 4242 4242 4242" required>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-7">
+                                <label for="expiry_date" class="form-label">Expiry</label>
+                                <input type="text" name="expiry_date" id="expiry_date" class="form-control" placeholder="MM/YY" required>
+                            </div>
+                            <div class="col-5">
+                                <label for="cvv" class="form-label">CVV</label>
+                                <input type="password" name="cvv" id="cvv" class="form-control" inputmode="numeric" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-4" {{ wishlistItems|length == 0 ? 'disabled' : '' }}>
+                            <i class="fas fa-lock me-1"></i> Pay Now
+                        </button>
+                    </form>
+                    <p class="text-muted small mt-3 mb-0">This mock payment validates form data, saves a transaction, clears the wishlist, and generates a PDF receipt.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

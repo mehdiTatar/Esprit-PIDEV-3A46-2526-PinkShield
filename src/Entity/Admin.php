@@ -117,7 +117,7 @@ class Admin implements UserInterface, PasswordAuthenticatedUserInterface, TwoFac
 
     public function isEmailAuthEnabled(): bool
     {
-        return true;
+        return false;
     }
 
     public function getEmailAuthRecipient(): string

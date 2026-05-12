@@ -43,6 +43,8 @@ class LoginCaptchaListener
         // Verify reCAPTCHA token with Google
         try {
             $response = $this->httpClient->request('POST', self::RECAPTCHA_VERIFY_URL, [
+                'timeout' => 3,
+                'max_duration' => 5,
                 'body' => [
                     'secret' => $this->recaptchaSecretKey,
                     'response' => $recaptchaToken,
@@ -52,8 +54,15 @@ class LoginCaptchaListener
             $data = $response->toArray();
 
             if (!isset($data['success']) || !$data['success']) {
+                $errorCodes = $data['error-codes'] ?? [];
+                if (in_array('timeout-or-duplicate', $errorCodes, true)) {
+                    throw new AuthenticationException('reCAPTCHA expired. Please verify again before signing in.');
+                }
+
                 throw new AuthenticationException('reCAPTCHA verification failed. Please try again.');
             }
+        } catch (AuthenticationException $e) {
+            throw $e;
         } catch (\Exception $e) {
             throw new AuthenticationException('reCAPTCHA verification error. Please try again.');
         }

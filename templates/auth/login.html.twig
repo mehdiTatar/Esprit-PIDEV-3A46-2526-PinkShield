@@ -788,13 +788,18 @@ main { margin: 0 !important; padding: 0 !important; width: 100% !important; }
 
                     <div class="field-group">
                         <div class="captcha-wrap">
-                            <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                            <div class="g-recaptcha"
+                                 data-sitekey="{{ recaptcha_site_key }}"
+                                 data-expired-callback="onRecaptchaExpired"></div>
                         </div>
                         {% if captcha_error %}
                         <small style="color:#ff6b6b; font-size:0.78rem; display:block; margin-top:6px;">
                             <i class="fas fa-exclamation-circle"></i> {{ captcha_error }}
                         </small>
                         {% endif %}
+                        <small id="captchaInlineError" style="color:#ff6b6b; font-size:0.78rem; display:none; margin-top:6px;">
+                            <i class="fas fa-exclamation-circle"></i> Please complete reCAPTCHA before signing in.
+                        </small>
                     </div>
 
                     <div class="actions-row">
@@ -897,6 +902,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Standard AJAX validation ─────────────────────────────────────
     const form = document.getElementById('loginForm');
+    const captchaInlineError = document.getElementById('captchaInlineError');
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            if (typeof grecaptcha === 'undefined') {
+                return;
+            }
+
+            if (!grecaptcha.getResponse()) {
+                event.preventDefault();
+                if (captchaInlineError) {
+                    captchaInlineError.style.display = 'block';
+                    captchaInlineError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please complete reCAPTCHA before signing in.';
+                }
+            }
+        });
+    }
+
     if (form && typeof AjaxValidator !== 'undefined') {
         AjaxValidator.attachBlur(form);
         AjaxValidator.attachSubmit(form, null, function () {
@@ -1056,5 +1078,13 @@ document.addEventListener('DOMContentLoaded', function () {
         observer.observe(el);
     });
 });
+
+window.onRecaptchaExpired = function () {
+    const captchaInlineError = document.getElementById('captchaInlineError');
+    if (captchaInlineError) {
+        captchaInlineError.style.display = 'block';
+        captchaInlineError.innerHTML = '<i class="fas fa-exclamation-circle"></i> reCAPTCHA expired. Please verify again.';
+    }
+};
 </script>
 {% endblock %}

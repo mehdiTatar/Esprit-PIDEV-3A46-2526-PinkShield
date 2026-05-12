@@ -56,25 +56,9 @@ class AppointmentController extends AbstractController
             $appointments = $appointmentRepository->findByPatient($user->getUserIdentifier());
         }
 
-        $aiSuggestions = [];
-        if ($this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_DOCTOR') && !$this->isGranted('ROLE_ADMIN')) {
-            foreach ($appointments as $appointment) {
-                if ($appointment->getNotes() && trim($appointment->getNotes()) !== '') {
-                    try {
-                        $result = $this->aiPharmacistService->suggestProducts($appointment->getNotes());
-                        if (count($result) > 0) {
-                            $aiSuggestions[$appointment->getId()] = $result;
-                        }
-                    } catch (\Exception $e) {
-                        error_log("AI pharmacist error for appointment {$appointment->getId()}: " . $e->getMessage());
-                    }
-                }
-            }
-        }
-
         return $this->render('appointment/index.html.twig', [
             'appointments' => $appointments,
-            'aiSuggestions' => $aiSuggestions,
+            'aiSuggestions' => [],
         ]);
     }
 
@@ -200,7 +184,15 @@ class AppointmentController extends AbstractController
             return $this->redirectToRoute('appointment_index');
         }
 
-        $doctors = $doctorRepository->findAll();
+        $doctorsForBooking = array_map(
+            static fn (Doctor $doctor): array => [
+                'email' => $doctor->getEmail(),
+                'name' => $doctor->getFullName(),
+                'speciality' => $doctor->getSpeciality(),
+                'status' => $doctor->getStatus() ?? 'active',
+            ],
+            $doctorRepository->findAvailableForBooking()
+        );
 
         $appointment = new Appointment();
         $currentUser = $this->getUser();
@@ -218,7 +210,8 @@ class AppointmentController extends AbstractController
                 $this->addFlash('error', 'Appointment date is required and must be in the future.');
                 return $this->render('appointment/new.html.twig', [
                     'form' => $form->createView(),
-                    'doctors' => $doctors,
+                    'doctorsForBooking' => $doctorsForBooking,
+                    'selectedDoctorEmail' => $appointment->getDoctorEmail(),
                 ]);
             }
 
@@ -267,7 +260,8 @@ class AppointmentController extends AbstractController
 
         return $this->render('appointment/new.html.twig', [
             'form' => $form->createView(),
-            'doctors' => $doctors,
+            'doctorsForBooking' => $doctorsForBooking,
+            'selectedDoctorEmail' => $appointment->getDoctorEmail(),
         ]);
     }
 
@@ -603,22 +597,10 @@ class AppointmentController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        // Analyze appointment notes for AI suggestions
+        // Keep the detail page fast. AI analysis is available through the
+        // dedicated AJAX endpoint instead of blocking the normal page render.
         $aiSuggestions = null;
         $aiError = null;
-        if ($appointment->getNotes() && trim($appointment->getNotes()) !== '') {
-            try {
-                $aiResult = $this->aiSymptomAnalyzer->analyzeNotes($appointment->getNotes());
-                if ($aiResult['success'] && isset($aiResult['suggestions'])) {
-                    $aiSuggestions = $aiResult['suggestions'];
-                } else {
-                    $aiError = $aiResult['error'] ?? 'Failed to get AI suggestions';
-                }
-            } catch (\Exception $e) {
-                $aiError = 'AI analysis error: ' . $e->getMessage();
-                error_log("Appointment AI analysis error: " . $e->getMessage());
-            }
-        }
 
         // Handle Parapharmacie add form (doctors/admin)
         $paraph = new Parapharmacie();

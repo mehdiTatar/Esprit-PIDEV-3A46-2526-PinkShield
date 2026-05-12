@@ -44,6 +44,24 @@ class NotificationRepository extends ServiceEntityRepository
         return $this->findByUser($userOrAdmin);
     }
 
+    public function findRecentByUserOrAdmin($userOrAdmin, int $limit = 5): array
+    {
+        $qb = $this->createQueryBuilder('n')
+            ->orderBy('n.createdAt', 'DESC')
+            ->setMaxResults($limit);
+
+        if (get_class($userOrAdmin) === 'App\\Entity\\Admin') {
+            $qb->andWhere('n.admin = :owner');
+        } else {
+            $qb->andWhere('n.user = :owner');
+        }
+
+        return $qb
+            ->setParameter('owner', $userOrAdmin)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findUnreadByUser($user)
     {
         if (get_class($user) === 'App\\Entity\\Admin') {

@@ -36,4 +36,16 @@ class WishlistRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findProductIdsByUser($user): array
+    {
+        $rows = $this->createQueryBuilder('w')
+            ->select('IDENTITY(w.product) AS productId')
+            ->andWhere('w.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_map('intval', array_column($rows, 'productId'));
+    }
 }

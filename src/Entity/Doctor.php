@@ -223,7 +223,7 @@ class Doctor implements UserInterface, PasswordAuthenticatedUserInterface, TwoFa
 
     public function isEmailAuthEnabled(): bool
     {
-        return true;
+        return false;
     }
 
     public function getEmailAuthRecipient(): string

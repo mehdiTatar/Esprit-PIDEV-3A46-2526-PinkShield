@@ -15,19 +15,38 @@
                     {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'appointmentForm'}}) }}
                         {{ form_widget(form._token) }}
 
+                        {% set specialities = [] %}
+                        {% for doctor in doctorsForBooking|default([]) %}
+                            {% if doctor.speciality not in specialities %}
+                                {% set specialities = specialities|merge([doctor.speciality]) %}
+                            {% endif %}
+                        {% endfor %}
+
                         <div class="mb-3">
-                            {{ form_label(form.doctorEmail, null, {'label_attr': {'class': 'form-label'}}) }}
-                            <select name="{{ form.doctorEmail.vars.full_name }}"
-                                    id="{{ form.doctorEmail.vars.id }}"
-                                    class="form-select"
-                                    data-ajax-validate="doctorEmail">
-                                <option value="">Choose a doctor...</option>
-                                {% for choice in form.doctorEmail.vars.choices %}
-                                    <option value="{{ choice.value }}">{{ choice.label }}</option>
+                            <label for="appointment_speciality" class="form-label">Select Speciality</label>
+                            <select id="appointment_speciality" class="form-select" required>
+                                <option value="">Choose a speciality...</option>
+                                {% for speciality in specialities %}
+                                    <option value="{{ speciality }}">{{ speciality }}</option>
                                 {% endfor %}
                             </select>
                             <small class="form-text text-muted d-block mt-2">
-                                <i class="fas fa-info-circle"></i> Only active doctors are available for booking.
+                                <i class="fas fa-stethoscope"></i> Pick a speciality first to see matching doctors.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.doctorEmail, 'Select Doctor', {'label_attr': {'class': 'form-label'}}) }}
+                            <select name="{{ form.doctorEmail.vars.full_name }}"
+                                    id="{{ form.doctorEmail.vars.id }}"
+                                    class="form-select"
+                                    data-ajax-validate="doctorEmail"
+                                    disabled>
+                                <option value="">Choose a speciality first...</option>
+                            </select>
+                            {{ form_errors(form.doctorEmail) }}
+                            <small class="form-text text-muted d-block mt-2">
+                                <i class="fas fa-info-circle"></i> Doctors are loaded from the shared database.
                             </small>
                         </div>
 
@@ -65,6 +84,51 @@
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('appointmentForm');
     if (!form) return;
+
+    const doctors = {{ doctorsForBooking|default([])|json_encode|raw }};
+    const selectedDoctorEmail = {{ selectedDoctorEmail|default('')|json_encode|raw }};
+    const specialitySelect = document.getElementById('appointment_speciality');
+    const doctorSelect = document.getElementById('{{ form.doctorEmail.vars.id }}');
+
+    function renderDoctorsForSpeciality(speciality, selectedEmail = '') {
+        const matchingDoctors = doctors.filter(doctor => doctor.speciality === speciality);
+
+        doctorSelect.innerHTML = '';
+
+        if (!speciality) {
+            doctorSelect.disabled = true;
+            doctorSelect.append(new Option('Choose a speciality first...', ''));
+            return;
+        }
+
+        if (matchingDoctors.length === 0) {
+            doctorSelect.disabled = true;
+            doctorSelect.append(new Option('No doctors found for this speciality', ''));
+            return;
+        }
+
+        doctorSelect.disabled = false;
+        doctorSelect.append(new Option('Choose a doctor...', ''));
+
+        matchingDoctors.forEach(doctor => {
+            const option = new Option(doctor.name, doctor.email);
+            option.selected = doctor.email === selectedEmail;
+            doctorSelect.append(option);
+        });
+    }
+
+    specialitySelect.addEventListener('change', function () {
+        renderDoctorsForSpeciality(this.value);
+    });
+
+    if (selectedDoctorEmail) {
+        const selectedDoctor = doctors.find(doctor => doctor.email === selectedDoctorEmail);
+        if (selectedDoctor) {
+            specialitySelect.value = selectedDoctor.speciality;
+            renderDoctorsForSpeciality(selectedDoctor.speciality, selectedDoctorEmail);
+        }
+    }
+
     AjaxValidator.attachBlur(form);
     AjaxValidator.attachSubmit(form);
 });

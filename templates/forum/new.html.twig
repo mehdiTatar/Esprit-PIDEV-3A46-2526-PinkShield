@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Forum Post - PinkShield{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h1 class="h4 mb-0">Create Forum Post</h1>
+                </div>
+                <div class="card-body">
+                    {% for type, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ type in ['danger', 'warning'] ? type : 'success' }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                    <form method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="_token" value="{{ csrf_token('forum_new') }}">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" name="title" id="title" class="form-control" minlength="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content</label>
+                            <textarea name="content" id="content" class="form-control" rows="8" minlength="10" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Image</label>
+                            <input type="file" name="image" id="image" class="form-control" accept="image/*">
+                            <div class="form-text">Optional. JPG, PNG, GIF, or WebP up to 5 MB.</div>
+                        </div>
+
+                        {% if is_granted('ROLE_DOCTOR') %}
+                            <div class="form-check form-switch mb-4">
+                                <input class="form-check-input" type="checkbox" role="switch" name="allow_comments" id="allow_comments" value="1" checked>
+                                <label class="form-check-label" for="allow_comments">Allow patient comments</label>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="fas fa-user-md me-1"></i> This will be highlighted as a doctor post.
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ path('forum_index') }}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Publish</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

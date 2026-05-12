@@ -155,6 +155,16 @@ class WishlistController extends AbstractController
         return new JsonResponse(['inWishlist' => $exists]);
     }
 
+    #[Route('/check-many', name: 'wishlist_check_many', methods: ['GET'])]
+    public function checkMany(WishlistRepository $wishlistRepository): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
+        return new JsonResponse([
+            'productIds' => $wishlistRepository->findProductIdsByUser($this->getUser()),
+        ]);
+    }
+
     #[Route('/api/total', name: 'wishlist_api_total', methods: ['GET'])]
     public function apiTotal(WishlistRepository $wishlistRepository): JsonResponse
     {

@@ -76,7 +76,7 @@ class NotificationController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_USER');
 
         $user          = $this->getUser();
-        $notifications = $this->notificationRepository->findByUserOrAdmin($user);
+        $notifications = $this->notificationRepository->findRecentByUserOrAdmin($user, 5);
         $unreadCount   = $this->notificationRepository->countUnreadByUser($user);
 
         $data = array_map(fn($n) => [

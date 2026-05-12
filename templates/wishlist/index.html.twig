@@ -316,6 +316,9 @@
         <a href="{{ path('parapharmacy_index') }}" class="btn-browse">
             <i class="fas fa-shopping-bag me-2"></i> Continue Shopping
         </a>
+        <a href="{{ path('wishlist_checkout') }}" class="btn-browse" style="margin-left: 10px;">
+            <i class="fas fa-credit-card me-2"></i> Checkout
+        </a>
     </div>
 
 {% else %}
@@ -376,7 +379,7 @@
     }
 
     function buyProduct(productId, productName) {
-        alert('Thank you for your interest in ' + productName + '! Purchase feature coming soon.');
+        window.location.href = '{{ path('wishlist_checkout') }}';
     }
 </script>
 

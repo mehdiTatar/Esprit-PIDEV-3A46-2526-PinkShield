@@ -902,8 +902,8 @@
                            href="{{ path('notifications_index') }}">
                             <i class="fas fa-bell"></i> Notifications
                         </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'blog_' %}active{% endif %}"
-                           href="{{ path('blog_index') }}">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'forum_' %}active{% endif %}"
+                           href="{{ path('forum_index') }}">
                             <i class="fas fa-comments"></i> Blog & Forum
                         </a>
                     </nav>
@@ -929,8 +929,8 @@
                            href="{{ path('notifications_index') }}">
                             <i class="fas fa-bell"></i> Notifications
                         </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'blog_' %}active{% endif %}"
-                           href="{{ path('blog_index') }}">
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'forum_' %}active{% endif %}"
+                           href="{{ path('forum_index') }}">
                             <i class="fas fa-comments"></i> Forum
                         </a>
                     </nav>
@@ -964,9 +964,9 @@
                            href="{{ path('wishlist_index') }}">
                             <i class="fas fa-heart"></i> My Wishlist
                         </a>
-                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'blog_' %}active{% endif %}"
-                           href="{{ path('blog_index') }}">
-                            <i class="fas fa-book-open"></i> Blog
+                        <a class="sidebar-link {% if app.request.attributes.get('_route') starts with 'forum_' %}active{% endif %}"
+                           href="{{ path('forum_index') }}">
+                            <i class="fas fa-book-open"></i> Forum
                         </a>
                     </nav>
                 </div>
@@ -1063,7 +1063,7 @@
                                 <li><a href="{{ path('user_dashboard') }}"><i class="fas fa-user me-2"></i>My Dashboard</a></li>
                             {% endif %}
                         {% endif %}
-                        <li><a href="{{ path('blog_index') }}"><i class="fas fa-newspaper me-2"></i>Blog &amp; Forum</a></li>
+                        <li><a href="{{ path('forum_index') }}"><i class="fas fa-newspaper me-2"></i>Medical Forum</a></li>
                         <li><a href="{{ path('appointment_index') }}"><i class="fas fa-calendar-check me-2"></i>Appointments</a></li>
                         <li><a href="{{ path('parapharmacy_index') }}"><i class="fas fa-pills me-2"></i>Parapharmacy</a></li>
                     </ul>

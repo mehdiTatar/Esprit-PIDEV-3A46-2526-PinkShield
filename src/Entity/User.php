@@ -312,7 +312,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
 
     public function isEmailAuthEnabled(): bool
     {
-        return true; // Always enabled for now
+        return false;
     }
 
     public function getEmailAuthRecipient(): string

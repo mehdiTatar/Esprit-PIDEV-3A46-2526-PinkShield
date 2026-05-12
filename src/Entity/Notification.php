@@ -8,6 +8,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
+#[ORM\Index(name: 'idx_notification_user_created', columns: ['user_id', 'created_at'])]
+#[ORM\Index(name: 'idx_notification_admin_created', columns: ['admin_id', 'created_at'])]
+#[ORM\Index(name: 'idx_notification_user_read', columns: ['user_id', 'is_read'])]
+#[ORM\Index(name: 'idx_notification_admin_read', columns: ['admin_id', 'is_read'])]
 class Notification
 {
     #[ORM\Id]

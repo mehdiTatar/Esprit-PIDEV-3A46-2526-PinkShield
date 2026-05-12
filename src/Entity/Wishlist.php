@@ -19,7 +19,7 @@ class Wishlist
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Parapharmacie::class)]
-    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'parapharmacie_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Parapharmacie $product = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

@@ -1,0 +1,25 @@
+<div class="comment-item {{ depth > 0 ? 'ms-4 mt-3 border-start ps-3' : 'mb-3' }}">
+    <div class="d-flex justify-content-between">
+        <div>
+            <strong>{{ comment.authorName }}</strong>
+            <span class="badge {{ comment.authorRole == 'ROLE_DOCTOR' ? 'text-bg-info' : 'text-bg-secondary' }}">
+                {{ comment.authorRole == 'ROLE_DOCTOR' ? 'Doctor' : 'Patient' }}
+            </span>
+        </div>
+        <span class="text-muted small">{{ comment.createdAt|date('M d, Y H:i') }}</span>
+    </div>
+    <p class="mb-2 mt-2">{{ comment.content|nl2br }}</p>
+    {% if app.user and post.allowsComments %}
+        <button class="btn btn-sm btn-link px-0 reply-toggle" data-target="reply-form-{{ comment.id }}">Reply</button>
+        <form id="reply-form-{{ comment.id }}" class="reply-form mt-2 d-none" method="post" action="{{ path('forum_comment', {id: post.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('forum_comment_' ~ post.id) }}">
+            <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
+            <textarea name="content" class="form-control mb-2" rows="2" placeholder="Write a reply..." required></textarea>
+            <button type="submit" class="btn btn-sm btn-primary">Post Reply</button>
+        </form>
+    {% endif %}
+
+    {% for reply in comment.replies %}
+        {% include 'forum/_comment.html.twig' with {comment: reply, post: post, depth: depth + 1} %}
+    {% endfor %}
+</div>

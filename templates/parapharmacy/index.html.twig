@@ -435,17 +435,19 @@
     // Initialize wishlist buttons on page load
     document.addEventListener('DOMContentLoaded', function() {
         const wishlistButtons = document.querySelectorAll('.wishlist-btn');
-        wishlistButtons.forEach(button => {
-            const productId = button.dataset.productId;
-            fetch(`{{ path('wishlist_check', {productId: 0}) }}`.replace('0', productId))
-                .then(response => response.json())
-                .then(data => {
-                    if (data.inWishlist) {
+        if (wishlistButtons.length === 0) return;
+
+        fetch('{{ path('wishlist_check_many') }}')
+            .then(response => response.json())
+            .then(data => {
+                const wishlistIds = new Set((data.productIds || []).map(String));
+                wishlistButtons.forEach(button => {
+                    if (wishlistIds.has(String(button.dataset.productId))) {
                         button.classList.add('in-wishlist');
                     }
-                })
-                .catch(error => console.error('Error:', error));
-        });
+                });
+            })
+            .catch(error => console.error('Error:', error));
     });
 </script>
 {% endblock %}

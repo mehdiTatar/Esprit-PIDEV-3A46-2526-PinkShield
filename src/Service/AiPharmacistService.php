@@ -29,6 +29,8 @@ class AiPharmacistService
 
         try {
             $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                'timeout' => 3,
+                'max_duration' => 5,
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Content-Type'  => 'application/json',

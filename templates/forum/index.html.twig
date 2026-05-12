@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Medical Forum - PinkShield{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Medical Forum</h1>
+            <p class="text-muted mb-0">Ask questions, share updates, and read doctor guidance.</p>
+        </div>
+        {% if app.user %}
+            <a href="{{ path('forum_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> New Post
+            </a>
+        {% endif %}
+    </div>
+
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type in ['danger', 'warning'] ? type : 'success' }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    {% if posts|length > 0 %}
+        <div class="d-grid gap-3">
+            {% for post in posts %}
+                <article class="card border-0 shadow-sm {{ post.doctorPost ? 'border-start border-4 border-info' : '' }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between gap-3">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    {% if post.doctorPost %}
+                                        <span class="badge text-bg-info"><i class="fas fa-user-md me-1"></i> Doctor Post</span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary"><i class="fas fa-user me-1"></i> Patient Post</span>
+                                    {% endif %}
+                                    {% if not post.allowsComments %}
+                                        <span class="badge text-bg-warning">Comments closed</span>
+                                    {% endif %}
+                                </div>
+                                <h2 class="h5 mb-2">
+                                    <a href="{{ path('forum_show', {id: post.id}) }}" class="text-decoration-none">{{ post.title }}</a>
+                                </h2>
+                                <p class="text-muted mb-2">{{ post.content|striptags|slice(0, 180) }}{{ post.content|length > 180 ? '...' : '' }}</p>
+                                <div class="small text-muted">
+                                    {{ post.authorName }} &middot; {{ post.createdAt|date('M d, Y H:i') }}
+                                </div>
+                            </div>
+                            <div class="text-end text-nowrap">
+                                {% if app.user %}
+                                    <button class="btn btn-sm {{ post.id in likedPostIds ? 'btn-danger' : 'btn-outline-danger' }} forum-like-btn"
+                                            data-like-url="{{ path('forum_like', {id: post.id}) }}"
+                                            data-like-token="{{ csrf_token('forum_like_' ~ post.id) }}">
+                                        <i class="fas fa-heart me-1"></i>
+                                        <span class="like-count">{{ post.likes|length }}</span>
+                                    </button>
+                                {% else %}
+                                    <a class="btn btn-sm btn-outline-danger" href="{{ path('login') }}">
+                                        <i class="fas fa-heart me-1"></i>
+                                        <span class="like-count">{{ post.likes|length }}</span>
+                                    </a>
+                                {% endif %}
+                                <div class="small text-muted mt-2">{{ post.comments|length }} comment{{ post.comments|length == 1 ? '' : 's' }}</div>
+                                {% set currentRole = app.user and is_granted('ROLE_DOCTOR') ? 'ROLE_DOCTOR' : 'ROLE_USER' %}
+                                {% if app.user and post.authorId == app.user.id and post.authorRole == currentRole %}
+                                    <div class="d-flex justify-content-end gap-1 mt-2">
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('forum_edit', {id: post.id}) }}">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('forum_delete', {id: post.id}) }}" onsubmit="return confirm('Delete this forum post?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('forum_delete_' ~ post.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if post.imagePath %}
+                            <a href="{{ path('forum_show', {id: post.id}) }}" class="d-block mt-3">
+                                <img src="{{ asset(post.imagePath) }}" alt="{{ post.title }}" class="img-fluid rounded" style="max-height: 340px; width: 100%; object-fit: cover;">
+                            </a>
+                        {% endif %}
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-comments text-muted mb-3" style="font-size: 2.5rem;"></i>
+                <h2 class="h5">No forum posts yet</h2>
+                <p class="text-muted">Start the first medical discussion.</p>
+                {% if app.user %}
+                    <a href="{{ path('forum_new') }}" class="btn btn-primary">Create Post</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.querySelectorAll('.forum-like-btn').forEach(button => {
+    button.addEventListener('click', async () => {
+        const response = await fetch(button.dataset.likeUrl, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': button.dataset.likeToken
+            }
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        button.classList.toggle('btn-danger', data.liked);
+        button.classList.toggle('btn-outline-danger', !data.liked);
+        button.querySelector('.like-count').textContent = data.count;
+    });
+});
+</script>
+{% endblock %}

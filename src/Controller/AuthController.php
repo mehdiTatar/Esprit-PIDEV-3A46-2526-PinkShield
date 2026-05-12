@@ -20,6 +20,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -272,6 +273,15 @@ class AuthController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
+            if ($existingUser) {
+                $form->get('email')->addError(new FormError('An account already exists with this email. Please sign in instead.'));
+
+                return $this->render('auth/register_patient.html.twig', [
+                    'form' => $form,
+                ]);
+            }
+
             $user->setRoles(['ROLE_USER']);
             // Set full name by combining first and last name
             $fullName = trim(($user->getFirstName() ?? '') . ' ' . ($user->getLastName() ?? ''));
@@ -315,6 +325,15 @@ class AuthController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $existingDoctor = $entityManager->getRepository(Doctor::class)->findOneBy(['email' => $doctor->getEmail()]);
+            if ($existingDoctor) {
+                $form->get('email')->addError(new FormError('An account already exists with this email. Please sign in instead.'));
+
+                return $this->render('auth/register_doctor.html.twig', [
+                    'form' => $form,
+                ]);
+            }
+
             $doctor->setRoles(['ROLE_DOCTOR']);
             $doctor->setPassword($passwordHasher->hashPassword($doctor, $doctor->getPassword()));
 
